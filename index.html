@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="utf-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .page { display: none; }
+        #app-container { display: block; }
+    </style>
+</head>
+<body>
+
+<!-- 登入頁 -->
+<div id="login-page" class="page container mt-5 text-center">
+    <h2>偏頭痛研究平台</h2>
+    <button class="btn btn-primary" onclick="signInWithGoogle()">使用 Google 帳號登入</button>
+</div>
+
+<!-- 同意書頁 -->
+<div id="consent-page" class="page container mt-5">
+    <h2>📋 研究受試者同意書</h2>
+    <div class="border p-3" style="height: 300px; overflow-y: scroll;">
+        <!-- 放置同意書內容 -->
+    </div>
+    <div class="mt-3">
+        <input type="checkbox" id="agree"> 我已閱讀並同意
+        <button class="btn btn-success" onclick="acceptConsent()">同意並開始</button>
+    </div>
+</div>
+
+<!-- 主應用頁 -->
+<div id="main-page" class="page container mt-4">
+    <nav class="navbar navbar-dark bg-primary mb-3">...</nav>
+    <div class="card shadow">
+        <div class="card-body">
+            <h5>Today</h5>
+            <p id="todayStatus">😊 No headache</p>
+            <button class="btn btn-primary" onclick="newAttack()">＋ New Attack</button>
+        </div>
+    </div>
+    <!-- 表單與其他內容 -->
+</div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
