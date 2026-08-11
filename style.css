@@ -156,3 +156,8 @@ body {
     margin: 0;
 }
 */
+/* 強制讓按鈕內的文字顯示 */
+button span {
+    display: inline !important;
+    visibility: visible !important;
+}
