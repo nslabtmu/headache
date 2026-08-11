@@ -151,7 +151,30 @@ function toggleMedicationName() {
         }
     }
 }
+async function saveUserProfile() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { alert("請先登入！"); return; }
 
+    const profilePayload = {
+        user_id: user.id,
+        nickname: document.getElementById('prof_nickname').value.trim(),
+        birth_year: Number(document.getElementById('prof_birthyear').value) || null,
+        gender: document.getElementById('prof_gender').value,
+        tbi_study: document.getElementById('prof_tbi').value,
+        sport_freq: document.getElementById('prof_sport').value,
+        updated_at: new Date().toISOString()
+    };
+
+    // 使用 upsert，如果該 user_id 已存在就更新，沒有就新增
+    const { error } = await supabase.from('profiles').upsert([profilePayload], { onConflict: 'user_id' });
+
+    if (error) {
+        alert("❌ 個人資料儲存失敗：" + error.message);
+    } else {
+        alert("✅ 個人資料已成功儲存！");
+        enterProfileViewMode(); // 儲存後切換回唯讀檢視模式
+    }
+}
 // ✅ 檢查緊急警示並禁用提交按鈕
 function checkEmergency() {
     const checkboxes = document.querySelectorAll('.emg-check');
