@@ -120,7 +120,25 @@ button {
     border-radius: 8px;
     cursor: pointer;
 }
+button {
+    background: #1565C0;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
 
+/* 請加上這段：用來讓上一頁與下一頁按鈕左右並排 */
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.button-group button {
+    width: 48%; /* 讓兩顆按鈕各自佔據約一半的寬度，排版才會好看 */
+}
 /* -----------------------------
    若你想改用「新版 body」（滿版風格），取消下面註解，
    並把上面 HeadacheV3 版本的 body 規則刪掉或註解掉
