@@ -43,24 +43,24 @@
     <!-- 3. 主表單卡片 -->
     <div class="card card-left hidden" id="main-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛與環境日誌</h2>
+            <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛日誌</h2>
             <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;" data-i18n="logout_btn">登出</button>
         </div>
 
         <!-- 頁簽切換按鈕群組 -->
         <div class="tabs">
-            <button class="tab-btn" id="btn-tab-profile" onclick="switchTab('profile')" data-i18n="tab_profile">👤 個人基本資料</button>
             <button class="tab-btn" id="btn-tab-headache" onclick="switchTab('headache')" data-i18n="tab_headache">🤕 頭痛紀錄</button>
             <button class="tab-btn" id="btn-tab-symptom" onclick="switchTab('symptom')" data-i18n="tab_symptom">📝 相關症狀</button>
             <button class="tab-btn" id="btn-tab-band" onclick="switchTab('band')" data-i18n="tab_band">⌚ 其他資料</button>
             <button class="tab-btn" id="btn-tab-chart" onclick="switchTab('chart')" data-i18n="tab_chart">📈 趨勢圖表</button>
+            <button class="tab-btn" id="btn-tab-profile" onclick="switchTab('profile')" data-i18n="tab_profile">👤 個人基本資料</button>
         </div>
         
         <div id="weather-status" data-i18n="weather_loading">⏳ 正在取得氣象及空污數據...</div>
 
         <!-- 頁簽 1：個人基本資料 -->
-        <div id="pane-profile" class="tab-pane form-group" style="display: block;">
-            <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料設定</h3>
+        <div id="pane-profile" class="tab-pane form-group hidden" style="display: block;">
+            <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料</h3>
             <div class="form-group">
                 <label data-i18n="prof_name">1. 暱稱（非必填）</label>
                 <input type="text" id="prof_nickname" placeholder="例如: 王小明 / Alex">
