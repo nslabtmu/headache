@@ -1,46 +1,460 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-    <meta charset="utf-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .page { display: none; }
-        #app-container { display: block; }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>頭痛研究平台</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  body {
+    background-color: #f8f9fa;
+    padding-bottom: 60px;
+  }
+  .consent-box {
+    max-width: 720px;
+    margin: 40px auto;
+  }
+  .consent-text {
+    max-height: 360px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    line-height: 1.8;
+  }
+  .consent-text h5 {
+    margin-top: 16px;
+  }
+  .consent-text h5:first-child {
+    margin-top: 0;
+  }
+</style>
 </head>
+
 <body>
 
-<!-- 登入頁 -->
-<div id="login-page" class="page container mt-5 text-center">
-    <h2>偏頭痛研究平台</h2>
-    <button class="btn btn-primary" onclick="signInWithGoogle()">使用 Google 帳號登入</button>
+<!-- 1. 同意書畫面 (未登入時顯示) -->
+<div class="container consent-box" id="consent-page">
+  <h2 class="mb-3">📋 研究受試者同意書</h2>
+  <p class="text-muted">在開始使用本平台記錄您的頭痛資料前，請詳閱以下說明。</p>
+
+  <div class="consent-text">
+    <div class="alert alert-info">
+      📧 本平台需要使用 <strong>Google 帳號</strong>登入以確保資料安全與正確歸戶。
+    </div>
+    <h5>研究名稱</h5>
+    <p>頭痛誘因與氣候關聯性之前瞻性追蹤研究</p>
+
+    <h5>研究目的</h5>
+    <p>本研究旨在收集參與者的頭痛發作紀錄、用藥情形，並結合當地氣象資料，探討可能的誘發因子與偏頭痛之間的關聯性。</p>
+
+    <h5>參與方式與資料內容</h5>
+    <p>您同意參與後，將透過本平台記錄頭痛發作時間、疼痛程度、藥物使用，以及系統自動記錄之當下天氣資料與 Google 帳號。</p>
+
+    <h5>資料保密與使用範圍</h5>
+    <p>您的個人資料將以去識別化方式進行統計分析，僅供本研究團隊內部使用，絕對嚴格保密。</p>
+  </div>
+
+  <div class="form-check mt-4">
+    <input class="form-check-input" type="checkbox" id="agreeCheckbox" onchange="toggleAgreeButton()">
+    <label class="form-check-label" for="agreeCheckbox">
+      我已詳細閱讀並理解上述說明，同意自願參與本研究。
+    </label>
+  </div>
+
+  <div class="mt-4 d-flex gap-2">
+    <button class="btn btn-primary" id="agreeBtn" onclick="submitConsent(true)" disabled>
+      同意並使用 Google 登入
+    </button>
+    <button class="btn btn-outline-secondary" onclick="submitConsent(false)">
+      不同意，離開
+    </button>
+  </div>
+
+  <p class="text-muted mt-3" id="statusMsg"></p>
 </div>
 
-<!-- 同意書頁 -->
-<div id="consent-page" class="page container mt-5">
-    <h2>📋 研究受試者同意書</h2>
-    <div class="border p-3" style="height: 300px; overflow-y: scroll;">
-        <!-- 放置同意書內容 -->
-    </div>
-    <div class="mt-3">
-        <input type="checkbox" id="agree"> 我已閱讀並同意
-        <button class="btn btn-success" onclick="acceptConsent()">同意並開始</button>
-    </div>
-</div>
 
-<!-- 主應用頁 -->
-<div id="main-page" class="page container mt-4">
-    <nav class="navbar navbar-dark bg-primary mb-3">...</nav>
-    <div class="card shadow">
-        <div class="card-body">
-            <h5>Today</h5>
-            <p id="todayStatus">😊 No headache</p>
-            <button class="btn btn-primary" onclick="newAttack()">＋ New Attack</button>
+<!-- 2. 主畫面 (登入後才顯示) -->
+<div class="container consent-box" id="main-page" style="display: none;">
+  <div class="card shadow p-4 text-center mb-4">
+    <h2>頭痛研究平台</h2>
+    <p id="user-status" class="text-muted mb-3"></p>
+    
+    <!-- 天氣與空氣資訊 -->
+    <div class="card bg-light border p-3 mb-3 text-start">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 5px;">
+        <h5 class="text-secondary" style="margin: 0;">📍 即時環境氣象</h5>
+        <div style="display: flex; gap: 5px;">
+          <!-- 💡 新增的「開始定位」按鈕 -->
+          <button class="btn btn-sm btn-primary" onclick="startGeolocation()">📍 開始定位</button>
+          <button class="btn btn-sm btn-outline-primary" onclick="toggleLocationInput()">手動切換地區</button>
         </div>
+      </div>
+      <div id="weather-info">請點擊上方「📍 開始定位」或手動選擇地區以取得氣象...</div>
+
+      <!-- 手動選擇地區面板 (預設隱藏) -->
+      <div id="manual-location-box" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;">
+        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+          <select id="select-city" class="form-control form-control-sm" onchange="updateDistricts()">
+            <option value="">請選擇縣市...</option>
+          </select>
+          <select id="select-district" class="form-control form-control-sm">
+            <option value="">請先選擇縣市</option>
+          </select>
+        </div>
+        <button class="btn btn-sm btn-success" onclick="applySelectedLocation()">套用此地區氣象</button>
+      </div>
     </div>
-    <!-- 表單與其他內容 -->
+
+    <div>
+      <button class="btn btn-outline-secondary btn-sm" onclick="signOut()">登出</button>
+    </div>
+  </div>
+
+  <!-- 頭痛紀錄輸入表單 -->
+  <div id="record-form-card" class="card shadow p-4 mb-4" style="background: white; border: 1px solid #ccc; border-radius: 8px; text-align: left;">
+    <h4 style="margin-top: 0; color: #333;">📝 新增頭痛與氣象紀錄</h4>
+    
+    <div style="margin-bottom: 15px;">
+      <label for="input-pain" style="display: block; margin-bottom: 5px; font-weight: bold;">疼痛程度 (1-10 分)：</label>
+      <select id="input-pain" class="form-control" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+        <option value="">請選擇疼痛程度...</option>
+        <option value="1">1 分 - 輕微隱隱作痛</option>
+        <option value="3">3 分 - 偶爾抽痛</option>
+        <option value="5">5 分 - 中度疼痛，影響日常</option>
+        <option value="7">7 分 - 重度疼痛，難以專注</option>
+        <option value="10">10 分 - 劇烈疼痛，必須躺下休息</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom: 15px;">
+      <label for="input-content" style="display: block; margin-bottom: 5px; font-weight: bold;">詳細備註與症狀 (Content)：</label>
+      <textarea id="input-content" class="form-control" rows="3" placeholder="例如：右側太陽穴抽痛，可能跟昨天沒睡好有關..." style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;"></textarea>
+    </div>
+
+    <div>
+      <button class="btn btn-danger py-2" onclick="saveAttackForm()" style="background-color: #d9534f; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+        確認送出紀錄
+      </button>
+    </div>
+  </div>
+
+  <!-- 歷史紀錄與統計容器 -->
+  <div id="history-container" class="card shadow p-4" style="text-align: left;">
+    <h3>📊 個人頭痛與氣象紀錄（最近 1 個月）</h3>
+    <div id="summary-card" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e1dfdc;">
+      載入統計中...
+    </div>
+    <div id="records-list"></div>
+  </div>
 </div>
 
-<script type="module" src="script.js"></script>
+<!-- 外部行政區資料 -->
+<script src="districts.js"></script>
+
+<!-- 主邏輯 JavaScript -->
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+  const SUPABASE_URL = 'https://ligckapfksiyvcvsppde.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_oDFhgWFOd80vTh8FFanFrw_6Z243ThZ';
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let currentWeather = null;
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    const citySelect = document.getElementById('select-city');
+    if (citySelect && typeof taiwanDistricts !== 'undefined') {
+      Object.keys(taiwanDistricts).forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+      });
+    }
+
+    await checkAuthState();
+  });
+
+  async function checkAuthState() {
+    const { data: { session } } = await supabase.auth.getSession();
+    const hasAgreed = localStorage.getItem('has_consented');
+
+    if (session && hasAgreed) {
+      document.getElementById('consent-page').style.display = 'none';
+      document.getElementById('main-page').style.display = 'block';
+      document.getElementById('user-status').innerText = `已登入帳號：${session.user.email}`;
+      await fetchWeatherAndAir(); // 自動嘗試定位
+      await loadUserHistory(session.user.id);
+    } else {
+      document.getElementById('consent-page').style.display = 'block';
+      document.getElementById('main-page').style.display = 'none';
+    }
+  }
+
+  window.toggleAgreeButton = function() {
+    document.getElementById('agreeBtn').disabled = !document.getElementById('agreeCheckbox').checked;
+  }
+
+  window.submitConsent = async function(agreed) {
+    if (!agreed) {
+      alert("您選擇不同意，將無法使用本平台。");
+      return;
+    }
+
+    const agreeBtn = document.getElementById('agreeBtn');
+    agreeBtn.disabled = true;
+    document.getElementById('statusMsg').textContent = '處理中，正在導向 Google 登入...';
+
+    try {
+      localStorage.setItem('has_consented', 'true');
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+          queryParams: { prompt: 'select_account' }
+        }
+      });
+      if (error) throw error;
+    } catch (err) {
+      document.getElementById('statusMsg').textContent = '發生錯誤：' + err.message;
+      agreeBtn.disabled = false;
+    }
+  }
+
+  window.signOut = async function() {
+    localStorage.removeItem('has_consented');
+    await supabase.auth.signOut();
+    window.location.reload();
+  }
+
+  window.toggleLocationInput = function() {
+    const box = document.getElementById('manual-location-box');
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  }
+
+  window.updateDistricts = function() {
+    const city = document.getElementById('select-city').value;
+    const districtSelect = document.getElementById('select-district');
+    districtSelect.innerHTML = '<option value="">請選擇鄉鎮市區...</option>';
+    
+    if (!city || typeof taiwanDistricts === 'undefined' || !taiwanDistricts[city]) return;
+
+    taiwanDistricts[city].forEach(district => {
+      const option = document.createElement('option');
+      option.value = district;
+      option.textContent = district;
+      districtSelect.appendChild(option);
+    });
+  }
+
+  window.applySelectedLocation = async function() {
+    const city = document.getElementById('select-city').value;
+    const district = document.getElementById('select-district').value;
+
+    if (!city || !district) {
+      alert("請完整選擇縣市與鄉鎮市區！");
+      return;
+    }
+
+    const locationName = city + district;
+    document.getElementById('weather-info').innerHTML = `📍 已手動設定為：${locationName} (正在載入氣象...)`;
+    document.getElementById('manual-location-box').style.display = 'none';
+
+    try {
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=25.033&longitude=121.565&current=temperature_2m,relative_humidity_2m&air_quality=pm2_5`);
+      const data = await res.json();
+      const temp = data.current.temperature_2m;
+      const humidity = data.current.relative_humidity_2m;
+      const pm25 = (data.air_quality && data.air_quality.pm2_5 !== undefined) ? data.air_quality.pm2_5 : "資料更新中";
+
+      currentWeather = { temp, humidity, pm25, locationName };
+      document.getElementById('weather-info').innerHTML = `📍 地點：${locationName} | 🌡️ 氣溫：${temp} °C | 💧 濕度：${humidity} % | 🌫️ PM2.5：${pm25}`;
+    } catch (err) {
+      document.getElementById('weather-info').innerHTML = `📍 地點：${locationName} (氣象載入失敗)`;
+      currentWeather = { locationName };
+    }
+  }
+
+  // 💡 點擊「開始定位」按鈕觸發的函式
+  window.startGeolocation = async function() {
+    const weatherDiv = document.getElementById('weather-info');
+    weatherDiv.innerHTML = "📍 正在透過瀏覽器取得您的 GPS 定位，請允許權限...";
+
+    if (!navigator.geolocation) {
+      weatherDiv.innerHTML = "❌ 您的瀏覽器不支援地理定位功能。";
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        await getWeatherDataByCoords(lat, lon);
+      },
+      (error) => {
+        weatherDiv.innerHTML = "❌ 定位失敗或被拒絕，請檢查瀏覽器定位權限，或使用「手動切換地區」。";
+        console.error(error);
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
+  }
+
+  // 透過經緯度抓取天氣核心函式
+  async function getWeatherDataByCoords(lat, lon) {
+    const weatherDiv = document.getElementById('weather-info');
+    let locationName = "所在地";
+
+    try {
+      const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=zh-TW`);
+      const geoData = await geoRes.json();
+      if (geoData && geoData.address) {
+        locationName = geoData.address.city || geoData.address.county || geoData.address.state || "未知區域";
+      }
+    } catch (err) {
+      console.log("反查地址失敗");
+    }
+
+    try {
+      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m&air_quality=pm2_5`);
+      const data = await res.json();
+
+      const temp = data.current.temperature_2m;
+      const humidity = data.current.relative_humidity_2m;
+      const pm25 = (data.air_quality && data.air_quality.pm2_5 !== undefined) ? data.air_quality.pm2_5 : "資料更新中";
+
+      currentWeather = { temp, humidity, pm25, locationName, lat, lon };
+      weatherDiv.innerHTML = `📍 地點：${locationName} | 🌡️ 氣溫：${temp} °C | 💧 濕度：${humidity} % | 🌫️ PM2.5：${pm25}`;
+    } catch (err) {
+      weatherDiv.innerHTML = "❌ 無法載入該座標的氣象資訊。";
+    }
+  }
+
+  // 網頁初始化時的自動抓取（整合 IP 與定位）
+  async function fetchWeatherAndAir() {
+    const weatherDiv = document.getElementById('weather-info');
+    weatherDiv.innerHTML = "正在取得當地氣象與空氣品質...";
+
+    let lat = null;
+    let lon = null;
+    let locationName = "所在地";
+
+    try {
+      const ipRes = await fetch('https://ipwho.is/');
+      const ipData = await ipRes.json();
+      if (ipData.success) {
+        lat = ipData.latitude;
+        lon = ipData.longitude;
+        locationName = `${ipData.city || ''} ${ipData.region || ''}`.trim();
+      }
+    } catch (e) {
+      console.log("IP 定位失敗");
+    }
+
+    if (!lat || !lon) {
+      weatherDiv.innerHTML = "❌ 無法自動取得位置，請點擊上方 **「📍 開始定位」** 按鈕或手動選擇地區。";
+      return;
+    }
+
+    await getWeatherDataByCoords(lat, lon);
+  }
+
+  window.saveAttackForm = async function() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      alert("請先登入！");
+      return;
+    }
+
+    const painSelect = document.getElementById('input-pain').value;
+    const contentValue = document.getElementById('input-content').value.trim();
+    
+    if (!painSelect) {
+      alert("請先選擇今天的疼痛程度！");
+      return;
+    }
+
+    const newRecord = {
+      user_id: user.id,
+      pain: Number(painSelect),
+      content: contentValue !== "" ? contentValue : "無特別備註",
+      weather: currentWeather || {}
+    };
+
+    const { error } = await supabase
+      .from('user_data')
+      .insert([newRecord]);
+
+    if (error) {
+      alert("❌ 儲存失敗：" + error.message);
+    } else {
+      alert("✅ 成功新增一筆頭痛紀錄！");
+      document.getElementById('input-pain').value = "";
+      document.getElementById('input-content').value = "";
+      loadUserHistory(user.id);
+    }
+  }
+
+  async function loadUserHistory(userId) {
+    const listContainer = document.getElementById('records-list');
+    const summaryContainer = document.getElementById('summary-card');
+    listContainer.innerHTML = "正在讀取歷史紀錄...";
+
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+    const { data, error } = await supabase
+      .from('user_data')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('created_at', oneMonthAgo.toISOString())
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      listContainer.innerHTML = "❌ 讀取歷史紀錄失敗：" + error.message;
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      summaryContainer.innerHTML = "本月尚無紀錄。";
+      listContainer.innerHTML = "";
+      return;
+    }
+
+    const totalRecords = data.length;
+    const avgPain = (data.reduce((sum, item) => sum + (Number(item.pain) || 0), 0) / totalRecords).toFixed(1);
+
+    summaryContainer.innerHTML = `
+      <strong>📈 本月統計摘要：</strong><br>
+      • 總記錄次數：${totalRecords} 次<br>
+      • 平均疼痛指數：${avgPain} 分
+    `;
+
+    let htmlContent = "";
+    data.forEach(item => {
+      const recordDate = new Date(item.created_at).toLocaleString('zh-TW');
+      let weatherStr = "無氣象紀錄";
+      if (item.weather && typeof item.weather === 'object') {
+        weatherStr = `🌡️ ${item.weather.temp ?? '--'}°C | 💧 ${item.weather.humidity ?? '--'}% | 🌫️ PM2.5: ${item.weather.pm25 ?? '--'}`;
+      }
+
+      htmlContent += `
+        <div style="background: white; border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+          <div style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">📅 ${recordDate}</div>
+          <div style="font-size: 1.1rem; font-weight: bold; color: #d9534f; margin-bottom: 5px;">⚡ 疼痛程度：${item.pain} 分</div>
+          <div style="font-size: 0.95rem; color: #333; margin-bottom: 8px;">📝 備註：${item.content || '無'}</div>
+          <div style="font-size: 0.85rem; background: #eef2f5; padding: 8px; border-radius: 4px; color: #444;">
+            ${weatherStr} (${item.weather?.locationName || '未知地點'})
+          </div>
+        </div>
+      `;
+    });
+
+    listContainer.innerHTML = htmlContent;
+  }
+</script>
+
 </body>
 </html>
