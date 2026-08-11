@@ -48,10 +48,11 @@
 
         <!-- 頁簽切換按鈕群組 -->
         <div class="tabs">
+            <button class="tab-btn" id="btn-tab-headache" onclick="switchTab('headache')" data-i18n="tab_headache">🤕 頭痛紀錄</button>
+            <button class="tab-btn" id="btn-tab-symptom" onclick="switchTab('symptom')" data-i18n="tab_symptom">📝 相關症狀</button>
+            <button class="tab-btn" id="btn-tab-band" onclick="switchTab('band')" data-i18n="tab_band">⌚ 其他資料</button>
+            <button class="tab-btn" id="btn-tab-chart" onclick="switchTab('chart')" data-i18n="tab_chart">📈 趨勢圖表</button>
             <button class="tab-btn active" id="btn-tab-profile" onclick="switchTab('profile')" data-i18n="tab_profile">👤 個人基本資料</button>
-            <button class="tab-btn" id="btn-tab-symptom" onclick="switchTab('symptom')" data-i18n="tab_symptom">📝 症狀與環境</button>
-            <button class="tab-btn" id="btn-tab-band" onclick="switchTab('band')" data-i18n="tab_band">⌚ 健康手環</button>
-             <button class="tab-btn" id="btn-tab-chart" onclick="switchTab('chart')" data-i18n="tab_chart">📈 趨勢圖表</button>
         </div>
         
         <div id="weather-status" data-i18n="weather_loading">⏳ 正在取得氣象及空污數據...</div>
@@ -92,13 +93,14 @@
                     <option value="heavy" data-i18n="sport_heavy">規律高強度（每周 5 次以上）</option>
                 </select>
             </div>
-            <button class="btn" onclick="saveAllResearchData()" data-i18n="save_profile_btn">儲存個人基本資料</button>
+            <button class="btn" onclick="saveAllResearchData()" data-i18n="save_profile_btn">儲存</button>
+            <button class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
         </div>
 
         <!-- 醫療緊急警示防錯區 (僅在症狀頁顯示) -->
         <div class="emergency-box" id="emergency-section" style="display:none;">
             <h3 data-i18n="emg_title" style="color: #c0392b; margin-top: 0;">⚠️ 醫療緊急警示</h3>
-            <p data-i18n="emg_desc" style="font-size: 14px; margin: 0;">若您或觀察對象目前出現以下任何狀況，請<b>立即停止填表並即刻撥打 119 送醫</b>：</p>
+            <p data-i18n="emg_desc" style="font-size: 14px; margin: 0;">若您或觀察對象目前出現以下任何狀況，請<b>立即停止填表並立即就送</b>：</p>
             <div style="margin-top: 8px; font-size: 14px; line-height: 1.6;">
                 <input type="checkbox" id="emg_1" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_1" data-i18n="emg_1">昏睡叫不醒、意識嚴重改變</label><br>
                 <input type="checkbox" id="emg_2" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_2" data-i18n="emg_2">劇烈頭痛或持續性嘔吐</label><br>
@@ -112,9 +114,51 @@
         </div>
 
         <form id="attack-form" onsubmit="event.preventDefault(); saveAttackForm();">
-            
-            <!-- 頁簽 2：10 大症狀填寫區 -->
-            <div id="pane-symptom" class="hidden">
+             <!-- 頁簽 2：頭痛紀錄 (程度 / 部位 / 用藥 / 備註) -->
+            <div id="pane-headache" class="hidden">
+                <div class="form-group">
+                    <label for="input-pain" data-i18n="headache_pain_label">頭痛程度</label>
+                    <select id="input-pain">
+                        <option value="" data-i18n="pain_option_default">請選擇疼痛程度...</option>
+                        <option value="1" data-i18n="pain_1">1 分 - 輕微隱隱作痛</option>
+                        <option value="3" data-i18n="pain_3">3 分 - 偶爾抽痛</option>
+                        <option value="5" data-i18n="pain_5">5 分 - 中度疼痛，影響日常</option>
+                        <option value="7" data-i18n="pain_7">7 分 - 重度疼痛，難以專注</option>
+                        <option value="10" data-i18n="pain_10">10 分 - 劇烈疼痛，必須躺下休息</option>
+                    </select>
+                </div>
+ 
+                <div class="form-group">
+                    <label data-i18n="headache_location_label">頭痛部位（可複選）</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="pain_location" value="forehead"> <span data-i18n="loc_forehead">前額</span></label>
+                        <label><input type="checkbox" name="pain_location" value="temple_left"> <span data-i18n="loc_temple_left">左太陽穴</span></label>
+                        <label><input type="checkbox" name="pain_location" value="temple_right"> <span data-i18n="loc_temple_right">右太陽穴</span></label>
+                        <label><input type="checkbox" name="pain_location" value="back_head"> <span data-i18n="loc_back_head">後腦勺</span></label>
+                        <label><input type="checkbox" name="pain_location" value="top_head"> <span data-i18n="loc_top_head">頭頂</span></label>
+                        <label><input type="checkbox" name="pain_location" value="whole_head"> <span data-i18n="loc_whole_head">整頭</span></label>
+                        <label><input type="checkbox" name="pain_location" value="neck"> <span data-i18n="loc_neck">頸部連帶</span></label>
+                    </div>
+                </div>
+ 
+                <div class="form-group">
+                    <label for="input-medication" data-i18n="medication_label">是否用藥</label>
+                    <select id="input-medication" onchange="toggleMedicationName()">
+                        <option value="no" data-i18n="medication_no">否，未用藥</option>
+                        <option value="yes" data-i18n="medication_yes">是，已服用藥物</option>
+                    </select>
+                    <input type="text" id="input-medication-name" style="display:none; margin-top:8px;" placeholder="例如：普拿疼、Ibuprofen">
+                </div>
+ 
+                <div class="form-group">
+                    <label for="input-content" data-i18n="headache_notes_label">備註</label>
+                    <textarea id="input-content" rows="3" placeholder="例如：右側太陽穴抽痛，可能跟昨天沒睡好有關..."></textarea>
+                </div>
+                <button type="button" class="btn" onclick="navigate(1)">下一頁</button>
+             </div>
+ 
+            <!-- 頁簽 3：10 大症狀填寫區 -->
+            <div id="pane-symptom" class="tab-pane" style="display:none;">
                 <div class="form-group"><label data-i18n="sym_1">1. 持續性頭痛</label><div class="slider-container"><input type="range" name="sym1" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
                 <div class="form-group"><label data-i18n="sym_2">2. 頭暈、失去平衡或步態不穩</label><div class="slider-container"><input type="range" name="sym2" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
                 <div class="form-group"><label data-i18n="sym_3">3. 噁心、想吐的感覺</label><div class="slider-container"><input type="range" name="sym3" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
@@ -130,10 +174,13 @@
                     <label for="triggers" data-i18n="triggers_label">記錄日常誘因（如：使用3C、特定活動會使症狀加重嗎？）：</label>
                     <textarea id="triggers" name="triggers" rows="3" placeholder="請描述使您感到不舒服的活動或環境..."></textarea>
                 </div>
-                <button type="submit" class="btn" id="submitBtn" data-i18n="submit_btn">送出今日症狀日記</button>
+                <div class="button-group">
+                <button type="button" class="btn" onclick="navigate(-1)">上一頁</button>
+                <button type="button" class="btn" onclick="navigate(1)">下一頁</button>
+                </div>
             </div>
 
-            <!-- 頁簽 3：健康手環資料區 -->
+            <!-- 頁簽 3：健康資料 -->
             <div id="pane-band" class="hidden">
                 <div class="form-group">
                     <label data-i18n="band_hr">❤️ 即時心跳 (bpm)</label>
@@ -151,13 +198,14 @@
                     <label data-i18n="band_avg_steps">📊 近期平均步數 (步/日)</label>
                     <input type="number" id="band_avg_steps" placeholder="例如: 7200">
                 </div>
-                <button type="button" class="btn" onclick="saveBandData()" data-i18n="submit_band_btn">送出手環數據</button>
+                <button type="button" class="btn" onclick="navigate(-1)">上一頁</button>
+                <button type="button" class="btn" onclick="saveFullRecord()">儲存紀錄</button>
             </div>
 
         </form>
         <!-- 頁簽 4：趨勢圖表 -->
         <div id="pane-chart" class="hidden">
-        <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">📈 近期持續性頭痛趨勢</h3>
+        <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">📈 頭痛趨勢</h3>
         <canvas id="painChart"></canvas>
         </div>
     </div>
@@ -174,6 +222,25 @@
     let currentLang = 'zh-TW';
     let locationReady = false;
 
+    const pageOrder = ['pane-profile', 'pane-headache', 'pane-symptoms', 'pane-health'];
+
+function showPane(paneId) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+    document.getElementById(paneId).style.display = 'block';
+}
+
+// 如果你想要更聰明的按鈕，可以使用這個函式
+function navigate(direction) {
+    const currentPane = document.querySelector('.tab-pane[style*="display: block"]') || 
+                        document.querySelector('.tab-pane[style*="display:block"]');
+    const currentIndex = pageOrder.indexOf(currentPane.id);
+    
+    let targetIndex = currentIndex + direction;
+    
+    if (targetIndex >= 0 && targetIndex < pageOrder.length) {
+        showPane(pageOrder[targetIndex]);
+    }
+}
     function toggleLanguage() {
         currentLang = (currentLang === 'zh-TW') ? 'en' : 'zh-TW';
         document.documentElement.lang = currentLang;
@@ -184,52 +251,77 @@
             }
         });
     }
+function showPane(paneId) {
+    // 隱藏所有頁籤
+    document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+    // 顯示目標頁籤
+    document.getElementById(paneId).style.display = 'block';
+}
+async function saveFullRecord() {
+    // 1. 抓取所有症狀滑桿的數值
+    const symptomInputs = document.querySelectorAll('#pane-symptom input[type="range"]');
+    const symptomsData = {};
+    
+    symptomInputs.forEach(input => {
+        symptomsData[input.name] = input.value;
+    });
 
+    // 2. 抓取文字框資料
+    symptomsData.triggers = document.getElementById('triggers').value;
+
+    // 3. 準備完整打包物件 (包含 profile, health 等其他頁籤資料)
+    const fullPayload = {
+        user_id: supabase.auth.user().id, // 確保已登入
+        symptoms: symptomsData,
+        // profile: {...},
+        // health: {...},
+        updated_at: new Date().toISOString()
+    };
+
+    // 4. 送出資料
+    const { data, error } = await supabase
+        .from('user_research_data')
+        .upsert([fullPayload]);
+
+    if (error) alert("儲存失敗：" + error.message);
+    else alert("成功儲存完整紀錄！");
+}
     // 點擊同意書後進入登入畫面
     function agreeConsent() {
         document.getElementById('consent-card').classList.add('hidden');
         document.getElementById('auth-card').classList.remove('hidden');
     }
 
-    function switchTab(tabName) {
-        const paneProfile = document.getElementById('pane-profile');
-        const paneSymptom = document.getElementById('pane-symptom');
-        const paneBand = document.getElementById('pane-band');
-        const paneChart = document.getElementById('pane-chart');
-        
-        const btnProfile = document.getElementById('btn-tab-profile');
-        const btnSymptom = document.getElementById('btn-tab-symptom');
-        const btnBand = document.getElementById('btn-tab-band');
-        const btnChart = document.getElementById('btn-tab-chart');
+   function switchTab(tabName) {
+        const panes = {
+            profile: document.getElementById('pane-profile'),
+            headache: document.getElementById('pane-headache'),
+            symptom: document.getElementById('pane-symptom'),
+            band: document.getElementById('pane-band'),
+            chart: document.getElementById('pane-chart')
+        };
+        const btns = {
+            profile: document.getElementById('btn-tab-profile'),
+            headache: document.getElementById('btn-tab-headache'),
+            symptom: document.getElementById('btn-tab-symptom'),
+            band: document.getElementById('btn-tab-band'),
+            chart: document.getElementById('btn-tab-chart')
+        };
         const emergencySection = document.getElementById('emergency-section');
-
-        // 全部隱藏
-        paneProfile.classList.add('hidden');
-        paneSymptom.classList.add('hidden');
-        paneBand.classList.add('hidden');
-        paneChart.classList.add('hidden');
-        btnProfile.classList.remove('active');
-        btnSymptom.classList.remove('active');
-        btnBand.classList.remove('active');
-        btnChart.classList.remove('active');
+ 
+        Object.values(panes).forEach(p => p.classList.add('hidden'));
+        Object.values(btns).forEach(b => b.classList.remove('active'));
         emergencySection.style.display = 'none';
-
-        if (tabName === 'profile') {
-            paneProfile.classList.remove('hidden');
-            btnProfile.classList.add('active');
-        } else if (tabName === 'symptom') {
-            paneSymptom.classList.remove('hidden');
-            btnSymptom.classList.add('active');
+ 
+        panes[tabName].classList.remove('hidden');
+        btns[tabName].classList.add('active');
+ 
+        // 頭痛與症狀頁面顯示緊急警示防錯區
+        if (tabName === 'headache' || tabName === 'symptom') {
             emergencySection.style.display = 'block';
-        } else if (tabName === 'band') {
-            paneBand.classList.remove('hidden');
-            btnBand.classList.add('active');
-        } else if (tabName === 'chart') {          
-            paneChart.classList.remove('hidden');
-            btnChart.classList.add('active');
         }
     }
-
+ 
     supabase.auth.getSession().then(({ data: { session } }) => {
         if (session) {
             // 如果已登入，直接跳過同意書與登入，進入主畫面
@@ -238,6 +330,7 @@
             showMainApp(session.user);
         }
     });
+ 
 
     async function handleGoogleLogin() {
         const { error } = await supabase.auth.signInWithOAuth({
@@ -258,7 +351,7 @@
         loadUserProfile(user.id);
         loadUserHistory(user.id);
     }
-async function startResearchFlow() {
+/*async function startResearchFlow() {
     // 步驟 1：基本資料 (必填或預設已填)
     alert("請先完成基本資料填寫。");
     // ... 執行儲存基本資料邏輯 ...
@@ -283,16 +376,44 @@ function checkHealthFlow() {
     } else {
         saveAllResearchData(); // 直接全部打包送出
     }
-}
+}*/
     async function loadUserProfile(userId) {
-        const { data } = await supabase.from('profiles').select('*').eq('user_id', userId).single();
+        const { data, error } = await supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle();
+        if (error) { console.error("讀取個人資料失敗：", error.message); return; }
         if (data) {
             document.getElementById('prof_nickname').value = data.nickname || '';
             document.getElementById('prof_birthyear').value = data.birth_year || '';
-            if(data.gender) document.getElementById('prof_gender').value = data.gender;
-            if(data.tbi_study) document.getElementById('prof_tbi').value = data.tbi_study;
-            if(data.sport_freq) document.getElementById('prof_sport').value = data.sport_freq;
+            if (data.gender) document.getElementById('prof_gender').value = data.gender;
+            if (data.tbi_study) document.getElementById('prof_tbi').value = data.tbi_study;
+            if (data.sport_freq) document.getElementById('prof_sport').value = data.sport_freq;
+            enterProfileViewMode();   // 已有資料 → 鎖定欄位，顯示「修改」按鈕
+        } else {
+            enterProfileEditMode();   // 尚無資料（第一次使用）→ 保持可直接填寫
         }
+    }
+ 
+    function setProfileFieldsDisabled(disabled) {
+        document.getElementById('prof_nickname').disabled = disabled;
+        document.getElementById('prof_birthyear').disabled = disabled;
+        document.getElementById('prof_gender').disabled = disabled;
+        document.getElementById('prof_tbi').disabled = disabled;
+        document.getElementById('prof_sport').disabled = disabled;
+    }
+ 
+    function enterProfileViewMode() {
+        setProfileFieldsDisabled(true);
+        document.getElementById('saveProfileBtn').classList.add('hidden');
+        document.getElementById('editProfileBtn').classList.remove('hidden');
+    }
+ 
+    function enterProfileEditMode() {
+        setProfileFieldsDisabled(false);
+        document.getElementById('saveProfileBtn').classList.remove('hidden');
+        document.getElementById('editProfileBtn').classList.add('hidden');
+    }
+ 
+    function enableProfileEdit() {
+        enterProfileEditMode();
     }
 
     function getLocationAndWeather() {
