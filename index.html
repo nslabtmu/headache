@@ -1,660 +1,444 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>頭痛研究平台</title>
-<!-- Bootstrap 5 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Chart.js 繪圖庫 -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-  body {
-    background-color: #f8f9fa;
-    padding-bottom: 60px;
-  }
-  .consent-box {
-    max-width: 850px;
-    margin: 30px auto;
-  }
-  .consent-text {
-    max-height: 320px;
-    overflow-y: auto;
-    background: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 20px;
-    line-height: 1.8;
-  }
-  .nav-tabs .nav-link {
-    font-weight: bold;
-    color: #495057;
-  }
-  .nav-tabs .nav-link.active {
-    color: #0d6efd;
-  }
-</style>
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Headache & Environment Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 10px; background-color: #f8f9fa; color: #333; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .lang-btn { position: fixed; top: 10px; right: 10px; z-index: 1000; padding: 5px 10px; border-radius: 20px; border: 1px solid #ddd; background: white; cursor: pointer; font-weight: bold; }
+        
+        /* 頁簽樣式 */
+        .tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: #e0e0e0; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 14px; transition: background 0.2s; }
+        .tab-btn.active { background: #3498db; color: white; }
 
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+        input[type="text"], input[type="password"], input[type="number"], textarea, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; }
+        .btn { background: #3498db; color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.2s; }
+        .btn:hover { background: #2980b9; }
+        .btn:disabled { background: #bdc3c7; cursor: not-allowed; }
+        .emergency-box { background: #fff5f5; border: 2px solid #e74c3c; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .warning-text { display: none; color: #c0392b; font-weight: bold; margin-top: 10px; text-align: center; background: #fadbd8; padding: 10px; border-radius: 6px; }
+        .slider-container { display: flex; align-items: center; gap: 15px; }
+        input[type="range"] { flex: 1; height: 40px; }
+        .slider-val { font-weight: bold; min-width: 25px; text-align: center; color: #2980b9; }
+        .hidden { display: none; }
+        #weather-status { font-size: 13px; color: #555; background: #e8f4f8; padding: 10px; border-radius: 6px; margin-bottom: 15px; }
+    </style>
+</head>
 <body>
 
-<!-- 1. 同意書畫面 (未登入時顯示) -->
-<div class="container consent-box" id="consent-page">
-  <div class="card shadow-sm p-4">
-    <h2 class="mb-3 text-primary">📋 研究受試者同意書</h2>
-    <p class="text-muted">在開始使用本平台記錄您的頭痛資料前，請詳閱以下說明。</p>
+    <button class="lang-btn" onclick="toggleLanguage()">🌐 中/En</button>
 
-    <div class="consent-text">
-      <div class="alert alert-info">
-        📧 本平台使用 <strong>Google 帳號</strong>登入，以確保資料安全與正確歸戶。
-      </div>
-      <h5>研究名稱</h5>
-      <p>頭痛誘因與氣候關聯性之前瞻性追蹤研究</p>
-
-      <h5>研究目的</h5>
-      <p>本研究旨在收集參與者的頭痛發作紀錄、用藥情形，並結合當地氣象資料，探討可能的誘發因子與偏頭痛之間的關聯性。</p>
-
-      <h5>參與方式與資料內容</h5>
-      <p>您同意參與後，將透過本平台記錄頭痛發作時間、疼痛程度、藥物使用，以及系統自動記錄之當下天氣與空氣品質完整資料與 Google 帳號 Email。</p>
-
-      <h5>資料保密與使用範圍</h5>
-      <p>您的個人資料將以去識別化方式進行統計分析，僅供本研究團隊內部使用，絕對嚴格保密。</p>
-    </div>
-
-    <div class="form-check mt-4">
-      <input class="form-check-input" type="checkbox" id="agreeCheckbox" onchange="toggleAgreeButton()">
-      <label class="form-check-label fw-bold" for="agreeCheckbox">
-        我已詳細閱讀並理解上述說明，同意自願參與本研究。
-      </label>
-    </div>
-
-    <div class="mt-4 d-flex gap-2">
-      <button class="btn btn-primary px-4" id="agreeBtn" onclick="submitConsent(true)" disabled>
-        同意並使用 Google 登入
-      </button>
-      <button class="btn btn-outline-secondary" onclick="submitConsent(false)">
-        不同意，離開
-      </button>
-    </div>
-
-    <p class="text-muted mt-3 mb-0" id="statusMsg"></p>
-  </div>
-</div>
-
-
-<!-- 2. 主畫面 (登入後才顯示) -->
-<div class="container consent-box" id="main-page" style="display: none;">
-  <!-- 用戶資訊與頂部區塊 -->
-  <div class="card shadow-sm p-3 mb-3 bg-white">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-      <div>
-        <h4 class="m-0 text-primary fw-bold">🧠 頭痛研究平台</h4>
-        <small id="user-status" class="text-muted"></small>
-      </div>
-      <button class="btn btn-outline-danger btn-sm" onclick="signOut()">登出帳號</button>
-    </div>
-  </div>
-
-  <!-- 天氣與氣象資訊卡片 -->
-  <div class="card bg-light border shadow-sm p-3 mb-3">
-    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
-      <h6 class="text-secondary fw-bold m-0">📍 即時環境氣象</h6>
-      <div class="d-flex gap-2">
-        <button class="btn btn-sm btn-primary" onclick="startGeolocation()">📍 開始定位</button>
-        <button class="btn btn-sm btn-outline-primary" onclick="toggleLocationInput()">手動切換地區</button>
-      </div>
-    </div>
-    <div id="weather-info" class="text-dark fw-bold">請點擊「📍 開始定位」或手動選擇地區以取得氣象...</div>
-
-    <!-- 手動選擇地區面板 (預設隱藏) -->
-    <div id="manual-location-box" class="mt-3 pt-2 border-top" style="display: none;">
-      <div class="row g-2 mb-2">
-        <div class="col-6">
-          <select id="select-city" class="form-select form-select-sm" onchange="updateDistricts()">
-            <option value="">請選擇縣市...</option>
-          </select>
+    <!-- 登入卡片 -->
+    <div class="card hidden" id="auth-card">
+        <h2 data-i18n="login_title">🔐 系統登入 / 註冊</h2>
+        <div class="form-group">
+            <label data-i18n="email_label">電子郵件</label>
+            <input type="text" id="email" placeholder="Email">
         </div>
-        <div class="col-6">
-          <select id="select-district" class="form-select form-select-sm">
-            <option value="">請先選擇縣市</option>
-          </select>
+        <div class="form-group">
+            <label data-i18n="pwd_label">密碼</label>
+            <input type="password" id="password" placeholder="Password">
         </div>
-      </div>
-      <button class="btn btn-sm btn-success w-100" onclick="applySelectedLocation()">套用此地區氣象</button>
+        <button class="btn" onclick="handleAuth('login')" data-i18n="login_btn">登入</button>
+        <button class="btn" style="background: #2ecc71; margin-top: 10px;" onclick="handleAuth('signup')" data-i18n="signup_btn">註冊帳號</button>
     </div>
-  </div>
 
-  <!-- 頁籤選單標籤 (Tabs Navigation) -->
-  <ul class="nav nav-tabs mb-3" id="mainTab" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="record-tab" data-bs-toggle="tab" data-bs-target="#record-panel" type="button" role="tab">📝 新增紀錄</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-panel" type="button" role="tab">📊 月報表與氣象折線圖</button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="info-tab" data-bs-toggle="tab" data-bs-target="#info-panel" type="button" role="tab">💡 衛教與建議</button>
-    </li>
-  </ul>
-
-  <!-- 頁籤內容區域 (Tab Content) -->
-  <div class="tab-content" id="mainTabContent">
-    
-    <!-- 頁籤 1: 新增紀錄 -->
-    <div class="tab-pane fade show active" id="record-panel" role="tabpanel">
-      <div class="card shadow-sm p-4">
-        <h5 class="card-title fw-bold text-dark mb-3">新增頭痛與氣象紀錄</h5>
-        
-        <div class="mb-3">
-          <label for="input-pain" class="form-label fw-bold">疼痛程度 (1-10 分)：</label>
-          <select id="input-pain" class="form-select">
-            <option value="">請選擇疼痛程度...</option>
-            <option value="1">1 分 - 輕微隱隱作痛</option>
-            <option value="3">3 分 - 偶爾抽痛，不影響工作</option>
-            <option value="5">5 分 - 中度疼痛，注意力開始難集中</option>
-            <option value="7">7 分 - 重度疼痛，難以維持正常作息</option>
-            <option value="10">10 分 - 劇烈難忍，無法思考必須臥床</option>
-          </select>
+    <!-- 主表單卡片 -->
+    <div class="card hidden" id="main-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛與環境研究日誌</h2>
+            <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;" data-i18n="logout_btn">登出</button>
         </div>
 
-        <div class="mb-3">
-          <label for="input-content" class="form-label fw-bold">詳細備註與症狀：</label>
-          <textarea id="input-content" class="form-control" rows="3" placeholder="例如：右側太陽穴抽痛、噁心感、可能跟昨晚睡眠不足有關..."></textarea>
-        </div>
-
-        <button class="btn btn-danger w-100 py-2 fw-bold" onclick="saveAttackForm()">
-          確認送出紀錄
-        </button>
-      </div>
-    </div>
-
-    <!-- 頁籤 2: 歷史與月報表折線圖 -->
-    <div class="tab-pane fade" id="history-panel" role="tabpanel">
-      <div class="card shadow-sm p-4">
-        <h5 class="card-title fw-bold text-dark mb-3">📈 近 1 個月頭痛與氣象趨勢圖</h5>
-        <p class="text-muted" style="font-size: 0.85rem;">包含：疼痛指數、溫度、濕度、大氣壓力與 PM2.5 雙 Y 軸互動圖表</p>
-        
-        <!-- 放置折線圖的畫布 -->
-        <div style="position: relative; height: 320px; width: 100%; margin-bottom: 20px;">
-          <canvas id="painChart"></canvas>
-        </div>
-
-        <div id="summary-card" class="alert alert-secondary mb-3">
-          載入統計中...
+        <!-- 頁簽切換按鈕群組 -->
+        <div class="tabs">
+            <button class="tab-btn active" id="btn-tab-symptom" onclick="switchTab('symptom')" data-i18n="tab_symptom">📝 症狀與環境</button>
+            <button class="tab-btn" id="btn-tab-band" onclick="switchTab('band')" data-i18n="tab_band">⌚ 健康手環資料</button>
         </div>
         
-        <h6 class="fw-bold text-secondary mb-2">📋 詳細歷史紀錄列表</h6>
-        <div id="records-list"></div>
-      </div>
-    </div>
+        <div id="weather-status" data-i18n="weather_loading">⏳ 正在取得您的位置與即時 29 項氣象及空污數據...</div>
 
-    <!-- 頁籤 3: 衛教與建議 -->
-    <div class="tab-pane fade" id="info-panel" role="tabpanel">
-      <div class="card shadow-sm p-4">
-        <h5 class="card-title fw-bold text-primary mb-3">💡 頭痛管理與氣候衛教小叮嚀</h5>
-        <div class="accordion" id="faqAccordion">
-          <div class="accordion-item">
-            <h2 class="accordion-header">
-              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                ☁️ 氣壓與濕度變化如何誘發頭痛？
-              </button>
-            </h2>
-            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-              <div class="accordion-body">
-                當大氣壓力下降（例如颱風前夕或陰雨天）或濕度極高時，人體血管與大腦中的神經傳導物質可能受到影響，容易誘發偏頭痛。建議在氣候變化劇烈時補充足夠水分並避免熬夜。
-              </div>
+        <!-- 醫療緊急警示防錯區 -->
+        <div class="emergency-box" id="emergency-section">
+            <h3 data-i18n="emg_title" style="color: #c0392b; margin-top: 0;">⚠️ 醫療緊急警示</h3>
+            <p data-i18n="emg_desc" style="font-size: 14px; margin: 0;">若您或觀察對象目前出現以下任何狀況，請<b>立即停止填表並即刻撥打 119 送醫</b>：</p>
+            <div style="margin-top: 8px; font-size: 14px; line-height: 1.6;">
+                <input type="checkbox" id="emg_1" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_1" data-i18n="emg_1">昏睡叫不醒、意識嚴重改變</label><br>
+                <input type="checkbox" id="emg_2" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_2" data-i18n="emg_2">劇烈頭痛或持續性嘔吐</label><br>
+                <input type="checkbox" id="emg_3" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_3" data-i18n="emg_3">四肢抽搐或癲癇發作</label><br>
+                <input type="checkbox" id="emg_4" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_4" data-i18n="emg_4">肢體突然單側無力、手腳發麻</label><br>
+                <input type="checkbox" id="emg_5" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_5" data-i18n="emg_5">視力模糊、複視（疊影）</label>
             </div>
-          </div>
-          <div class="accordion-item">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                📋 為什麼記錄頭痛日誌很重要？
-              </button>
-            </h2>
-            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-              <div class="accordion-body">
-                持續記錄疼痛時間、發作誘因與天氣變化，能協助醫師更精準診斷偏頭痛類型，並制定個人化的預防性藥物治療計畫。
-              </div>
-            </div>
-          </div>
+            <div id="emergencyWarning" class="warning-text" data-i18n="warning_text">
+                🚨 偵測到重大危險徵象！請勿填表，請立即前往最近的急診室就醫評估！
+            </div>   
         </div>
-      </div>
+
+        <form id="attack-form" onsubmit="event.preventDefault(); saveAttackForm();">
+            
+            <!-- 頁簽 1：10 大症狀填寫區 -->
+            <div id="pane-symptom">
+                <div class="form-group"><label data-i18n="sym_1">1. 持續性頭痛</label><div class="slider-container"><input type="range" name="sym1" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_2">2. 頭暈、失去平衡或步態不穩</label><div class="slider-container"><input type="range" name="sym2" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_3">3. 噁心、想吐的感覺</label><div class="slider-container"><input type="range" name="sym3" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_4">4. 疲勞感、睡眠過多或嗜睡</label><div class="slider-container"><input type="range" name="sym4" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_5">5. 注意力難以集中、記憶變差</label><div class="slider-container"><input type="range" name="sym5" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_6">6. 反應變慢、思考模糊/腦霧</label><div class="slider-container"><input type="range" name="sym6" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_7">7. 易怒、焦慮、情緒波動或性格改變</label><div class="slider-container"><input type="range" name="sym7" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_8">8. 視力模糊、對光線或噪音極度敏感</label><div class="slider-container"><input type="range" name="sym8" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_9">9. 睡眠障礙、失眠或入睡困難</label><div class="slider-container"><input type="range" name="sym9" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_10">10. 頸部疼痛、麻木或微弱抽動</label><div class="slider-container"><input type="range" name="sym10" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+
+                <div class="form-group">
+                    <label for="triggers" data-i18n="triggers_label">記錄日常誘因（如：使用3C、特定活動會使症狀加重嗎？）：</label>
+                    <textarea id="triggers" name="triggers" rows="3" placeholder="請描述使您感到不舒服的活動或環境..."></textarea>
+                </div>
+            </div>
+
+            <!-- 頁簽 2：健康手環資料區 -->
+            <div id="pane-band" class="hidden">
+                <div class="form-group">
+                    <label data-i18n="band_hr">❤️ 即時心跳 (bpm)</label>
+                    <input type="number" id="band_heart_rate" placeholder="例如: 75">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="band_spo2">🩸 血氧飽和度 SpO2 (%)</label>
+                    <input type="number" id="band_spo2" placeholder="例如: 98">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="band_steps">👟 今日步數 (步)</label>
+                    <input type="number" id="band_steps" placeholder="例如: 6500">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="band_avg_steps">📊 近期平均步數 (步/日)</label>
+                    <input type="number" id="band_avg_steps" placeholder="例如: 7200">
+                </div>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn" data-i18n="submit_btn" style="margin-top: 15px;">送出完整日記與數據</button>
+        </form>
     </div>
 
-  </div>
-</div>
+    <!-- 圖表展示卡片 -->
+    <div class="card hidden" id="chart-card">
+        <h3 data-i18n="chart_title">📈 近期持續性頭痛趨勢</h3>
+        <canvas id="painChart"></canvas>
+    </div>
 
-<!-- 外部行政區獨立檔案 -->
-<script src="districts.js"></script>
-<!-- Bootstrap 5 JS Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ==========================================
+    // ⚙️ 系統參數設定區
+    // ==========================================
+    // 若改設為 true，則「沒有抓到位置/氣象」時會直接禁止送出表單！
+    // 若維持 false，則允許沒有位置也能送出資料。
+    const REQUIRE_LOCATION_FOR_SUBMIT = false; 
+    // ==========================================
 
-<!-- 主邏輯 JavaScript -->
-<script type="module">
-  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+    const SUPABASE_URL = 'https://你的專案網址.supabase.co';
+    const SUPABASE_ANON_KEY = '你的金鑰';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const SUPABASE_URL = 'https://ligckapfksiyvcvsppde.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_oDFhgWFOd80vTh8FFanFrw_6Z243ThZ';
-  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    let currentWeather = null;
+    let chartInstance = null;
+    let currentLang = 'zh-TW';
+    let locationReady = false;
 
-  let currentWeather = null;
-  let myChart = null;
-
-  window.addEventListener('DOMContentLoaded', async () => {
-    const citySelect = document.getElementById('select-city');
-    if (citySelect && typeof taiwanDistricts !== 'undefined') {
-      Object.keys(taiwanDistricts).forEach(city => {
-        const option = document.createElement('option');
-        option.value = city;
-        option.textContent = city;
-        citySelect.appendChild(option);
-      });
-    }
-    await checkAuthState();
-  });
-
-  async function checkAuthState() {
-    const { data: { session } } = await supabase.auth.getSession();
-    const hasAgreed = localStorage.getItem('has_consented');
-
-    if (session && hasAgreed) {
-      document.getElementById('consent-page').style.display = 'none';
-      document.getElementById('main-page').style.display = 'block';
-      document.getElementById('user-status').innerText = `已登入：${session.user.email}`;
-      await fetchWeatherAndAir();
-      await loadUserHistory(session.user.id);
-    } else {
-      document.getElementById('consent-page').style.display = 'block';
-      document.getElementById('main-page').style.display = 'none';
-    }
-  }
-
-  window.toggleAgreeButton = function() {
-    document.getElementById('agreeBtn').disabled = !document.getElementById('agreeCheckbox').checked;
-  }
-
-  window.submitConsent = async function(agreed) {
-    if (!agreed) {
-      alert("您選擇不同意，將無法使用本平台。");
-      return;
-    }
-
-    const agreeBtn = document.getElementById('agreeBtn');
-    agreeBtn.disabled = true;
-    document.getElementById('statusMsg').textContent = '處理中，正在導向 Google 登入...';
-
-    try {
-      localStorage.setItem('has_consented', 'true');
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin,
-          queryParams: { prompt: 'select_account' }
+    const langDict = {
+        'zh-TW': {
+            login_title: '🔐 系統登入 / 註冊', email_label: '電子郵件', pwd_label: '密碼', login_btn: '登入', signup_btn: '註冊帳號',
+            form_title: '📝 頭痛與環境研究日誌', logout_btn: '登出',
+            tab_symptom: '📝 症狀與環境', tab_band: '⌚ 健康手環資料',
+            weather_loading: '⏳ 正在取得您的位置與即時 29 項氣象及空污數據...',
+            emg_title: '⚠️ 醫療緊急警示',
+            emg_desc: '若您或觀察對象目前出現以下任何狀況，請<b>立即停止填表並即刻撥打 119 送醫</b>：',
+            emg_1: '昏睡叫不醒、意識嚴重改變', emg_2: '劇烈頭痛或持續性嘔吐', emg_3: '四肢抽搐或癲癇發作', emg_4: '肢體突然單側無力、手腳發麻', emg_5: '視力模糊、複視（疊影）',
+            warning_text: '🚨 偵測到重大危險徵象！請勿填表，請立即前往最近的急診室就醫評估！',
+            sym_1: '1. 持續性頭痛', sym_2: '2. 頭暈、失去平衡或步態不穩', sym_3: '3. 噁心、想吐的感覺', sym_4: '4. 疲勞感、睡眠過多或嗜睡', sym_5: '5. 注意力難以集中、記憶變差', sym_6: '6. 反應變慢、思考模糊/腦霧', sym_7: '7. 易怒、焦慮、情緒波動或性格改變', sym_8: '8. 視力模糊、對光線或噪音極度敏感', sym_9: '9. 睡眠障礙、失眠或入睡困難', sym_10: '10. 頸部疼痛、麻木或微弱抽動',
+            triggers_label: '記錄日常誘因（如：使用3C、特定活動會使症狀加重嗎？）：',
+            band_hr: '❤️ 即時心跳 (bpm)', band_spo2: '🩸 血氧飽和度 SpO2 (%)', band_steps: '👟 今日步數 (步)', band_avg_steps: '📊 近期平均步數 (步/日)',
+            submit_btn: '送出完整日記與數據',
+            chart_title: '📈 近期持續性頭痛趨勢'
+        },
+        'en': {
+            login_title: '🔐 Login / Sign Up', email_label: 'Email', pwd_label: 'Password', login_btn: 'Login', signup_btn: 'Sign Up',
+            form_title: '📝 Headache & Environment Journal', logout_btn: 'Logout',
+            tab_symptom: '📝 Symptom & Environment', tab_band: '⌚ Smart Band Data',
+            weather_loading: '⏳ Fetching location & 29 weather/air quality parameters...',
+            emg_title: '⚠️ Medical Emergency Warning',
+            emg_desc: 'If you or the patient experience any of the following, <b>stop filling out the form and call 119 immediately</b>:',
+            emg_1: 'Unresponsiveness, altered consciousness', emg_2: 'Severe headache or persistent vomiting', emg_3: 'Seizures or convulsions', emg_4: 'Sudden unilateral weakness or numbness', emg_5: 'Blurred vision or double vision',
+            warning_text: '🚨 Critical danger signs detected! Do not submit, seek emergency medical care immediately!',
+            sym_1: '1. Persistent Headache', sym_2: '2. Dizziness, balance issues or unstable gait', sym_3: '3. Nausea or vomiting sensation', sym_4: '4. Fatigue, hypersomnia or lethargy', sym_5: '5. Difficulty concentrating, memory impairment', sym_6: '6. Slowed reactions, brain fog / confusion', sym_7: '7. Irritability, anxiety, mood swings', sym_8: '8. Blurred vision, extreme sensitivity to light/noise', sym_9: '9. Sleep disturbances, insomnia', sym_10: '10. Neck pain, numbness or mild twitching',
+            triggers_label: 'Record daily triggers (e.g., 3C usage, specific activities):',
+            band_hr: '❤️ Heart Rate (bpm)', band_spo2: '🩸 SpO2 (%)', band_steps: '👟 Today Steps', band_avg_steps: '📊 Average Daily Steps',
+            submit_btn: 'Submit Complete Journal & Data',
+            chart_title: '📈 Recent Persistent Headache Trend'
         }
-      });
-      if (error) throw error;
-    } catch (err) {
-      document.getElementById('statusMsg').textContent = '發生錯誤：' + err.message;
-      agreeBtn.disabled = false;
-    }
-  }
-
-  window.signOut = async function() {
-    localStorage.removeItem('has_consented');
-    await supabase.auth.signOut();
-    window.location.reload();
-  }
-
-  window.toggleLocationInput = function() {
-    const box = document.getElementById('manual-location-box');
-    box.style.display = box.style.display === 'none' ? 'block' : 'none';
-  }
-
-  window.updateDistricts = function() {
-    const city = document.getElementById('select-city').value;
-    const districtSelect = document.getElementById('select-district');
-    districtSelect.innerHTML = '<option value="">請選擇鄉鎮市區...</option>';
-    
-    if (!city || typeof taiwanDistricts === 'undefined' || !taiwanDistricts[city]) return;
-
-    taiwanDistricts[city].forEach(district => {
-      const option = document.createElement('option');
-      option.value = district;
-      option.textContent = district;
-      districtSelect.appendChild(option);
-    });
-  }
-
-  window.applySelectedLocation = async function() {
-    const city = document.getElementById('select-city').value;
-    const district = document.getElementById('select-district').value;
-
-    if (!city || !district) {
-      alert("請完整選擇縣市與鄉鎮市區！");
-      return;
-    }
-
-    const locationName = city + district;
-    document.getElementById('weather-info').innerHTML = `📍 已手動設定為：${locationName} (正在載入完整氣象...)`;
-    document.getElementById('manual-location-box').style.display = 'none';
-
-    try {
-      // 同時取得氣象與完整空氣品質 API 資料
-      const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=25.033&longitude=121.565&current=temperature_2m,relative_humidity_2m,surface_pressure,apparent_temperature,precipitation&air_quality=pm10,pm2_5,nitrogen_dioxide,european_aqi`);
-      const data = await weatherRes.json();
-      
-      const temp = data.current.temperature_2m;
-      const humidity = data.current.relative_humidity_2m;
-      const pressure = data.current.surface_pressure;
-      const pm25 = (data.air_quality && data.air_quality.pm2_5 !== undefined) ? data.air_quality.pm2_5 : "資料更新中";
-
-      // 封裝完整資料，前端呈現用簡易欄位，並將 full_data 完整包入供研究備份
-      currentWeather = {
-        temp,
-        humidity,
-        pressure,
-        pm25,
-        locationName,
-        full_data: data
-      };
-
-      document.getElementById('weather-info').innerHTML = `📍 地點：${locationName} | 🌡️ ${temp}°C | 💧 ${humidity}% | 🌀 ${pressure}hPa | 🌫️ PM2.5:${pm25}`;
-    } catch (err) {
-      document.getElementById('weather-info').innerHTML = `📍 地點：${locationName} (氣象載入失敗)`;
-      currentWeather = { locationName };
-    }
-  }
-
-  window.startGeolocation = async function() {
-    const weatherDiv = document.getElementById('weather-info');
-    weatherDiv.innerHTML = "📍 正在透過瀏覽器取得您的 GPS 定位...";
-
-    if (!navigator.geolocation) {
-      weatherDiv.innerHTML = "❌ 您的瀏覽器不支援地理定位功能。";
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-        await getWeatherDataByCoords(lat, lon);
-      },
-      (error) => {
-        weatherDiv.innerHTML = "❌ 定位失敗或被拒絕，請檢查瀏覽器權限或手動選擇地區。";
-        console.error(error);
-      },
-      { timeout: 10000, enableHighAccuracy: true }
-    );
-  }
-
-  async function getWeatherDataByCoords(lat, lon) {
-    const weatherDiv = document.getElementById('weather-info');
-    let locationName = "所在地";
-
-    try {
-      const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&accept-language=zh-TW`);
-      const geoData = await geoRes.json();
-      if (geoData && geoData.address) {
-        locationName = geoData.address.city || geoData.address.county || geoData.address.state || "未知區域";
-      }
-    } catch (err) {
-      console.log("反查地址失敗");
-    }
-
-    try {
-      const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,surface_pressure,apparent_temperature,precipitation&air_quality=pm10,pm2_5,nitrogen_dioxide,european_aqi`);
-      const data = await weatherRes.json();
-
-      const temp = data.current.temperature_2m;
-      const humidity = data.current.relative_humidity_2m;
-      const pressure = data.current.surface_pressure;
-      const pm25 = (data.air_quality && data.air_quality.pm2_5 !== undefined) ? data.air_quality.pm2_5 : "資料更新中";
-
-      currentWeather = {
-        temp,
-        humidity,
-        pressure,
-        pm25,
-        locationName,
-        lat,
-        lon,
-        full_data: data
-      };
-
-      weatherDiv.innerHTML = `📍 地點：${locationName} | 🌡️ ${temp}°C | 💧 ${humidity}% | 🌀 ${pressure}hPa | 🌫️ PM2.5:${pm25}`;
-    } catch (err) {
-      weatherDiv.innerHTML = "❌ 無法載入該座標的氣象資訊。";
-    }
-  }
-
-  async function fetchWeatherAndAir() {
-    const weatherDiv = document.getElementById('weather-info');
-    weatherDiv.innerHTML = "正在取得當地氣象資訊...";
-
-    let lat = null;
-    let lon = null;
-
-    try {
-      const ipRes = await fetch('https://ipwho.is/');
-      const ipData = await ipRes.json();
-      if (ipData.success) {
-        lat = ipData.latitude;
-        lon = ipData.longitude;
-      }
-    } catch (e) {
-      console.log("IP 定位失敗");
-    }
-
-    if (!lat || !lon) {
-      weatherDiv.innerHTML = "❌ 無法自動取得位置，請點擊 **「📍 開始定位」** 或手動選擇地區。";
-      return;
-    }
-
-    await getWeatherDataByCoords(lat, lon);
-  }
-
-  window.saveAttackForm = async function() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      alert("請先登入！");
-      return;
-    }
-
-    const painSelect = document.getElementById('input-pain').value;
-    const contentValue = document.getElementById('input-content').value.trim();
-    
-    if (!painSelect) {
-      alert("請先選擇今天的疼痛程度！");
-      return;
-    }
-
-    const newRecord = {
-      user_id: user.id,
-      user_email: user.email,
-      pain: Number(painSelect),
-      content: contentValue !== "" ? contentValue : "無特別備註",
-      weather: currentWeather || {}
     };
 
-    const { error } = await supabase
-      .from('user_data')
-      .insert([newRecord]);
-
-    if (error) {
-      alert("❌ 儲存失敗：" + error.message);
-    } else {
-      alert("✅ 成功新增一筆頭痛紀錄！");
-      document.getElementById('input-pain').value = "";
-      document.getElementById('input-content').value = "";
-      loadUserHistory(user.id);
-    }
-  }
-
-  async function loadUserHistory(userId) {
-    const listContainer = document.getElementById('records-list');
-    const summaryContainer = document.getElementById('summary-card');
-    listContainer.innerHTML = "正在讀取歷史紀錄...";
-
-    const oneMonthAgo = new Date();
-    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-
-    const { data, error } = await supabase
-      .from('user_data')
-      .select('*')
-      .eq('user_id', userId)
-      .gte('created_at', oneMonthAgo.toISOString())
-      .order('created_at', { ascending: true });
-
-    if (error) {
-      listContainer.innerHTML = "❌ 讀取歷史紀錄失敗：" + error.message;
-      return;
+    function toggleLanguage() {
+        currentLang = (currentLang === 'zh-TW') ? 'en' : 'zh-TW';
+        document.documentElement.lang = currentLang;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (langDict[currentLang][key]) {
+                el.innerHTML = langDict[currentLang][key];
+            }
+        });
     }
 
-    if (!data || data.length === 0) {
-      summaryContainer.innerHTML = "本月尚無頭痛紀錄。";
-      listContainer.innerHTML = "";
-      if (myChart) myChart.destroy();
-      return;
-    }
+    // 頁簽切換功能
+    function switchTab(tabName) {
+        const paneSymptom = document.getElementById('pane-symptom');
+        const paneBand = document.getElementById('pane-band');
+        const btnSymptom = document.getElementById('btn-tab-symptom');
+        const btnBand = document.getElementById('btn-tab-band');
+        const emergencySection = document.getElementById('emergency-section');
 
-    const totalRecords = data.length;
-    const avgPain = (data.reduce((sum, item) => sum + (Number(item.pain) || 0), 0) / totalRecords).toFixed(1);
-
-    summaryContainer.innerHTML = `
-      <strong>📈 本月統計摘要：</strong><br>
-      • 總記錄次數：${totalRecords} 次<br>
-      • 平均疼痛指數：${avgPain} 分
-    `;
-
-    // 整理多重指標折線圖所需的資料
-    const chartLabels = data.map(item => new Date(item.created_at).toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }));
-    const painData = data.map(item => item.pain);
-    const tempData = data.map(item => item.weather?.temp ?? null);
-    const humidityData = data.map(item => item.weather?.humidity ?? null);
-    const pressureData = data.map(item => item.weather?.pressure ?? null);
-    const pm25Data = data.map(item => item.weather?.pm25 ?? null);
-
-    renderMultiChart(chartLabels, painData, tempData, humidityData, pressureData, pm25Data);
-
-    const reverseData = [...data].reverse();
-    let htmlContent = "";
-    reverseData.forEach(item => {
-      const recordDate = new Date(item.created_at).toLocaleString('zh-TW');
-      let weatherStr = "無氣象紀錄";
-      if (item.weather && typeof item.weather === 'object') {
-        weatherStr = `🌡️ ${item.weather.temp ?? '--'}°C | 💧 ${item.weather.humidity ?? '--'}% | 🌀 ${item.weather.pressure ?? '--'}hPa | 🌫️ PM2.5: ${item.weather.pm25 ?? '--'}`;
-      }
-
-      htmlContent += `
-        <div class="card mb-3 border-light shadow-sm">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-              <small class="text-muted">📅 ${recordDate}</small>
-              <span class="badge bg-danger">疼痛指數：${item.pain} 分</span>
-            </div>
-            <p class="card-text mb-2 text-dark"><strong>📝 備註：</strong>${item.content || '無'}</p>
-            <div class="p-2 bg-light rounded text-secondary" style="font-size: 0.85rem;">
-              ${weatherStr} (${item.weather?.locationName || '未知地點'})
-            </div>
-          </div>
-        </div>
-      `;
-    });
-
-    listContainer.innerHTML = htmlContent;
-  }
-
-  // 繪製多指標雙 Y 軸折線圖
-  function renderMultiChart(labels, pain, temp, humidity, pressure, pm25) {
-    const ctx = document.getElementById('painChart').getContext('2d');
-    
-    if (myChart) {
-      myChart.destroy();
-    }
-
-    myChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            label: '疼痛指數 (1-10)',
-            data: pain,
-            borderColor: '#dc3545', // 紅色
-            backgroundColor: 'rgba(220, 53, 69, 0.05)',
-            borderWidth: 2,
-            tension: 0.2,
-            yAxisID: 'y'
-          },
-          {
-            label: '溫度 (°C)',
-            data: temp,
-            borderColor: '#fd7e14', // 橘色
-            borderWidth: 1.5,
-            tension: 0.2,
-            yAxisID: 'y'
-          },
-          {
-            label: '濕度 (%)',
-            data: humidity,
-            borderColor: '#0d6efd', // 藍色
-            borderWidth: 1.5,
-            tension: 0.2,
-            yAxisID: 'y'
-          },
-          {
-            label: '大氣壓力 (hPa)',
-            data: pressure,
-            borderColor: '#6f42c1', // 紫色
-            borderWidth: 1.5,
-            tension: 0.2,
-            yAxisID: 'y1' // 使用右側 Y 軸
-          },
-          {
-            label: 'PM2.5',
-            data: pm25,
-            borderColor: '#198754', // 綠色
-            borderWidth: 1.5,
-            tension: 0.2,
-            yAxisID: 'y'
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          // 左側 Y 軸：疼痛、溫濕度、PM2.5
-          y: {
-            type: 'linear',
-            display: true,
-            position: 'left',
-            min: 0,
-            max: 100,
-            title: { display: true, text: '疼痛 / 溫濕度 / PM2.5' }
-          },
-          // 右側 Y 軸：專門給大氣壓力使用
-          y1: {
-            type: 'linear',
-            display: true,
-            position: 'right',
-            min: 900,
-            max: 1050,
-            grid: { drawOnChartArea: false },
-            title: { display: true, text: '大氣壓力 (hPa)' }
-          }
-        },
-        plugins: {
-          legend: {
-            position: 'top',
-            labels: { boxWidth: 12, font: { size: 11 } }
-          }
+        if (tabName === 'symptom') {
+            paneSymptom.classList.remove('hidden');
+            paneBand.classList.add('hidden');
+            btnSymptom.classList.add('active');
+            btnBand.classList.remove('active');
+            emergencySection.style.display = 'block'; // 症狀頁才顯示醫療警示
+        } else {
+            paneSymptom.classList.add('hidden');
+            paneBand.classList.remove('hidden');
+            btnSymptom.classList.remove('active');
+            btnBand.classList.add('active');
+            emergencySection.style.display = 'none'; // 手環頁隱藏警示，讓版面乾淨
         }
-      }
-    });
-  }
-</script>
+    }
 
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+        if (session) {
+            showMainApp(session.user);
+        } else {
+            document.getElementById('auth-card').classList.remove('hidden');
+        }
+    });
+
+    async function handleAuth(action) {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        if(!email || !password) { alert("請輸入 Email 與密碼"); return; }
+
+        let res;
+        if(action === 'login') {
+            res = await supabase.auth.signInWithPassword({ email, password });
+        } else {
+            res = await supabase.auth.signUp({ email, password });
+            alert("註冊成功！若有啟用 Email 驗證請先收信，或可直接登入。");
+        }
+
+        if(res.error) {
+            alert("錯誤：" + res.error.message);
+        } else if(res.data.session) {
+            showMainApp(res.data.session.user);
+        }
+    }
+
+    async function handleLogout() {
+        await supabase.auth.signOut();
+        document.getElementById('main-card').classList.add('hidden');
+        document.getElementById('chart-card').classList.add('hidden');
+        document.getElementById('auth-card').classList.remove('hidden');
+    }
+
+    function showMainApp(user) {
+        document.getElementById('auth-card').classList.add('hidden');
+        document.getElementById('main-card').classList.remove('hidden');
+        document.getElementById('chart-card').classList.remove('hidden');
+        getLocationAndWeather();
+        loadUserHistory(user.id);
+    }
+
+    function getLocationAndWeather() {
+        const statusEl = document.getElementById('weather-status');
+        
+        if (!navigator.geolocation) {
+            fetchIpLocation(statusEl);
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                fetchWeather(position.coords.latitude, position.coords.longitude, "GPS 定位成功");
+            }, 
+            (error) => {
+                fetchIpLocation(statusEl);
+            },
+            { timeout: 8000 }
+        );
+    }
+
+    async function fetchIpLocation(statusEl) {
+        try {
+            statusEl.innerText = "⏳ 正在透過網路 IP 進行定位...";
+            const res = await fetch('https://ipapi.co/json/');
+            const ipData = await res.json();
+            
+            if (ipData.latitude && ipData.longitude) {
+                fetchWeather(ipData.latitude, ipData.longitude, `IP 定位成功 (${ipData.city || '未知城市'})`);
+            } else {
+                throw new Error("IP 定位失敗");
+            }
+        } catch (err) {
+            statusEl.innerText = "⚠️無法取得位置資訊";
+            locationReady = false;
+            checkLocationRestriction();
+        }
+    }
+
+    async function fetchWeather(lat, lon, successMsg) {
+        const statusEl = document.getElementById('weather-status');
+        try {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,dew_point_2m,apparent_temperature,precipitation,rain,snowfall,pressure_msl,surface_pressure,cloud_cover,wind_speed_10m,wind_direction_10m,wind_gusts_10m,uv_index,visibility,weather_code&air_quality=pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone,european_aqi,us_aqi,dust,alder_pollen,birch_pollen,grass_pollen,olive_pollen`;
+            
+            const response = await fetch(url);
+            const data = await response.json();
+
+            currentWeather = { lat: lat, lon: lon, fetched_at: new Date().toISOString(), full_data: data };
+            locationReady = true;
+
+            const currentTemp = data.current?.temperature_2m ?? '未知';
+            const currentPressure = data.current?.surface_pressure ?? '未知';
+            statusEl.innerHTML = `📍 ${successMsg}！已同步即時環境 29 項指標 (氣溫: ${currentTemp}°C, 氣壓: ${currentPressure} hPa)`;
+        } catch (err) {
+            statusEl.innerText = "⚠️ 氣象資料解析失敗";
+            currentWeather = { lat, lon, fetched_at: new Date().toISOString(), full_data: {} };
+            locationReady = true; // 有經緯度就算成功
+        }
+        checkLocationRestriction();
+    }
+
+    // 參數防錯控管機制
+    function checkLocationRestriction() {
+        if (REQUIRE_LOCATION_FOR_SUBMIT && !locationReady) {
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').innerText = "❌ 必須取得位置才能送出";
+        }
+    }
+
+    function updateVal(slider) {
+        slider.nextElementSibling.innerText = slider.value;
+    }
+
+    function checkEmergency() {
+        const checkboxes = document.querySelectorAll('.emg-check');
+        const warningBox = document.getElementById('emergencyWarning');
+        const submitBtn = document.getElementById('submitBtn');
+        let isChecked = false;
+
+        checkboxes.forEach(cb => { if (cb.checked) isChecked = true; });
+
+        if (isChecked) {
+            warningBox.style.display = 'block';
+            submitBtn.disabled = true;
+        } else {
+            warningBox.style.display = 'none';
+            if (!(REQUIRE_LOCATION_FOR_SUBMIT && !locationReady)) {
+                submitBtn.disabled = false;
+            }
+        }
+    }
+
+    async function saveAttackForm() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { alert("請先登入！"); return; }
+
+        if (REQUIRE_LOCATION_FOR_SUBMIT && !locationReady) {
+            alert("⚠️ 尚未取得位置資訊，無法送出表單！");
+            return;
+        }
+
+        // 收集 10 大症狀
+        const symptoms = {};
+        for (let i = 1; i <= 10; i++) {
+            const slider = document.querySelector(`input[name="sym${i}"]`);
+            if (slider) symptoms[`sym_${i}`] = Number(slider.value);
+        }
+
+        const triggersText = document.getElementById('triggers').value.trim();
+
+        // 收集健康手環資料
+        const smartBandData = {
+            heart_rate: Number(document.getElementById('band_heart_rate').value) || null,
+            spo2: Number(document.getElementById('band_spo2').value) || null,
+            steps: Number(document.getElementById('band_steps').value) || null,
+            avg_steps: Number(document.getElementById('band_avg_steps').value) || null
+        };
+
+        const newRecord = {
+            user_id: user.id,
+            user_email: user.email,
+            symptoms: symptoms,
+            triggers: triggersText !== "" ? triggersText : "無特別備註",
+            smart_band: smartBandData, // 包含心跳、血氧、步數
+            weather: currentWeather || { note: "未取得氣象與定位" }
+        };
+
+        const { error } = await supabase.from('user_data').insert([newRecord]);
+
+        if (error) {
+            alert("❌ 儲存失敗：" + error.message);
+        } else {
+            alert("✅ 成功新增一筆完整日記與數據！");
+            document.getElementById('triggers').value = "";
+            document.getElementById('band_heart_rate').value = "";
+            document.getElementById('band_spo2').value = "";
+            document.getElementById('band_steps').value = "";
+            document.getElementById('band_avg_steps').value = "";
+            loadUserHistory(user.id);
+        }
+    }
+
+    async function loadUserHistory(userId) {
+        const { data, error } = await supabase
+            .from('user_data')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: true })
+            .limit(30);
+
+        if (error || !data) return;
+
+        const labels = data.map(item => new Date(item.created_at).toLocaleDateString());
+        const painScores = data.map(item => item.symptoms?.sym_1 || 0);
+
+        const ctx = document.getElementById('painChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '持續性頭痛評分趨勢 (Sym 1)',
+                    data: painScores,
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.2
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { min: 1, max: 10 }
+                }
+            }
+        });
+    }
+</script>
 </body>
 </html>
