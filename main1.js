@@ -79,45 +79,24 @@ async function saveFullRecord() {
         document.getElementById('auth-card').classList.remove('hidden');
     }
 
-   function switchTab(tabName) {
-        const panes = {
-            profile: document.getElementById('pane-profile'),
-            headache: document.getElementById('pane-headache'),
-            symptom: document.getElementById('pane-symptom'),
-            band: document.getElementById('pane-band'),
-            chart: document.getElementById('pane-chart')
-        };
-        const btns = {
-            profile: document.getElementById('btn-tab-profile'),
-            headache: document.getElementById('btn-tab-headache'),
-            symptom: document.getElementById('btn-tab-symptom'),
-            band: document.getElementById('btn-tab-band'),
-            chart: document.getElementById('btn-tab-chart')
-        };
-        const emergencySection = document.getElementById('emergency-section');
- 
-        Object.values(panes).forEach(p => p.classList.add('hidden'));
-        Object.values(btns).forEach(b => b.classList.remove('active'));
-        emergencySection.style.display = 'none';
- 
-        panes[tabName].classList.remove('hidden');
-        btns[tabName].classList.add('active');
- 
-        // 頭痛與症狀頁面顯示緊急警示防錯區
-        if (tabName === 'headache' || tabName === 'symptom') {
-            emergencySection.style.display = 'block';
-        }
-    }
- 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
-            // 如果已登入，直接跳過同意書與登入，進入主畫面
-            document.getElementById('consent-card').classList.add('hidden');
-            document.getElementById('auth-card').classList.add('hidden');
-            showMainApp(session.user);
-        }
+  function switchTab(tabName) {
+    // 統一 ID 命名為復數形式，請確保 HTML 中的 ID 也是 pane-symptoms, pane-headache 等
+    const panes = {
+        profile: document.getElementById('pane-profile'),
+        headache: document.getElementById('pane-headache'),
+        symptom: document.getElementById('pane-symptoms'), // 這裡修正了
+        band: document.getElementById('pane-band'),
+        chart: document.getElementById('pane-chart')
+    };
+    
+    // 隱藏所有
+    Object.values(panes).forEach(p => {
+        if(p) p.classList.add('hidden');
     });
- 
+
+    // 顯示目標
+    if(panes[tabName]) panes[tabName].classList.remove('hidden');
+}
 
     async function handleGoogleLogin() {
         const { error } = await supabase.auth.signInWithOAuth({
@@ -138,32 +117,7 @@ async function saveFullRecord() {
         loadUserProfile(user.id);
         loadUserHistory(user.id);
     }
-/*async function startResearchFlow() {
-    // 步驟 1：基本資料 (必填或預設已填)
-    alert("請先完成基本資料填寫。");
-    // ... 執行儲存基本資料邏輯 ...
 
-    // 詢問是否新增頭痛表單
-    const wantHeadache = confirm("基本資料已暫存！請問是否要接著填寫「頭痛症狀表單」？");
-    if (wantHeadache) {
-        // 切換頁籤或顯示頭痛表單區塊
-        document.getElementById('pane-profile').style.display = 'none';
-        document.getElementById('pane-headache').style.display = 'block';
-        return; // 停留在頭痛表單，填完再按下一步
-    }
-
-    // 若跳過頭痛，直接詢問手環
-    checkHealthFlow();
-}
-
-function checkHealthFlow() {
-    const wantHealth = confirm("請問是否要新增「智慧手環」數據？");
-    if (wantHealth) {
-        // 顯示手環表單
-    } else {
-        saveAllResearchData(); // 直接全部打包送出
-    }
-}*/
     async function loadUserProfile(userId) {
         const { data, error } = await supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle();
         if (error) { console.error("讀取個人資料失敗：", error.message); return; }
@@ -227,21 +181,7 @@ function checkHealthFlow() {
         }
     }
 
-   /* async function fetchWeather(lat, lon, successMsg) {
-        const statusEl = document.getElementById('weather-status');
-        try {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,surface_pressure,relative_humidity_2m&air_quality=pm2_5`;
-            const response = await fetch(url);
-            const data = await response.json();
-            currentWeather = { lat, lon, fetched_at: new Date().toISOString(), full_data: data };
-            locationReady = true;
-            statusEl.innerHTML = `📍 ${successMsg}！氣象與空污數據同步完成`;
-        } catch (err) {
-            statusEl.innerText = "⚠️ 氣象資料解析失敗";
-            currentWeather = { lat, lon, fetched_at: new Date().toISOString(), full_data: {} };
-            locationReady = true;
-        }
-    }*/
+ 
 async function fetchWeather(lat, lon, successMsg) {
     const statusEl = document.getElementById('weather-status');
     try {
