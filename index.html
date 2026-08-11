@@ -54,7 +54,7 @@
     <!-- 主表單卡片 -->
     <div class="card hidden" id="main-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛與環境研究日誌</h2>
+            <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛與環境日誌</h2>
             <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;" data-i18n="logout_btn">登出</button>
         </div>
 
@@ -142,8 +142,8 @@
     const REQUIRE_LOCATION_FOR_SUBMIT = false; 
     // ==========================================
 
-    const SUPABASE_URL = 'https://你的專案網址.supabase.co';
-    const SUPABASE_ANON_KEY = '你的金鑰';
+    const SUPABASE_URL = 'https://ligckapfksiyvcvsppde.supabase.co/';
+    const SUPABASE_ANON_KEY = 'sb_publishable_oDFhgWFOd80vTh8FFanFrw_6Z243ThZ';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentWeather = null;
