@@ -6,10 +6,12 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- 2. 載入共用設定檔 -->
 <script src="./config.js"></script>
+<!-- 語言設定檔 -->
+<script src="./i18n.js"></script>
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HeadacheV5</title>
+    <title>HeadacheV6</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -40,7 +42,7 @@
     <!-- 3. 主表單卡片 -->
     <div class="card card-left hidden" id="main-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛與環境研究日誌</h2>
+            <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛與環境日誌</h2>
             <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;" data-i18n="logout_btn">登出</button>
         </div>
 
@@ -49,9 +51,10 @@
             <button class="tab-btn active" id="btn-tab-profile" onclick="switchTab('profile')" data-i18n="tab_profile">👤 個人基本資料</button>
             <button class="tab-btn" id="btn-tab-symptom" onclick="switchTab('symptom')" data-i18n="tab_symptom">📝 症狀與環境</button>
             <button class="tab-btn" id="btn-tab-band" onclick="switchTab('band')" data-i18n="tab_band">⌚ 健康手環</button>
+             <button class="tab-btn" id="btn-tab-chart" onclick="switchTab('chart')" data-i18n="tab_chart">📈 趨勢圖表</button>
         </div>
         
-        <div id="weather-status" data-i18n="weather_loading">⏳ 正在取得您的位置與即時 29 項氣象及空污數據...</div>
+        <div id="weather-status" data-i18n="weather_loading">⏳ 正在取得氣象及空污數據...</div>
 
         <!-- 頁簽 1：個人基本資料 -->
         <div id="pane-profile" class="form-group">
@@ -152,16 +155,17 @@
             </div>
 
         </form>
+        <!-- 頁簽 4：趨勢圖表 -->
+        <div id="pane-chart" class="hidden">
+        <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">📈 近期持續性頭痛趨勢</h3>
+        <canvas id="painChart"></canvas>
+        </div>
     </div>
 
-    <!-- 圖表展示卡片 -->
-    <div class="card hidden" id="chart-card">
-        <h3 data-i18n="chart_title">📈 近期持續性頭痛趨勢</h3>
-        <canvas id="painChart"></canvas>
-    </div>
+
 
 <script>
-    const REQUIRE_LOCATION_FOR_SUBMIT = false; //如果要鎖定位置要改true
+    const REQUIRE_LOCATION_FOR_SUBMIT = false; //如果要鎖定位置要改true//////////////////////////
 
     var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -169,47 +173,6 @@
     let chartInstance = null;
     let currentLang = 'zh-TW';
     let locationReady = false;
-
-    const langDict = {
-        'zh-TW': {
-            consent_title: '📄 研究參與同意書', consent_desc: '請詳細閱讀以下研究說明與同意書內容：', consent_agree_btn: '我已閱讀並同意參與研究',
-            login_title: '🔐 系統登入', login_desc: '請使用 Google 帳號授權登入以開始記錄', google_login_btn: '使用 Google 帳號快速登入',
-            form_title: '📝 頭痛與環境研究日誌', logout_btn: '登出',
-            tab_profile: '👤 個人基本資料', tab_symptom: '📝 症狀與環境', tab_band: '⌚ 健康手環',
-            profile_heading: '基本資料設定', prof_name: '1. 希望怎麼稱呼你（非必填）', prof_birth: '2. 出生年 (西元)', prof_gender: '3. 性別',
-            prof_tbi: '4. 是否參與輕度腦外傷研究', prof_sport: '5. 運動頻率', select_default: '請選擇...',
-            gender_male: '男性', gender_female: '女性', gender_other: '其他 / 不願透露', yes: '是', no: '否',
-            sport_none: '幾乎不運動', sport_light: '輕度（每周 1-2 次）', sport_moderate: '中度（每周 3-4 次）', sport_heavy: '規律高強度（每周 5 次以上）',
-            save_profile_btn: '儲存個人基本資料', submit_band_btn: '送出手環數據',
-            weather_loading: '⏳ 正在取得您的位置與即時 29 項氣象及空污數據...',
-            emg_title: '⚠️ 醫療緊急警示', emg_desc: '若您或觀察對象目前出現以下任何狀況，請<b>立即停止填表並即刻撥打 119 送醫</b>：',
-            emg_1: '昏睡叫不醒、意識嚴重改變', emg_2: '劇烈頭痛或持續性嘔吐', emg_3: '四肢抽搐或癲癇發作', emg_4: '肢體突然單側無力、手腳發麻', emg_5: '視力模糊、複視（疊影）',
-            warning_text: '🚨 偵測到重大危險徵象！請勿填表，請立即前往最近的急診室就醫評估！',
-            sym_1: '1. 持續性頭痛', sym_2: '2. 頭暈、失去平衡或步態不穩', sym_3: '3. 噁心、想吐的感覺', sym_4: '4. 疲勞感、睡眠過多或嗜睡', sym_5: '5. 注意力難以集中、記憶變差', sym_6: '6. 反應變慢、思考模糊/腦霧', sym_7: '7. 易怒、焦慮、情緒波動或性格改變', sym_8: '8. 視力模糊、對光線或噪音極度敏感', sym_9: '9. 睡眠障礙、失眠或入睡困難', sym_10: '10. 頸部疼痛、麻木或微弱抽動',
-            triggers_label: '記錄日常誘因（如：使用3C、特定活動會使症狀加重嗎？）：',
-            band_hr: '❤️ 即時心跳 (bpm)', band_spo2: '🩸 血氧飽和度 SpO2 (%)', band_steps: '👟 今日步數 (步)', band_avg_steps: '📊 近期平均步數 (步/日)',
-            submit_btn: '送出今日症狀日記', chart_title: '📈 近期持續性頭痛趨勢'
-        },
-        'en': {
-            consent_title: '📄 Research Informed Consent', consent_desc: 'Please carefully read the study information below:', consent_agree_btn: 'I have read and agree to participate',
-            login_title: '🔐 Login', login_desc: 'Please log in with your Google account to start tracking', google_login_btn: 'Sign in with Google',
-            form_title: '📝 Headache & Environment Journal', logout_btn: 'Logout',
-            tab_profile: '👤 Profile', tab_symptom: '📝 Symptoms', tab_band: '⌚ Smart Band',
-            profile_heading: 'Personal Profile Settings', prof_name: '1. Preferred Name (Optional)', prof_birth: '2. Birth Year (AD)', prof_gender: '3. Gender',
-            prof_tbi: '4. Participating in Mild TBI Study', prof_sport: '5. Exercise Frequency', select_default: 'Select...',
-            gender_male: 'Male', gender_female: 'Female', gender_other: 'Other / Prefer not to say', yes: 'Yes', no: 'No',
-            sport_none: 'Almost none', sport_light: 'Light (1-2 times/week)', sport_moderate: 'Moderate (3-4 times/week)', sport_heavy: 'Regular high intensity (5+ times/week)',
-            save_profile_btn: 'Save Profile', submit_band_btn: 'Submit Band Data',
-            weather_loading: '⏳ Fetching location & 29 weather/air quality parameters...',
-            emg_title: '⚠️ Medical Emergency Warning', emg_desc: 'If you or the patient experience any of the following, <b>stop filling out the form and call 119 immediately</b>:',
-            emg_1: 'Unresponsiveness, altered consciousness', emg_2: 'Severe headache or persistent vomiting', emg_3: 'Seizures or convulsions', emg_4: 'Sudden unilateral weakness or numbness', emg_5: 'Blurred vision or double vision',
-            warning_text: '🚨 Critical danger signs detected! Do not submit, seek emergency medical care immediately!',
-            sym_1: '1. Persistent Headache', sym_2: '2. Dizziness, balance issues or unstable gait', sym_3: '3. Nausea or vomiting sensation', sym_4: '4. Fatigue, hypersomnia or lethargy', sym_5: '5. Difficulty concentrating, memory impairment', sym_6: '6. Slowed reactions, brain fog / confusion', sym_7: '7. Irritability, anxiety, mood swings', sym_8: '8. Blurred vision, extreme sensitivity to light/noise', sym_9: '9. Sleep disturbances, insomnia', sym_10: '10. Neck pain, numbness or mild twitching',
-            triggers_label: 'Record daily triggers (e.g., 3C usage, specific activities):',
-            band_hr: '❤️ Heart Rate (bpm)', band_spo2: '🩸 SpO2 (%)', band_steps: '👟 Today Steps', band_avg_steps: '📊 Average Daily Steps',
-            submit_btn: 'Submit Symptom Journal', chart_title: '📈 Recent Persistent Headache Trend'
-        }
-    };
 
     function toggleLanguage() {
         currentLang = (currentLang === 'zh-TW') ? 'en' : 'zh-TW';
@@ -232,19 +195,23 @@
         const paneProfile = document.getElementById('pane-profile');
         const paneSymptom = document.getElementById('pane-symptom');
         const paneBand = document.getElementById('pane-band');
+        const paneChart = document.getElementById('pane-chart');
         
         const btnProfile = document.getElementById('btn-tab-profile');
         const btnSymptom = document.getElementById('btn-tab-symptom');
         const btnBand = document.getElementById('btn-tab-band');
+        const btnChart = document.getElementById('btn-tab-chart');
         const emergencySection = document.getElementById('emergency-section');
 
         // 全部隱藏
         paneProfile.classList.add('hidden');
         paneSymptom.classList.add('hidden');
         paneBand.classList.add('hidden');
+        paneChart.classList.add('hidden');
         btnProfile.classList.remove('active');
         btnSymptom.classList.remove('active');
         btnBand.classList.remove('active');
+        btnChart.classList.remove('active');
         emergencySection.style.display = 'none';
 
         if (tabName === 'profile') {
@@ -257,6 +224,9 @@
         } else if (tabName === 'band') {
             paneBand.classList.remove('hidden');
             btnBand.classList.add('active');
+        } else if (tabName === 'chart') {          
+            paneChart.classList.remove('hidden');
+            btnChart.classList.add('active');
         }
     }
 
@@ -284,7 +254,6 @@
 
     function showMainApp(user) {
         document.getElementById('main-card').classList.remove('hidden');
-        document.getElementById('chart-card').classList.remove('hidden');
         getLocationAndWeather();
         loadUserProfile(user.id);
         loadUserHistory(user.id);
@@ -455,7 +424,7 @@ async function fetchWeather(lat, lon, successMsg) {
         const newRecord = {
             user_id: user.id,
             user_email: user.email,
-            smart_band: smartBandData,
+            health_data: smartBandData,
             weather: currentWeather || { note: "未取得" }
         };
 
