@@ -4,18 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>頭痛研究平台</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Chart.js 繪圖庫 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   body {
     background-color: #f8f9fa;
     padding-bottom: 60px;
   }
   .consent-box {
-    max-width: 720px;
-    margin: 40px auto;
+    max-width: 850px;
+    margin: 30px auto;
   }
   .consent-text {
-    max-height: 360px;
+    max-height: 320px;
     overflow-y: auto;
     background: #fff;
     border: 1px solid #dee2e6;
@@ -23,11 +26,12 @@
     padding: 20px;
     line-height: 1.8;
   }
-  .consent-text h5 {
-    margin-top: 16px;
+  .nav-tabs .nav-link {
+    font-weight: bold;
+    color: #495057;
   }
-  .consent-text h5:first-child {
-    margin-top: 0;
+  .nav-tabs .nav-link.active {
+    color: #0d6efd;
   }
 </style>
 </head>
@@ -36,123 +40,194 @@
 
 <!-- 1. 同意書畫面 (未登入時顯示) -->
 <div class="container consent-box" id="consent-page">
-  <h2 class="mb-3">📋 研究受試者同意書</h2>
-  <p class="text-muted">在開始使用本平台記錄您的頭痛資料前，請詳閱以下說明。</p>
+  <div class="card shadow-sm p-4">
+    <h2 class="mb-3 text-primary">📋 研究受試者同意書</h2>
+    <p class="text-muted">在開始使用本平台記錄您的頭痛資料前，請詳閱以下說明。</p>
 
-  <div class="consent-text">
-    <div class="alert alert-info">
-      📧 本平台需要使用 <strong>Google 帳號</strong>登入以確保資料安全與正確歸戶。
+    <div class="consent-text">
+      <div class="alert alert-info">
+        📧 本平台使用 <strong>Google 帳號</strong>登入，以確保資料安全與正確歸戶。
+      </div>
+      <h5>研究名稱</h5>
+      <p>頭痛誘因與氣候關聯性之前瞻性追蹤研究</p>
+
+      <h5>研究目的</h5>
+      <p>本研究旨在收集參與者的頭痛發作紀錄、用藥情形，並結合當地氣象資料，探討可能的誘發因子與偏頭痛之間的關聯性。</p>
+
+      <h5>參與方式與資料內容</h5>
+      <p>您同意參與後，將透過本平台記錄頭痛發作時間、疼痛程度、藥物使用，以及系統自動記錄之當下天氣與空氣品質完整資料與 Google 帳號 Email。</p>
+
+      <h5>資料保密與使用範圍</h5>
+      <p>您的個人資料將以去識別化方式進行統計分析，僅供本研究團隊內部使用，絕對嚴格保密。</p>
     </div>
-    <h5>研究名稱</h5>
-    <p>頭痛誘因與氣候關聯性之前瞻性追蹤研究</p>
 
-    <h5>研究目的</h5>
-    <p>本研究旨在收集參與者的頭痛發作紀錄、用藥情形，並結合當地氣象資料，探討可能的誘發因子與偏頭痛之間的關聯性。</p>
+    <div class="form-check mt-4">
+      <input class="form-check-input" type="checkbox" id="agreeCheckbox" onchange="toggleAgreeButton()">
+      <label class="form-check-label fw-bold" for="agreeCheckbox">
+        我已詳細閱讀並理解上述說明，同意自願參與本研究。
+      </label>
+    </div>
 
-    <h5>參與方式與資料內容</h5>
-    <p>您同意參與後，將透過本平台記錄頭痛發作時間、疼痛程度、藥物使用，以及系統自動記錄之當下天氣資料與 Google 帳號。</p>
+    <div class="mt-4 d-flex gap-2">
+      <button class="btn btn-primary px-4" id="agreeBtn" onclick="submitConsent(true)" disabled>
+        同意並使用 Google 登入
+      </button>
+      <button class="btn btn-outline-secondary" onclick="submitConsent(false)">
+        不同意，離開
+      </button>
+    </div>
 
-    <h5>資料保密與使用範圍</h5>
-    <p>您的個人資料將以去識別化方式進行統計分析，僅供本研究團隊內部使用，絕對嚴格保密。</p>
+    <p class="text-muted mt-3 mb-0" id="statusMsg"></p>
   </div>
-
-  <div class="form-check mt-4">
-    <input class="form-check-input" type="checkbox" id="agreeCheckbox" onchange="toggleAgreeButton()">
-    <label class="form-check-label" for="agreeCheckbox">
-      我已詳細閱讀並理解上述說明，同意自願參與本研究。
-    </label>
-  </div>
-
-  <div class="mt-4 d-flex gap-2">
-    <button class="btn btn-primary" id="agreeBtn" onclick="submitConsent(true)" disabled>
-      同意並使用 Google 登入
-    </button>
-    <button class="btn btn-outline-secondary" onclick="submitConsent(false)">
-      不同意，離開
-    </button>
-  </div>
-
-  <p class="text-muted mt-3" id="statusMsg"></p>
 </div>
 
 
 <!-- 2. 主畫面 (登入後才顯示) -->
 <div class="container consent-box" id="main-page" style="display: none;">
-  <div class="card shadow p-4 text-center mb-4">
-    <h2>頭痛研究平台</h2>
-    <p id="user-status" class="text-muted mb-3"></p>
-    
-    <!-- 天氣與空氣資訊 -->
-    <div class="card bg-light border p-3 mb-3 text-start">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 5px;">
-        <h5 class="text-secondary" style="margin: 0;">📍 即時環境氣象</h5>
-        <div style="display: flex; gap: 5px;">
-          <!-- 💡 新增的「開始定位」按鈕 -->
-          <button class="btn btn-sm btn-primary" onclick="startGeolocation()">📍 開始定位</button>
-          <button class="btn btn-sm btn-outline-primary" onclick="toggleLocationInput()">手動切換地區</button>
-        </div>
+  <!-- 用戶資訊與頂部區塊 -->
+  <div class="card shadow-sm p-3 mb-3 bg-white">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div>
+        <h4 class="m-0 text-primary fw-bold">🧠 頭痛研究平台</h4>
+        <small id="user-status" class="text-muted"></small>
       </div>
-      <div id="weather-info">請點擊上方「📍 開始定位」或手動選擇地區以取得氣象...</div>
+      <button class="btn btn-outline-danger btn-sm" onclick="signOut()">登出帳號</button>
+    </div>
+  </div>
 
-      <!-- 手動選擇地區面板 (預設隱藏) -->
-      <div id="manual-location-box" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;">
-        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-          <select id="select-city" class="form-control form-control-sm" onchange="updateDistricts()">
+  <!-- 天氣與氣象資訊卡片 -->
+  <div class="card bg-light border shadow-sm p-3 mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+      <h6 class="text-secondary fw-bold m-0">📍 即時環境氣象</h6>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-primary" onclick="startGeolocation()">📍 開始定位</button>
+        <button class="btn btn-sm btn-outline-primary" onclick="toggleLocationInput()">手動切換地區</button>
+      </div>
+    </div>
+    <div id="weather-info" class="text-dark fw-bold">請點擊「📍 開始定位」或手動選擇地區以取得氣象...</div>
+
+    <!-- 手動選擇地區面板 (預設隱藏) -->
+    <div id="manual-location-box" class="mt-3 pt-2 border-top" style="display: none;">
+      <div class="row g-2 mb-2">
+        <div class="col-6">
+          <select id="select-city" class="form-select form-select-sm" onchange="updateDistricts()">
             <option value="">請選擇縣市...</option>
           </select>
-          <select id="select-district" class="form-control form-control-sm">
+        </div>
+        <div class="col-6">
+          <select id="select-district" class="form-select form-select-sm">
             <option value="">請先選擇縣市</option>
           </select>
         </div>
-        <button class="btn btn-sm btn-success" onclick="applySelectedLocation()">套用此地區氣象</button>
+      </div>
+      <button class="btn btn-sm btn-success w-100" onclick="applySelectedLocation()">套用此地區氣象</button>
+    </div>
+  </div>
+
+  <!-- 頁籤選單標籤 (Tabs Navigation) -->
+  <ul class="nav nav-tabs mb-3" id="mainTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="record-tab" data-bs-toggle="tab" data-bs-target="#record-panel" type="button" role="tab">📝 新增紀錄</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-panel" type="button" role="tab">📊 月報表與氣象折線圖</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="info-tab" data-bs-toggle="tab" data-bs-target="#info-panel" type="button" role="tab">💡 衛教與建議</button>
+    </li>
+  </ul>
+
+  <!-- 頁籤內容區域 (Tab Content) -->
+  <div class="tab-content" id="mainTabContent">
+    
+    <!-- 頁籤 1: 新增紀錄 -->
+    <div class="tab-pane fade show active" id="record-panel" role="tabpanel">
+      <div class="card shadow-sm p-4">
+        <h5 class="card-title fw-bold text-dark mb-3">新增頭痛與氣象紀錄</h5>
+        
+        <div class="mb-3">
+          <label for="input-pain" class="form-label fw-bold">疼痛程度 (1-10 分)：</label>
+          <select id="input-pain" class="form-select">
+            <option value="">請選擇疼痛程度...</option>
+            <option value="1">1 分 - 輕微隱隱作痛</option>
+            <option value="3">3 分 - 偶爾抽痛，不影響工作</option>
+            <option value="5">5 分 - 中度疼痛，注意力開始難集中</option>
+            <option value="7">7 分 - 重度疼痛，難以維持正常作息</option>
+            <option value="10">10 分 - 劇烈難忍，無法思考必須臥床</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="input-content" class="form-label fw-bold">詳細備註與症狀：</label>
+          <textarea id="input-content" class="form-control" rows="3" placeholder="例如：右側太陽穴抽痛、噁心感、可能跟昨晚睡眠不足有關..."></textarea>
+        </div>
+
+        <button class="btn btn-danger w-100 py-2 fw-bold" onclick="saveAttackForm()">
+          確認送出紀錄
+        </button>
       </div>
     </div>
 
-    <div>
-      <button class="btn btn-outline-secondary btn-sm" onclick="signOut()">登出</button>
-    </div>
-  </div>
+    <!-- 頁籤 2: 歷史與月報表折線圖 -->
+    <div class="tab-pane fade" id="history-panel" role="tabpanel">
+      <div class="card shadow-sm p-4">
+        <h5 class="card-title fw-bold text-dark mb-3">📈 近 1 個月頭痛與氣象趨勢圖</h5>
+        <p class="text-muted" style="font-size: 0.85rem;">包含：疼痛指數、溫度、濕度、大氣壓力與 PM2.5 雙 Y 軸互動圖表</p>
+        
+        <!-- 放置折線圖的畫布 -->
+        <div style="position: relative; height: 320px; width: 100%; margin-bottom: 20px;">
+          <canvas id="painChart"></canvas>
+        </div>
 
-  <!-- 頭痛紀錄輸入表單 -->
-  <div id="record-form-card" class="card shadow p-4 mb-4" style="background: white; border: 1px solid #ccc; border-radius: 8px; text-align: left;">
-    <h4 style="margin-top: 0; color: #333;">📝 新增頭痛與氣象紀錄</h4>
-    
-    <div style="margin-bottom: 15px;">
-      <label for="input-pain" style="display: block; margin-bottom: 5px; font-weight: bold;">疼痛程度 (1-10 分)：</label>
-      <select id="input-pain" class="form-control" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-        <option value="">請選擇疼痛程度...</option>
-        <option value="1">1 分 - 輕微隱隱作痛</option>
-        <option value="3">3 分 - 偶爾抽痛</option>
-        <option value="5">5 分 - 中度疼痛，影響日常</option>
-        <option value="7">7 分 - 重度疼痛，難以專注</option>
-        <option value="10">10 分 - 劇烈疼痛，必須躺下休息</option>
-      </select>
-    </div>
-
-    <div style="margin-bottom: 15px;">
-      <label for="input-content" style="display: block; margin-bottom: 5px; font-weight: bold;">詳細備註與症狀 (Content)：</label>
-      <textarea id="input-content" class="form-control" rows="3" placeholder="例如：右側太陽穴抽痛，可能跟昨天沒睡好有關..." style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;"></textarea>
+        <div id="summary-card" class="alert alert-secondary mb-3">
+          載入統計中...
+        </div>
+        
+        <h6 class="fw-bold text-secondary mb-2">📋 詳細歷史紀錄列表</h6>
+        <div id="records-list"></div>
+      </div>
     </div>
 
-    <div>
-      <button class="btn btn-danger py-2" onclick="saveAttackForm()" style="background-color: #d9534f; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
-        確認送出紀錄
-      </button>
+    <!-- 頁籤 3: 衛教與建議 -->
+    <div class="tab-pane fade" id="info-panel" role="tabpanel">
+      <div class="card shadow-sm p-4">
+        <h5 class="card-title fw-bold text-primary mb-3">💡 頭痛管理與氣候衛教小叮嚀</h5>
+        <div class="accordion" id="faqAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                ☁️ 氣壓與濕度變化如何誘發頭痛？
+              </button>
+            </h2>
+            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                當大氣壓力下降（例如颱風前夕或陰雨天）或濕度極高時，人體血管與大腦中的神經傳導物質可能受到影響，容易誘發偏頭痛。建議在氣候變化劇烈時補充足夠水分並避免熬夜。
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                📋 為什麼記錄頭痛日誌很重要？
+              </button>
+            </h2>
+            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+              <div class="accordion-body">
+                持續記錄疼痛時間、發作誘因與天氣變化，能協助醫師更精準診斷偏頭痛類型，並制定個人化的預防性藥物治療計畫。
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- 歷史紀錄與統計容器 -->
-  <div id="history-container" class="card shadow p-4" style="text-align: left;">
-    <h3>📊 個人頭痛與氣象紀錄（最近 1 個月）</h3>
-    <div id="summary-card" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e1dfdc;">
-      載入統計中...
-    </div>
-    <div id="records-list"></div>
   </div>
 </div>
 
-<!-- 外部行政區資料 -->
+<!-- 外部行政區獨立檔案 -->
 <script src="districts.js"></script>
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- 主邏輯 JavaScript -->
 <script type="module">
@@ -163,6 +238,7 @@
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let currentWeather = null;
+  let myChart = null;
 
   window.addEventListener('DOMContentLoaded', async () => {
     const citySelect = document.getElementById('select-city');
@@ -174,7 +250,6 @@
         citySelect.appendChild(option);
       });
     }
-
     await checkAuthState();
   });
 
@@ -185,8 +260,8 @@
     if (session && hasAgreed) {
       document.getElementById('consent-page').style.display = 'none';
       document.getElementById('main-page').style.display = 'block';
-      document.getElementById('user-status').innerText = `已登入帳號：${session.user.email}`;
-      await fetchWeatherAndAir(); // 自動嘗試定位
+      document.getElementById('user-status').innerText = `已登入：${session.user.email}`;
+      await fetchWeatherAndAir();
       await loadUserHistory(session.user.id);
     } else {
       document.getElementById('consent-page').style.display = 'block';
@@ -260,28 +335,39 @@
     }
 
     const locationName = city + district;
-    document.getElementById('weather-info').innerHTML = `📍 已手動設定為：${locationName} (正在載入氣象...)`;
+    document.getElementById('weather-info').innerHTML = `📍 已手動設定為：${locationName} (正在載入完整氣象...)`;
     document.getElementById('manual-location-box').style.display = 'none';
 
     try {
-      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=25.033&longitude=121.565&current=temperature_2m,relative_humidity_2m&air_quality=pm2_5`);
-      const data = await res.json();
+      // 同時取得氣象與完整空氣品質 API 資料
+      const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=25.033&longitude=121.565&current=temperature_2m,relative_humidity_2m,surface_pressure,apparent_temperature,precipitation&air_quality=pm10,pm2_5,nitrogen_dioxide,european_aqi`);
+      const data = await weatherRes.json();
+      
       const temp = data.current.temperature_2m;
       const humidity = data.current.relative_humidity_2m;
+      const pressure = data.current.surface_pressure;
       const pm25 = (data.air_quality && data.air_quality.pm2_5 !== undefined) ? data.air_quality.pm2_5 : "資料更新中";
 
-      currentWeather = { temp, humidity, pm25, locationName };
-      document.getElementById('weather-info').innerHTML = `📍 地點：${locationName} | 🌡️ 氣溫：${temp} °C | 💧 濕度：${humidity} % | 🌫️ PM2.5：${pm25}`;
+      // 封裝完整資料，前端呈現用簡易欄位，並將 full_data 完整包入供研究備份
+      currentWeather = {
+        temp,
+        humidity,
+        pressure,
+        pm25,
+        locationName,
+        full_data: data
+      };
+
+      document.getElementById('weather-info').innerHTML = `📍 地點：${locationName} | 🌡️ ${temp}°C | 💧 ${humidity}% | 🌀 ${pressure}hPa | 🌫️ PM2.5:${pm25}`;
     } catch (err) {
       document.getElementById('weather-info').innerHTML = `📍 地點：${locationName} (氣象載入失敗)`;
       currentWeather = { locationName };
     }
   }
 
-  // 💡 點擊「開始定位」按鈕觸發的函式
   window.startGeolocation = async function() {
     const weatherDiv = document.getElementById('weather-info');
-    weatherDiv.innerHTML = "📍 正在透過瀏覽器取得您的 GPS 定位，請允許權限...";
+    weatherDiv.innerHTML = "📍 正在透過瀏覽器取得您的 GPS 定位...";
 
     if (!navigator.geolocation) {
       weatherDiv.innerHTML = "❌ 您的瀏覽器不支援地理定位功能。";
@@ -295,14 +381,13 @@
         await getWeatherDataByCoords(lat, lon);
       },
       (error) => {
-        weatherDiv.innerHTML = "❌ 定位失敗或被拒絕，請檢查瀏覽器定位權限，或使用「手動切換地區」。";
+        weatherDiv.innerHTML = "❌ 定位失敗或被拒絕，請檢查瀏覽器權限或手動選擇地區。";
         console.error(error);
       },
       { timeout: 10000, enableHighAccuracy: true }
     );
   }
 
-  // 透過經緯度抓取天氣核心函式
   async function getWeatherDataByCoords(lat, lon) {
     const weatherDiv = document.getElementById('weather-info');
     let locationName = "所在地";
@@ -318,28 +403,37 @@
     }
 
     try {
-      const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m&air_quality=pm2_5`);
-      const data = await res.json();
+      const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,surface_pressure,apparent_temperature,precipitation&air_quality=pm10,pm2_5,nitrogen_dioxide,european_aqi`);
+      const data = await weatherRes.json();
 
       const temp = data.current.temperature_2m;
       const humidity = data.current.relative_humidity_2m;
+      const pressure = data.current.surface_pressure;
       const pm25 = (data.air_quality && data.air_quality.pm2_5 !== undefined) ? data.air_quality.pm2_5 : "資料更新中";
 
-      currentWeather = { temp, humidity, pm25, locationName, lat, lon };
-      weatherDiv.innerHTML = `📍 地點：${locationName} | 🌡️ 氣溫：${temp} °C | 💧 濕度：${humidity} % | 🌫️ PM2.5：${pm25}`;
+      currentWeather = {
+        temp,
+        humidity,
+        pressure,
+        pm25,
+        locationName,
+        lat,
+        lon,
+        full_data: data
+      };
+
+      weatherDiv.innerHTML = `📍 地點：${locationName} | 🌡️ ${temp}°C | 💧 ${humidity}% | 🌀 ${pressure}hPa | 🌫️ PM2.5:${pm25}`;
     } catch (err) {
       weatherDiv.innerHTML = "❌ 無法載入該座標的氣象資訊。";
     }
   }
 
-  // 網頁初始化時的自動抓取（整合 IP 與定位）
   async function fetchWeatherAndAir() {
     const weatherDiv = document.getElementById('weather-info');
-    weatherDiv.innerHTML = "正在取得當地氣象與空氣品質...";
+    weatherDiv.innerHTML = "正在取得當地氣象資訊...";
 
     let lat = null;
     let lon = null;
-    let locationName = "所在地";
 
     try {
       const ipRes = await fetch('https://ipwho.is/');
@@ -347,14 +441,13 @@
       if (ipData.success) {
         lat = ipData.latitude;
         lon = ipData.longitude;
-        locationName = `${ipData.city || ''} ${ipData.region || ''}`.trim();
       }
     } catch (e) {
       console.log("IP 定位失敗");
     }
 
     if (!lat || !lon) {
-      weatherDiv.innerHTML = "❌ 無法自動取得位置，請點擊上方 **「📍 開始定位」** 按鈕或手動選擇地區。";
+      weatherDiv.innerHTML = "❌ 無法自動取得位置，請點擊 **「📍 開始定位」** 或手動選擇地區。";
       return;
     }
 
@@ -378,6 +471,7 @@
 
     const newRecord = {
       user_id: user.id,
+      user_email: user.email,
       pain: Number(painSelect),
       content: contentValue !== "" ? contentValue : "無特別備註",
       weather: currentWeather || {}
@@ -410,7 +504,7 @@
       .select('*')
       .eq('user_id', userId)
       .gte('created_at', oneMonthAgo.toISOString())
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: true });
 
     if (error) {
       listContainer.innerHTML = "❌ 讀取歷史紀錄失敗：" + error.message;
@@ -418,8 +512,9 @@
     }
 
     if (!data || data.length === 0) {
-      summaryContainer.innerHTML = "本月尚無紀錄。";
+      summaryContainer.innerHTML = "本月尚無頭痛紀錄。";
       listContainer.innerHTML = "";
+      if (myChart) myChart.destroy();
       return;
     }
 
@@ -432,27 +527,132 @@
       • 平均疼痛指數：${avgPain} 分
     `;
 
+    // 整理多重指標折線圖所需的資料
+    const chartLabels = data.map(item => new Date(item.created_at).toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }));
+    const painData = data.map(item => item.pain);
+    const tempData = data.map(item => item.weather?.temp ?? null);
+    const humidityData = data.map(item => item.weather?.humidity ?? null);
+    const pressureData = data.map(item => item.weather?.pressure ?? null);
+    const pm25Data = data.map(item => item.weather?.pm25 ?? null);
+
+    renderMultiChart(chartLabels, painData, tempData, humidityData, pressureData, pm25Data);
+
+    const reverseData = [...data].reverse();
     let htmlContent = "";
-    data.forEach(item => {
+    reverseData.forEach(item => {
       const recordDate = new Date(item.created_at).toLocaleString('zh-TW');
       let weatherStr = "無氣象紀錄";
       if (item.weather && typeof item.weather === 'object') {
-        weatherStr = `🌡️ ${item.weather.temp ?? '--'}°C | 💧 ${item.weather.humidity ?? '--'}% | 🌫️ PM2.5: ${item.weather.pm25 ?? '--'}`;
+        weatherStr = `🌡️ ${item.weather.temp ?? '--'}°C | 💧 ${item.weather.humidity ?? '--'}% | 🌀 ${item.weather.pressure ?? '--'}hPa | 🌫️ PM2.5: ${item.weather.pm25 ?? '--'}`;
       }
 
       htmlContent += `
-        <div style="background: white; border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-          <div style="font-size: 0.9rem; color: #666; margin-bottom: 5px;">📅 ${recordDate}</div>
-          <div style="font-size: 1.1rem; font-weight: bold; color: #d9534f; margin-bottom: 5px;">⚡ 疼痛程度：${item.pain} 分</div>
-          <div style="font-size: 0.95rem; color: #333; margin-bottom: 8px;">📝 備註：${item.content || '無'}</div>
-          <div style="font-size: 0.85rem; background: #eef2f5; padding: 8px; border-radius: 4px; color: #444;">
-            ${weatherStr} (${item.weather?.locationName || '未知地點'})
+        <div class="card mb-3 border-light shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <small class="text-muted">📅 ${recordDate}</small>
+              <span class="badge bg-danger">疼痛指數：${item.pain} 分</span>
+            </div>
+            <p class="card-text mb-2 text-dark"><strong>📝 備註：</strong>${item.content || '無'}</p>
+            <div class="p-2 bg-light rounded text-secondary" style="font-size: 0.85rem;">
+              ${weatherStr} (${item.weather?.locationName || '未知地點'})
+            </div>
           </div>
         </div>
       `;
     });
 
     listContainer.innerHTML = htmlContent;
+  }
+
+  // 繪製多指標雙 Y 軸折線圖
+  function renderMultiChart(labels, pain, temp, humidity, pressure, pm25) {
+    const ctx = document.getElementById('painChart').getContext('2d');
+    
+    if (myChart) {
+      myChart.destroy();
+    }
+
+    myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: '疼痛指數 (1-10)',
+            data: pain,
+            borderColor: '#dc3545', // 紅色
+            backgroundColor: 'rgba(220, 53, 69, 0.05)',
+            borderWidth: 2,
+            tension: 0.2,
+            yAxisID: 'y'
+          },
+          {
+            label: '溫度 (°C)',
+            data: temp,
+            borderColor: '#fd7e14', // 橘色
+            borderWidth: 1.5,
+            tension: 0.2,
+            yAxisID: 'y'
+          },
+          {
+            label: '濕度 (%)',
+            data: humidity,
+            borderColor: '#0d6efd', // 藍色
+            borderWidth: 1.5,
+            tension: 0.2,
+            yAxisID: 'y'
+          },
+          {
+            label: '大氣壓力 (hPa)',
+            data: pressure,
+            borderColor: '#6f42c1', // 紫色
+            borderWidth: 1.5,
+            tension: 0.2,
+            yAxisID: 'y1' // 使用右側 Y 軸
+          },
+          {
+            label: 'PM2.5',
+            data: pm25,
+            borderColor: '#198754', // 綠色
+            borderWidth: 1.5,
+            tension: 0.2,
+            yAxisID: 'y'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          // 左側 Y 軸：疼痛、溫濕度、PM2.5
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            min: 0,
+            max: 100,
+            title: { display: true, text: '疼痛 / 溫濕度 / PM2.5' }
+          },
+          // 右側 Y 軸：專門給大氣壓力使用
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            min: 900,
+            max: 1050,
+            grid: { drawOnChartArea: false },
+            title: { display: true, text: '大氣壓力 (hPa)' }
+          }
+        },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { boxWidth: 12, font: { size: 11 } }
+          }
+        }
+      }
+    });
   }
 </script>
 
