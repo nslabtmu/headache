@@ -12,7 +12,7 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HeadacheV7</title>
+    <title>HeadacheV8</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -58,65 +58,67 @@
         
         <div id="weather-status" data-i18n="weather_loading">⏳ 正在取得氣象及空污數據...</div>
 
-        <!-- 頁簽 1：個人基本資料 -->
-        <div id="pane-profile" class="tab-pane form-group" style="display: block;">
-            <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料</h3>
-            <div class="form-group">
-                <label data-i18n="prof_name">1. 暱稱（非必填）</label>
-                <input type="text" id="prof_nickname" placeholder="例如: 王小明 / Alex">
-            </div>
-            <div class="form-group">
-                <label data-i18n="prof_birth">2. 出生年 (西元)</label>
-                <input type="number" id="prof_birthyear" placeholder="例如: 1990">
-            </div>
-            <div class="form-group">
-                <label data-i18n="prof_gender">3. 性別</label>
-                <select id="prof_gender">
-                    <option value="" data-i18n="select_default">請選擇...</option>
-                    <option value="male" data-i18n="gender_male">男性</option>
-                    <option value="female" data-i18n="gender_female">女性</option>
-                    <option value="other" data-i18n="gender_other">其他 / 不願透露</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label data-i18n="prof_tbi">4. 是否參與輕度腦外傷研究</label>
-                <select id="prof_tbi">
-                    <option value="yes" data-i18n="yes">是</option>
-                    <option value="no" data-i18n="no">否</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label data-i18n="prof_sport">5. 運動頻率</label>
-                <select id="prof_sport">
-                    <option value="none" data-i18n="sport_none">幾乎不運動</option>
-                    <option value="light" data-i18n="sport_light">輕度（每周 1-2 次）</option>
-                    <option value="moderate" data-i18n="sport_moderate">中度（每周 3-4 次）</option>
-                    <option value="heavy" data-i18n="sport_heavy">規律高強度（每周 5 次以上）</option>
-                </select>
-            </div>
-            <button class="btn" id="saveProfileBtn" onclick="saveUserProfile()" data-i18n="save_profile_btn">儲存</button>
-            <button class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
-        </div>
-
-        <!-- 醫療緊急警示防錯區 (在症狀頁顯示) -->
-        <div class="emergency-box" id="emergency-section" style="display:none;">
-            <h3 data-i18n="emg_title" style="color: #c0392b; margin-top: 0;">⚠️ 醫療緊急警示</h3>
-            <p data-i18n="emg_desc" style="font-size: 14px; margin: 0;">若您或觀察對象目前出現以下任何狀況，請<b>立即停止填表並立即就送</b>：</p>
-            <div style="margin-top: 8px; font-size: 14px; line-height: 1.6;">
-                <input type="checkbox" id="emg_1" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_1" data-i18n="emg_1">昏睡叫不醒、意識嚴重改變</label><br>
-                <input type="checkbox" id="emg_2" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_2" data-i18n="emg_2">劇烈頭痛或持續性嘔吐</label><br>
-                <input type="checkbox" id="emg_3" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_3" data-i18n="emg_3">四肢抽搐或癲癇發作</label><br>
-                <input type="checkbox" id="emg_4" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_4" data-i18n="emg_4">肢體突然單側無力、手腳發麻</label><br>
-                <input type="checkbox" id="emg_5" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_5" data-i18n="emg_5">視力模糊、複視（疊影）</label>
-            </div>
-            <div id="emergencyWarning" class="warning-text" data-i18n="warning_text">
-                🚨 偵測到重大危險徵象！請勿填表，請立即前往最近的急診室就醫評估！
-            </div>   
-        </div>
-
         <form id="attack-form" onsubmit="event.preventDefault(); saveAttackForm();">
+            
+            <!-- 頁簽 1：個人基本資料 -->
+            <div id="pane-profile" class="tab-pane form-group hidden">
+                <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料</h3>
+                <div class="form-group">
+                    <label data-i18n="prof_name">1. 暱稱（非必填）</label>
+                    <input type="text" id="prof_nickname" placeholder="例如: 王小明 / Alex">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="prof_birth">2. 出生年 (西元)</label>
+                    <input type="number" id="prof_birthyear" placeholder="例如: 1990">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="prof_gender">3. 性別</label>
+                    <select id="prof_gender">
+                        <option value="" data-i18n="select_default">請選擇...</option>
+                        <option value="male" data-i18n="gender_male">男性</option>
+                        <option value="female" data-i18n="gender_female">女性</option>
+                        <option value="other" data-i18n="gender_other">其他 / 不願透露</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="prof_tbi">4. 是否參與輕度腦外傷研究</label>
+                    <select id="prof_tbi">
+                        <option value="yes" data-i18n="yes">是</option>
+                        <option value="no" data-i18n="no">否</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="prof_sport">5. 運動頻率</label>
+                    <select id="prof_sport">
+                        <option value="none" data-i18n="sport_none">幾乎不運動</option>
+                        <option value="light" data-i18n="sport_light">輕度（每周 1-2 次）</option>
+                        <option value="moderate" data-i18n="sport_moderate">中度（每周 3-4 次）</option>
+                        <option value="heavy" data-i18n="sport_heavy">規律高強度（每周 5 次以上）</option>
+                    </select>
+                </div>
+                <button type="button" class="btn" id="saveProfileBtn" onclick="saveUserProfile()" data-i18n="save_profile_btn">儲存</button>
+                <button type="button" class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
+            </div>
+
              <!-- 頁簽 2：頭痛紀錄 (程度 / 部位 / 用藥 / 備註) -->
             <div id="pane-headache" class="tab-pane hidden">
+                
+                <!-- 醫療緊急警示防錯區 -->
+                <div class="emergency-box" id="emergency-section">
+                    <h3 data-i18n="emg_title" style="color: #c0392b; margin-top: 0;">⚠️ 醫療緊急警示</h3>
+                    <p data-i18n="emg_desc" style="font-size: 14px; margin: 0;">若您或觀察對象目前出現以下任何狀況，請<b>立即停止填表並立即就送</b>：</p>
+                    <div style="margin-top: 8px; font-size: 14px; line-height: 1.6;">
+                        <input type="checkbox" id="emg_1" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_1" data-i18n="emg_1">昏睡叫不醒、意識嚴重改變</label><br>
+                        <input type="checkbox" id="emg_2" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_2" data-i18n="emg_2">劇烈頭痛或持續性嘔吐</label><br>
+                        <input type="checkbox" id="emg_3" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_3" data-i18n="emg_3">四肢抽搐或癲癇發作</label><br>
+                        <input type="checkbox" id="emg_4" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_4" data-i18n="emg_4">肢體突然單側無力、手腳發麻</label><br>
+                        <input type="checkbox" id="emg_5" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_5" data-i18n="emg_5">視力模糊、複視（疊影）</label>
+                    </div>
+                    <div id="emergencyWarning" class="warning-text" data-i18n="warning_text">
+                        🚨 偵測到重大危險徵象！請勿填表，請立即前往最近的急診室就醫評估！
+                    </div>   
+                </div>
+
                 <div class="form-group">
                     <label for="input-pain" data-i18n="headache_pain_label">頭痛程度</label>
                     <select id="input-pain">
@@ -159,9 +161,9 @@
                     <button type="button" class="btn btn-prev" onclick="navigate(-1)" data-i18n="prev_btn">上一頁</button>
                     <button type="button" class="btn btn-next" onclick="navigate(1)" data-i18n="next_btn">下一頁</button>
                 </div>
-             </div>
+               </div>
  
-            <!-- 頁簽 3：10 大症狀填寫區 (修正：pane-symptoms) -->
+            <!-- 頁簽 3：10 大症狀填寫區 -->
             <div id="pane-symptoms" class="tab-pane hidden">
                 <div class="form-group"><label data-i18n="sym_1">1. 持續性頭痛</label><div class="slider-container"><input type="range" name="sym1" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
                 <div class="form-group"><label data-i18n="sym_2">2. 頭暈、失去平衡或步態不穩</label><div class="slider-container"><input type="range" name="sym2" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
@@ -184,7 +186,7 @@
                 </div>
             </div>
 
-            <!-- 頁簽 4：健康資料 (修正：pane-band) -->
+            <!-- 頁簽 4：健康資料 -->
             <div id="pane-band" class="tab-pane hidden">
                 <div class="form-group">
                     <label data-i18n="band_hr">❤️ 即時心跳 (bpm)</label>
@@ -204,7 +206,7 @@
                 </div>
                 <div class="button-group">
                     <button type="button" class="btn btn-prev" onclick="navigate(-1)" data-i18n="prev_btn">上一頁</button>
-                    <button type="submit" class="btn btn-next" id="submitBtn" onclick="saveFullRecord()" data-i18n="submit_btn">儲存紀錄</button>
+                    <button type="submit" class="btn btn-next" id="submitBtn" data-i18n="submit_btn">儲存紀錄</button>
                 </div>
             </div>
 
