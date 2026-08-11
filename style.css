@@ -13,14 +13,14 @@
    若你要改用新版 body（滿版、背景 #f4f4f4），
    把下面這段註解掉，改用文末的「新版 body」
 ------------------------------ */
+/* 讓主畫面容器撐開 */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 10px;
-    background-color: #f8f9fa;
-    color: #333;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 20px;
 }
+
+
 
 /* -----------------------------
    新增：nav（原本 HeadacheV3 沒有這個元件）
@@ -44,13 +44,17 @@ nav {
    已把新版的圓角/陰影數值套用進來（10px / 0 0 8px），
    其餘保留原本排版屬性避免頁面跑版
 ------------------------------ */
+/* 預設手機版：幾乎滿版 */
 .card {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 0 8px rgba(0,0,0,.1);
-    margin-bottom: 20px;
-    text-align: center;
+    width: 95%;
+    margin: 10px auto;
+}
+
+/* 當螢幕寬度大於 768px (平板/電腦) 時限制最大寬度，避免電腦上看過寬 */
+@media (min-width: 768px) {
+    .card {
+        max-width: 800px; 
+    }
 }
 .card-left { text-align: left; }
 
@@ -112,24 +116,17 @@ input[type="range"] { flex: 1; height: 40px; }
 /* -----------------------------
    新增：通用 button 標籤樣式（給非 .btn 的原生 <button>，例如 nav 內按鈕）
 ------------------------------ */
+/* 共用按鈕基礎樣式 */
 button {
-    background: #1565C0;
-    color: white;
     padding: 10px 20px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-}
-button {
-    background: #1565C0;
     color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
+    background: #1565C0; /* 預設藍色 */
 }
 
-/* 請加上這段：用來讓上一頁與下一頁按鈕左右並排 */
+/* 按鈕群組：左右並排 */
 .button-group {
     display: flex;
     justify-content: space-between;
@@ -137,7 +134,17 @@ button {
 }
 
 .button-group button {
-    width: 48%; /* 讓兩顆按鈕各自佔據約一半的寬度，排版才會好看 */
+    width: 48%;
+}
+
+/* 上一頁按鈕專用顏色（灰色） */
+.btn-prev {
+    background: #78909C !important;
+}
+
+/* 下一步/確認送出按鈕專用顏色（維持藍色或改綠色） */
+.btn-next {
+    background: #1565C0 !important;
 }
 /* -----------------------------
    若你想改用「新版 body」（滿版風格），取消下面註解，
