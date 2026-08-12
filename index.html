@@ -57,7 +57,24 @@
         </div>
         
         <div id="weather-status" data-i18n="weather_loading">⏳ 正在取得氣象及空污數據...</div>
+    <!-- 手動選擇地區面板 -->
+    <div id="manual-location-box" style="display: none; margin-top: 10px; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 6px;">
+      <h6 style="margin-top: 0; color: #333;">🗺️ 手動選擇全台地區</h6>
+  
+      <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+        <!-- 縣市選單 -->
+        <select id="select-city" class="form-control" onchange="updateDistricts()">
+          <option value="">請選擇縣市...</option>
+        </select>
 
+        <!-- 鄉鎮市區選單 -->
+        <select id="select-district" class="form-control">
+          <option value="">請先選擇縣市</option>
+        </select>
+      </div>
+
+  <button class="btn btn-sm btn-success" onclick="applySelectedLocation()">套用此地區氣象</button>
+</div>
         <form id="attack-form" onsubmit="event.preventDefault(); saveAttackForm();">
             
             <!-- 頁簽 1：個人基本資料 -->
