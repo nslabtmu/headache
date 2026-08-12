@@ -4,7 +4,7 @@ const REQUIRE_LOCATION_FOR_SUBMIT = false;
 var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // 2. ✅ 把 onAuthStateChange 放在這裡（最外層）
-supabase.auth.onAuthStateChange((event, session) => {
+/*supabase.auth.onAuthStateChange((event, session) => {
     console.log("偵測到登入狀態變更:", event);
     
     if (session) {
@@ -16,10 +16,10 @@ supabase.auth.onAuthStateChange((event, session) => {
         // 執行你的主應用程式顯示邏輯
         showMainApp(session.user);
     }
-});
+});*/
 
 // 3. 網頁載入時的初始檢查
-document.addEventListener("DOMContentLoaded", () => {
+/*document.addEventListener("DOMContentLoaded", () => {
     initTaiwanSelect(); 
 
     // 檢查同意狀態
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showMainApp(session.user);
         }
     });
-});
+});*/
 
 // 4. 其他你的函式 (例如 agreeConsent, handleGoogleLogin 等)
 function agreeConsent() {
@@ -64,7 +64,7 @@ let locationReady = false;
 const pageOrder = [ 'pane-headache', 'pane-symptoms', 'pane-band', 'pane-chart', 'pane-profile'];
 
 // 頁面一載入，立刻執行初始化與步驟 1 (IP 定位)
-document.addEventListener("DOMContentLoaded", () => {
+/*document.addEventListener("DOMContentLoaded", () => {
     initTaiwanSelect(); 
 
     // 如果之前已經按過同意書，直接跳過同意書，顯示登入卡
@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showMainApp(session.user);
         }
     });
-});
+});*/
 
 // 點擊不同意書後的回應
 function disagreeConsent() {
@@ -107,7 +107,7 @@ async function handleLogout() {
     }
 
     // 2. 關鍵：清除「已同意同意書」的記錄與其他暫存資料
-    localStorage.removeItem('has_agreed_consent');
+   // localStorage.removeItem('has_agreed_consent');
     // 如果你還有存其他使用者資料，也可以在這裡清除
     // localStorage.clear(); // 如果整站只需要清這個，用 removeItem 就好
 
@@ -401,14 +401,14 @@ async function handleGoogleLogin() {
 }
 
 // ✅ 登出
-async function handleLogout() {
+/*async function handleLogout() {
     const { error } = await supabase.auth.signOut();
     if (error) {
         alert("登出失敗：" + error.message);
     } else {
         location.reload();
     }
-}
+}*/
 
 // ✅ 顯示主應用
 function showMainApp(user) {
@@ -420,13 +420,13 @@ function showMainApp(user) {
 }
 
 // ✅ 檢查登入狀態
-supabase.auth.getSession().then(({ data: { session } }) => {
+/*supabase.auth.getSession().then(({ data: { session } }) => {
     if (session) {
         document.getElementById('consent-card').classList.add('hidden');
         document.getElementById('auth-card').classList.add('hidden');
         showMainApp(session.user);
     }
-});
+});*/
 
 // ✅ 載入用戶個人資料
 async function loadUserProfile(userId) {
@@ -769,4 +769,80 @@ async function loadUserHistory(userId) {
             }
         }
     });
+}
+const REQUIRE_LOCATION_FOR_SUBMIT = false;
+var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let hasEnteredMainApp = false; // 避免 showMainApp 被重複觸發
+
+// ✅ 唯一的登入狀態監聽（處理登入/登出的即時事件）
+supabase.auth.onAuthStateChange((event, session) => {
+    console.log("偵測到登入狀態變更:", event);
+
+    if (session && !hasEnteredMainApp) {
+        hasEnteredMainApp = true;
+        document.getElementById('consent-card').classList.add('hidden');
+        document.getElementById('auth-card').classList.add('hidden');
+        document.getElementById('main-card').classList.remove('hidden');
+        showMainApp(session.user);
+    } else if (!session) {
+        hasEnteredMainApp = false; // ★ 登出後重置，允許下次登入重新觸發
+    }
+});
+
+// ✅ 唯一的頁面初始化（處理「重新整理頁面」這種既有狀態）
+document.addEventListener("DOMContentLoaded", () => {
+    initTaiwanSelect();
+
+    if (localStorage.getItem('has_agreed_consent') === 'true') {
+        document.getElementById('consent-card').classList.add('hidden');
+        document.getElementById('auth-card').classList.remove('hidden');
+    }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session && !hasEnteredMainApp) {
+            hasEnteredMainApp = true;
+            document.getElementById('consent-card').classList.add('hidden');
+            document.getElementById('auth-card').classList.add('hidden');
+            document.getElementById('main-card').classList.remove('hidden');
+            showMainApp(session.user);
+        }
+    });
+});
+
+// ✅ 同意書
+function agreeConsent() {
+    localStorage.setItem('has_agreed_consent', 'true');
+    document.getElementById('consent-card').classList.add('hidden');
+    document.getElementById('auth-card').classList.remove('hidden');
+}
+
+function disagreeConsent() {
+    alert("很抱歉，若您不同意研究參與，將無法使用本系統進行紀錄。");
+}
+
+// ✅ Google 登入
+async function handleGoogleLogin() {
+    const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + window.location.pathname } // ★ 只帶乾淨網址，不帶殘留的 hash/query
+    });
+    if (error) {
+        alert("Google 登入失敗：" + error.message);
+        console.error(error);
+    }
+}
+
+// ✅ 唯一的登出（關鍵修正處）
+async function handleLogout() {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+        console.error("登出發生錯誤:", error.message);
+    }
+
+    localStorage.removeItem('has_agreed_consent'); // 清除同意記錄
+    hasEnteredMainApp = false;
+
+    // ★ 導向「乾淨網址」而非 reload 同一頁，避免帶著殘留 OAuth 參數
+    window.location.href = window.location.origin + window.location.pathname;
 }
