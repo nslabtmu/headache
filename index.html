@@ -20,6 +20,8 @@
 <body>
 
     <button class="lang-btn" onclick="toggleLanguage()" style="font-size: 16px; color: #2c3e50;">🌐 中/En</button>
+  <!-- 🆕 新增：重填同意書按鈕 (預設隱藏，登入後才顯示) -->
+    <button id="resetConsentBtn" class="lang-btn hidden" onclick="resetConsent()" style="top: 60px; font-size: 14px; color: #e74c3c;">📄 重填同意書</button>
 
     <!-- 1. 同意書卡片 (最先顯示) -->
     <div class="card card-left" id="consent-card">
