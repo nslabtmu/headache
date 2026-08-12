@@ -1,11 +1,3 @@
-// main.js — 完整修復版本
-// 修復項目：
-// 1. 移除重複的 showPane() 函數
-// 2. 修復 switchTab() 中的元素 ID 映射
-// 3. 修復 navigate() 函數的 pageOrder
-// 4. 添加 i18n 初始化
-// 5. 修復緊急警示邏輯
-// 6. 添加 toggleMedicationName() 函數
 
 const REQUIRE_LOCATION_FOR_SUBMIT = false;
 
@@ -17,7 +9,61 @@ let currentLang = 'zh-TW';
 let locationReady = false;
 
 // ✅ 修正：頁簽順序與實際 ID 一致
-const pageOrder = ['pane-profile', 'pane-headache', 'pane-symptoms', 'pane-band', 'pane-chart'];
+const pageOrder = [ 'pane-headache', 'pane-symptoms', 'pane-band', 'pane-chart', 'pane-profile'];
+
+// 當台灣縣市改變時，這個函式會被自動呼叫
+function updateDistricts() {
+    // 1. 取得使用者目前選中的縣市名稱（例如：'台北市'）
+    const city = document.getElementById('select-city').value;
+    
+    // 2. 找到第二個「鄉鎮市區」的下拉選單
+    const districtSelect = document.getElementById('select-district');
+    
+    // 3. 先清空原本的鄉鎮選單，並加上預設提示字眼
+    districtSelect.innerHTML = '<option value="">請選擇鄉鎮市區...</option>';
+
+    // 4. 如果有選縣市，且你的 taiwanDistricts 裡面找得到這個縣市
+    if (city && taiwanDistricts[city]) {
+        // 5. 用迴圈跑過該縣市底下的每一個區（例如：中正區、大安區...），動態加進選單裡
+        taiwanDistricts[city].forEach(district => {
+            const option = document.createElement('option');
+            option.value = district;
+            option.textContent = district;
+            districtSelect.appendChild(option);
+        });
+    }
+}
+// 初始化國際國家選單
+function initGlobalCountries() {
+    const countrySelect = document.getElementById('select-global-country');
+    if (countrySelect.options.length > 1) return; 
+
+    countrySelect.innerHTML = '<option value="">請選擇國家...</option>';
+    
+    // 直接讀取獨立檔案裡的 globalLocations
+    for (const country in globalLocations) {
+        const option = document.createElement('option');
+        option.value = country;
+        option.textContent = country;
+        countrySelect.appendChild(option);
+    }
+}
+
+// 當國家改變時，更新城市選單
+function updateGlobalCities() {
+    const country = document.getElementById('select-global-country').value;
+    const citySelect = document.getElementById('select-global-city');
+    citySelect.innerHTML = '<option value="">請選擇城市...</option>';
+
+    if (country && globalLocations[country]) {
+        globalLocations[country].forEach(cityObj => {
+            const option = document.createElement('option');
+            option.value = `${cityObj.lat},${cityObj.lon}`;
+            option.textContent = cityObj.name;
+            citySelect.appendChild(option);
+        });
+    }
+}
 
 // ✅ 統一的 showPane 函數（只定義一次）
 function showPane(paneId) {
