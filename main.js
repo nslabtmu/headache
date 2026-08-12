@@ -3,6 +3,58 @@ const REQUIRE_LOCATION_FOR_SUBMIT = false;
 
 var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// 2. ✅ 把 onAuthStateChange 放在這裡（最外層）
+supabase.auth.onAuthStateChange((event, session) => {
+    console.log("偵測到登入狀態變更:", event);
+    
+    if (session) {
+        // 使用者已經登入，直接跳到主畫面
+        document.getElementById('consent-card').classList.add('hidden');
+        document.getElementById('auth-card').classList.add('hidden');
+        document.getElementById('main-card').classList.remove('hidden');
+        
+        // 執行你的主應用程式顯示邏輯
+        showMainApp(session.user);
+    }
+});
+
+// 3. 網頁載入時的初始檢查
+document.addEventListener("DOMContentLoaded", () => {
+    initTaiwanSelect(); 
+
+    // 檢查同意狀態
+    if (localStorage.getItem('has_agreed_consent') === 'true') {
+        document.getElementById('consent-card').classList.add('hidden');
+        document.getElementById('auth-card').classList.remove('hidden');
+    }
+    
+    // 額外檢查：如果已經登入但重新整理頁面，確保 session 有被抓到
+    supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+            document.getElementById('consent-card').classList.add('hidden');
+            document.getElementById('auth-card').classList.add('hidden');
+            document.getElementById('main-card').classList.remove('hidden');
+            showMainApp(session.user);
+        }
+    });
+});
+
+// 4. 其他你的函式 (例如 agreeConsent, handleGoogleLogin 等)
+function agreeConsent() {
+    localStorage.setItem('has_agreed_consent', 'true');
+    document.getElementById('consent-card').classList.add('hidden');
+    document.getElementById('auth-card').classList.remove('hidden');
+}
+
+async function handleGoogleLogin() {
+    const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+    });
+    if (error) alert("登入失敗: " + error.message);
+}
+
+
+
 let currentWeather = null;
 let chartInstance = null;
 let currentLang = 'zh-TW';
