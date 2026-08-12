@@ -160,7 +160,7 @@ function navigate(direction) {
     const targetIndex = currentIndex + direction;
     
     if (targetIndex >= 0 && targetIndex < pageOrder.length) {
-        showPane(pageOrder[targetIndex]);
+       switchTab(tabNames[targetIndex]);
     } else if (direction > 0) {
         alert("已到達最後一頁");
     } else {
