@@ -19,7 +19,7 @@
 </head>
 <body>
 
-    <button class="lang-btn" onclick="toggleLanguage()">🌐 中/En</button>
+    <button class="lang-btn" onclick="toggleLanguage()" style="font-size: 16px; color: #2c3e50;">🌐 中/En</button>
 
     <!-- 1. 同意書卡片 (最先顯示) -->
     <div class="card card-left" id="consent-card">
@@ -41,6 +41,7 @@
             <span data-i18n="google_login_btn">使用 Google 帳號快速登入</span>
         </button>
     </div>
+ 
 <!-- 1. 氣象狀態提示 -->
 <div id="weather-status" style="margin-bottom: 5px; font-weight: 500;">⏳ 正在取得氣象數據...</div>
 
@@ -52,7 +53,6 @@
   <div style="margin-bottom: 12px;">
     <button type="button" class="btn btn-sm btn-primary" onclick="requestBrowserGPS()">📍 A. 開啟瀏覽器精準定位 (GPS)</button>
   </div>
-
   <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
 
   <!-- 選項 B：台灣地區手動選擇 -->
