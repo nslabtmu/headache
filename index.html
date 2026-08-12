@@ -48,7 +48,14 @@
             <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛日誌</h2>
             <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;" data-i18n="logout_btn">登出</button>
         </div>
-
+    <!-- 手機版專用：下拉式選單切換頁簽 -->
+    <select class="tabs-select-mobile" onchange="switchTab(this.value)" id="mobile-tab-select">
+        <option value="headache" data-i18n="tab_headache">🤕 頭痛紀錄</option>
+        <option value="symptom" data-i18n="tab_symptom">📝 相關症狀</option>
+        <option value="band" data-i18n="tab_band">⌚ 其他資料</option>
+        <option value="chart" data-i18n="tab_chart">📈 趨勢圖表</option>
+        <option value="profile" data-i18n="tab_profile">👤 個人基本資料</option>
+    </select>
         <!-- 頁簽切換按鈕群組 -->
         <div class="tabs">
             <button class="tab-btn" id="btn-tab-headache" onclick="switchTab('headache')" data-i18n="tab_headache">🤕 頭痛紀錄</button>
