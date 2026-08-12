@@ -267,6 +267,11 @@ function switchTab(tabName) {
     if (tabName === 'headache' || tabName === 'symptom') {
         emergencySection.style.display = 'block';
     }
+    // 同步更新手機版下拉選單的值
+    const mobileSelect = document.getElementById('mobile-tab-select');
+    if (mobileSelect) {
+        mobileSelect.value = tabName;
+    }
 }
 
 // ✅ 新增：藥物輸入框的顯示/隱藏
