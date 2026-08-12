@@ -1,38 +1,23 @@
 /* ==========================================================
-   style.css — 合併版
-   來源1：HeadacheV3 原本頁面的 <style>
-   來源2：新提供的 nav / container / card / button 樣式
-   ⚠️ body 與 .card 兩邊都有定義，已在下方標註衝突並選擇保留版本
+   style.css — 整理版
+   已移除重複區塊，並解決以下衝突：
+   1. .card：手機版 95% 寬 + 20px margin，桌面版 (>=768px) max-width 800px
+   2. .tabs：採用「手機版下拉選單 / 桌面版橫向按鈕」的 RWD 版本
+      （原本檔案裡有兩段 .tabs 互相打架，這裡只保留正確生效的那組）
+   3. 其餘重複的 .lang-btn / .tab-btn / .form-group / .btn / .google-btn /
+      .pdf-container / .hidden / #weather-status 只保留一份
    ========================================================== */
 
 * { box-sizing: border-box; }
 
-/* -----------------------------
-   body：兩邊有衝突，目前保留 HeadacheV3 版本
-   （因為 max-width:600px 讓手機版排版正常置中）
-   若你要改用新版 body（滿版、背景 #f4f4f4），
-   把下面這段註解掉，改用文末的「新版 body」
------------------------------- */
-/* 讓主畫面容器撐開 */
 body {
     background-color: #f0f2f5;
     margin: 0;
     padding: 20px;
 }
-/* 限制電腦版卡片最大寬度，避免拉太寬 */
-.card {
-    width: 95%;
-    max-width: 600px; /* 從 800px 縮小，讓表單在電腦看更集中、精緻 */
-    margin: 20px auto;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
-.card-left { text-align: left; }
 
 /* -----------------------------
-   新增：nav（原本 HeadacheV3 沒有這個元件）
+   nav / container（外層版面元件）
 ------------------------------ */
 nav {
     background: #1565C0;
@@ -40,41 +25,75 @@ nav {
     padding: 15px;
 }
 
-/* -----------------------------
-   新增：container（原本 HeadacheV3 沒有這個 class）
------------------------------- */
 .container {
     padding: 20px;
 }
 
 /* -----------------------------
-   .card：兩邊有衝突，目前保留 HeadacheV3 版本
-   （原本頁面靠 text-align:center 和 margin-bottom 做卡片間距與置中）
-   已把新版的圓角/陰影數值套用進來（10px / 0 0 8px），
-   其餘保留原本排版屬性避免頁面跑版
+   卡片容器
+   手機版：95% 寬、置中
+   桌面版 (>=768px)：限制最大寬度 800px，避免拉太寬
 ------------------------------ */
-/* 預設手機版：幾乎滿版 */
 .card {
     width: 95%;
     margin: 10px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-/* 當螢幕寬度大於 768px (平板/電腦) 時限制最大寬度，避免電腦上看過寬 */
 @media (min-width: 768px) {
     .card {
-        max-width: 800px; 
+        max-width: 800px;
     }
 }
+
 .card-left { text-align: left; }
 
+/* -----------------------------
+   語言切換按鈕
+------------------------------ */
 .lang-btn {
     position: fixed; top: 10px; right: 10px; z-index: 1000;
     padding: 5px 10px; border-radius: 20px; border: 1px solid #ddd;
     background: white; cursor: pointer; font-weight: bold;
 }
 
-/* 頁簽樣式 */
-.tabs { display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; }
+/* -----------------------------
+   頁簽（RWD）
+   手機版：顯示下拉選單，隱藏橫向按鈕群組
+   桌面版 (>=768px)：隱藏下拉選單，顯示橫向頁簽按鈕
+------------------------------ */
+.tabs-select-mobile {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: #fff;
+    color: #333;
+}
+
+.tabs {
+    display: none; /* 手機版預設隱藏橫向按鈕 */
+}
+
+@media (min-width: 768px) {
+    .tabs-select-mobile {
+        display: none !important;
+    }
+    .tabs {
+        display: flex !important;
+        gap: 5px;
+        margin-bottom: 15px;
+        overflow-x: auto;
+    }
+}
+
 .tab-btn {
     flex: 1; padding: 8px 10px; border: none; background: #e0e0e0;
     border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px;
@@ -82,6 +101,9 @@ nav {
 }
 .tab-btn.active { background: #3498db; color: white; }
 
+/* -----------------------------
+   表單元件
+------------------------------ */
 .form-group { margin-bottom: 15px; text-align: left; }
 label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
 input[type="text"], input[type="number"], textarea, select {
@@ -89,7 +111,7 @@ input[type="text"], input[type="number"], textarea, select {
 }
 
 /* -----------------------------
-   .btn：HeadacheV3 專用按鈕 class（跟新版通用 button 標籤不同，兩者不衝突，都保留）
+   .btn：HeadacheV3 專用按鈕 class
 ------------------------------ */
 .btn {
     background: #3498db; color: white; border: none; padding: 15px;
@@ -123,9 +145,8 @@ input[type="range"] { flex: 1; height: 40px; }
 #weather-status { font-size: 13px; color: #555; background: #e8f4f8; padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: left; }
 
 /* -----------------------------
-   新增：通用 button 標籤樣式（給非 .btn 的原生 <button>，例如 nav 內按鈕）
+   通用 button 標籤樣式（給非 .btn 的原生 <button>，例如 nav 內按鈕）
 ------------------------------ */
-/* 共用按鈕基礎樣式 */
 button {
     padding: 10px 20px;
     border: none;
@@ -133,6 +154,11 @@ button {
     cursor: pointer;
     color: white;
     background: #1565C0; /* 預設藍色 */
+}
+
+button span {
+    display: inline !important;
+    visibility: visible !important;
 }
 
 /* 按鈕群組：左右並排 */
@@ -151,100 +177,7 @@ button {
     background: #78909C !important;
 }
 
-/* 下一步/確認送出按鈕專用顏色（維持藍色或改綠色） */
+/* 下一步/確認送出按鈕專用顏色 */
 .btn-next {
     background: #1565C0 !important;
 }
-/* -----------------------------
-   若你想改用「新版 body」（滿版風格），取消下面註解，
-   並把上面 HeadacheV3 版本的 body 規則刪掉或註解掉
-------------------------------
-body {
-    font-family: Arial;
-    background: #f4f4f4;
-    margin: 0;
-}
-*/
-/* 強制讓按鈕內的文字顯示 */
-button span {
-    display: inline !important;
-    visibility: visible !important;
-}
-* { box-sizing: border-box; }
-
-
-
-
-
-
-
-.lang-btn {
-    position: fixed; top: 10px; right: 10px; z-index: 1000;
-    padding: 5px 10px; border-radius: 20px; border: 1px solid #ddd;
-    background: white; cursor: pointer; font-weight: bold;
-}
-
-/* -----------------------------
-   頁簽 RWD 設計：
-   預設（手機版）：顯示下拉選單，隱藏橫向按鈕群組
------------------------------- */
-.tabs-select-mobile {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: bold;
-    background-color: #fff;
-    color: #333;
-}
-
-.tabs { 
-    display: none; /* 手機版預設隱藏橫向按鈕 */
-}
-
-/* 平板與電腦版 (螢幕寬度大於 768px)：隱藏下拉選單，改顯示橫向頁簽按鈕 */
-@media (min-width: 768px) {
-    .tabs-select-mobile {
-        display: none !important;
-    }
-    .tabs { 
-        display: flex !important; 
-        gap: 5px; 
-        margin-bottom: 15px; 
-        overflow-x: auto; 
-    }
-}
-
-.tab-btn {
-    flex: 1; padding: 8px 10px; border: none; background: #e0e0e0;
-    border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px;
-    transition: background 0.2s; white-space: nowrap;
-}
-.tab-btn.active { background: #3498db; color: white; }
-
-.form-group { margin-bottom: 15px; text-align: left; }
-label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
-input[type="text"], input[type="number"], textarea, select {
-    width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;
-}
-
-.btn {
-    background: #3498db; color: white; border: none; padding: 15px;
-    width: 100%; border-radius: 6px; cursor: pointer; font-size: 16px;
-    font-weight: bold; transition: background 0.2s;
-}
-.btn:hover { background: #2980b9; }
-
-.google-btn {
-    background: white; color: #444; border: 1px solid #ddd;
-    display: flex; align-items: center; justify-content: center;
-    gap: 10px; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-.google-btn:hover { background: #f1f1f1; }
-
-.pdf-container { width: 100%; height: 350px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 15px; background: #eee; }
-.hidden { display: none; }
-#weather-status { font-size: 13px; color: #555; background: #e8f4f8; padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: left; }
