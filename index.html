@@ -8,11 +8,14 @@
 <script src="./config.js"></script>
 <!-- 語言設定檔 -->
 <script src="./i18n.js"></script>
-    
+ <!-- 台灣鄉鎮資料 -->
+<script src="./districts.js"></script>  
+ <!-- 國際城市資料 --> 
+<script src="./global-locations.js"></script>        
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HeadacheV8</title>
+    <title>HeadacheV9</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -57,24 +60,43 @@
         </div>
         
         <div id="weather-status" data-i18n="weather_loading">⏳ 正在取得氣象及空污數據...</div>
-    <!-- 手動選擇地區面板 -->
-    <div id="manual-location-box" style="display: none; margin-top: 10px; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 6px;">
-      <h6 style="margin-top: 0; color: #333;">🗺️ 手動選擇全台地區</h6>
+        
+<!-- 手動選擇地區面板 -->
+<div id="manual-location-box" style="display: none; margin-top: 10px; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 6px;">
+  <h6 style="margin-top: 0; color: #333;">🗺️ 選擇地區氣象</h6>
   
-      <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-        <!-- 縣市選單 -->
-        <select id="select-city" class="form-control" onchange="updateDistricts()">
-          <option value="">請選擇縣市...</option>
-        </select>
+  <!-- 1. 選擇是要台灣還是非台灣 -->
+  <div class="form-group" style="margin-bottom: 10px;">
+    <select id="location-type" class="form-control" onchange="toggleLocationType()">
+      <option value="taiwan">🇹🇼 台灣)</option>
+      <option value="global">🌍 國際城市</option>
+    </select>
+  </div>
 
-        <!-- 鄉鎮市區選單 -->
-        <select id="select-district" class="form-control">
-          <option value="">請先選擇縣市</option>
-        </select>
-      </div>
+  <!-- 2A. 台灣專用選單 (使用你的 taiwanDistricts) -->
+  <div id="taiwan-select-group" style="display: flex; gap: 10px; margin-bottom: 10px;">
+    <select id="select-city" class="form-control" onchange="updateDistricts()">
+      <option value="">請選擇縣市...</option>
+    </select>
+    <select id="select-district" class="form-control">
+      <option value="">請先選擇縣市</option>
+    </select>
+  </div>
 
-  <button class="btn btn-sm btn-success" onclick="applySelectedLocation()">套用此地區氣象</button>
+  <!-- 2B. 非台灣國際選單 (預設隱藏) -->
+  <div id="global-select-group" style="display: none; gap: 10px; margin-bottom: 10px;">
+    <select id="select-global-country" class="form-control" onchange="updateGlobalCities()">
+      <option value="">請選擇國家...</option>
+    </select>
+    <select id="select-global-city" class="form-control">
+      <option value="">請先選擇國家</option>
+    </select>
+  </div>
+
+  <button class="btn btn-sm btn-success" onclick="applySelectedLocation()">顯示地區氣象</button>
 </div>
+
+        
         <form id="attack-form" onsubmit="event.preventDefault(); saveAttackForm();">
             
             <!-- 頁簽 1：個人基本資料 -->
