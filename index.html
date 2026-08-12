@@ -59,20 +59,36 @@
             <button class="tab-btn" id="btn-tab-profile" onclick="switchTab('profile')" data-i18n="tab_profile">👤 個人基本資料</button>
         </div>
         
-        <div id="weather-status" data-i18n="weather_loading">⏳ 正在取得氣象及空污數據...</div>
-        
-<!-- 手動選擇地區面板 -->
-<div id="manual-location-box" style="display: none; margin-top: 10px; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 6px;">
-  <h6 style="margin-top: 0; color: #333;">🗺️ 選擇地區氣象</h6>
   
-  <!-- 1. 選擇是要台灣還是非台灣 -->
-  <div class="form-group" style="margin-bottom: 10px;">
-    <select id="location-type" class="form-control" onchange="toggleLocationType()">
-      <option value="taiwan">🇹🇼 台灣)</option>
-      <option value="global">🌍 國際城市</option>
-    </select>
+        
+<!-- 1. 氣象狀態提示 -->
+<div id="weather-status" style="margin-bottom: 5px; font-weight: 500;">⏳ 正在取得氣象數據...</div>
+
+<!-- 2. 手動選擇與備用定位面板 (預設隱藏，IP 失敗時自動秀出) -->
+<div id="manual-location-box" style="display: none; margin-top: 10px; padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+  <h6 style="margin-top: 0; color: #333;">⚠️ 無法自動取得您的位置，請選擇以下方式：</h6>
+  
+  <!-- 選項 A：開啟瀏覽器精準定位 (GPS) -->
+  <div style="margin-bottom: 12px;">
+    <button type="button" class="btn btn-sm btn-primary" onclick="requestBrowserGPS()">📍 A. 開啟瀏覽器精準定位 (GPS)</button>
   </div>
 
+  <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
+
+  <!-- 選項 B：台灣地區手動選擇 -->
+  <div>
+    <p style="margin: 0 0 5px 0; font-size: 13px; color: #666;">B. 台灣地區手動選擇：</p>
+    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+      <select id="select-city" class="form-control" onchange="updateDistricts()">
+        <option value="">請選擇縣市...</option>
+      </select>
+      <select id="select-district" class="form-control">
+        <option value="">請先選擇縣市</option>
+      </select>
+    </div>
+    <button type="button" class="btn btn-sm btn-success" onclick="applyTaiwanManualLocation()">套用台灣選定地區</button>
+  </div>
+</div>
   <!-- 2A. 台灣專用選單 (使用你的 taiwanDistricts) -->
   <div id="taiwan-select-group" style="display: flex; gap: 10px; margin-bottom: 10px;">
     <select id="select-city" class="form-control" onchange="updateDistricts()">
