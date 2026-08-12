@@ -16,7 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
     initTaiwanSelect(); // 初始化台灣縣市選單備用
 });
 
-
+// 點擊不同意書後的回應
+function disagreeConsent() {
+    alert("很抱歉，若您不同意研究參與，將無法使用本系統進行紀錄。");
+    // 你也可以選擇重新導向到其他頁面，或留在原地
+}
 
 // --- 2. 無法定位時的處理（顯示選項 A 與 B 面板） ---
 /*function handleLocationFailure() {
