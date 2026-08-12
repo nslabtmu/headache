@@ -99,7 +99,21 @@ function disagreeConsent() {
     // 顯示手動選擇與 GPS 備用面板
     document.getElementById('manual-location-box').style.display = 'block';
 }*/
+async function handleLogout() {
+    // 1. 呼叫 Supabase 登出
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+        console.error("登出發生錯誤:", error.message);
+    }
 
+    // 2. 關鍵：清除「已同意同意書」的記錄與其他暫存資料
+    localStorage.removeItem('has_agreed_consent');
+    // 如果你還有存其他使用者資料，也可以在這裡清除
+    // localStorage.clear(); // 如果整站只需要清這個，用 removeItem 就好
+
+    // 3. 強制重新整理並導回最乾淨的初始畫面（同意書）
+    window.location.href = window.location.pathname; 
+}
 // --- 選項 A：開啟瀏覽器精準定位 (GPS) ---
 function requestBrowserGPS() {
     const statusEl = document.getElementById('weather-status');
