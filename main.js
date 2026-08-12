@@ -13,7 +13,24 @@ const pageOrder = [ 'pane-headache', 'pane-symptoms', 'pane-band', 'pane-chart',
 
 // 頁面一載入，立刻執行初始化與步驟 1 (IP 定位)
 document.addEventListener("DOMContentLoaded", () => {
-    initTaiwanSelect(); // 初始化台灣縣市選單備用
+    initTaiwanSelect(); 
+
+    // 如果之前已經按過同意書，直接跳過同意書，顯示登入卡
+    if (localStorage.getItem('has_agreed_consent') === 'true') {
+        const consentCard = document.getElementById('consent-card');
+        const authCard = document.getElementById('auth-card');
+        if (consentCard) consentCard.classList.add('hidden');
+        if (authCard) authCard.classList.remove('hidden');
+    }
+
+    // 檢查 Supabase 是否已經登入
+    supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+            document.getElementById('consent-card').classList.add('hidden');
+            document.getElementById('auth-card').classList.add('hidden');
+            showMainApp(session.user);
+        }
+    });
 });
 
 // 點擊不同意書後的回應
@@ -292,7 +309,15 @@ function checkEmergency() {
 }
 
 // 點擊同意書後進入登入畫面
+/*function agreeConsent() {
+    document.getElementById('consent-card').classList.add('hidden');
+    document.getElementById('auth-card').classList.remove('hidden');
+}*/
 function agreeConsent() {
+    // 1. 記錄使用者已經同意過，避免重新整理又跳回同意書
+    localStorage.setItem('has_agreed_consent', 'true');
+
+    // 2. 隱藏同意書，顯示你貼的這張 Google 登入卡片
     document.getElementById('consent-card').classList.add('hidden');
     document.getElementById('auth-card').classList.remove('hidden');
 }
