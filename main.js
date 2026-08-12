@@ -33,37 +33,123 @@ function updateDistricts() {
         });
     }
 }
-// 初始化國際國家選單
-function initGlobalCountries() {
-    const countrySelect = document.getElementById('select-global-country');
-    if (countrySelect.options.length > 1) return; 
+// 頁面一載入，立刻執行初始化與步驟 1 (IP 定位)
+document.addEventListener("DOMContentLoaded", () => {
+    initTaiwanSelect(); // 初始化台灣縣市選單備用
+    tryIPLocation();     // 步驟 1：直接 IP 定位
+});
 
-    countrySelect.innerHTML = '<option value="">請選擇國家...</option>';
-    
-    // 直接讀取獨立檔案裡的 globalLocations
-    for (const country in globalLocations) {
-        const option = document.createElement('option');
-        option.value = country;
-        option.textContent = country;
-        countrySelect.appendChild(option);
+// --- 1. 直接 IP 定位 (自動優先) ---
+async function tryIPLocation() {
+    const statusEl = document.getElementById('weather-status');
+    try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        
+        if (data.latitude && data.longitude) {
+            const lat = data.latitude;
+            const lon = data.longitude;
+            statusEl.innerText = `🌍 IP 定位成功 (${data.city || '未知城市'})`;
+            
+            // 成功取得，直接呼叫你的氣象 API
+            fetchWeather(lat, lon);
+        } else {
+            throw new Error("IP 資料不完整");
+        }
+    } catch (error) {
+        console.warn("IP 定位失敗，進入備用選項：", error);
+        // 進入步驟 2：無法定位，顯示選擇面板 (選項 A 與 B)
+        handleLocationFailure();
     }
 }
 
-// 當國家改變時，更新城市選單
-function updateGlobalCities() {
-    const country = document.getElementById('select-global-country').value;
-    const citySelect = document.getElementById('select-global-city');
-    citySelect.innerHTML = '<option value="">請選擇城市...</option>';
+// --- 2. 無法定位時的處理（顯示選項 A 與 B 面板） ---
+function handleLocationFailure() {
+    const statusEl = document.getElementById('weather-status');
+    statusEl.innerText = "⚠️ 無法自動偵測您的位置";
+    
+    // 顯示手動選擇與 GPS 備用面板
+    document.getElementById('manual-location-box').style.display = 'block';
+}
 
-    if (country && globalLocations[country]) {
-        globalLocations[country].forEach(cityObj => {
+// --- 選項 A：開啟瀏覽器精準定位 (GPS) ---
+function requestBrowserGPS() {
+    const statusEl = document.getElementById('weather-status');
+    if (navigator.geolocation) {
+        statusEl.innerText = "⏳ 正在請求 GPS 定位...";
+        
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                statusEl.innerText = "📍 GPS 定位成功";
+                
+                // 成功後隱藏面板並抓氣象
+                document.getElementById('manual-location-box').style.display = 'none';
+                fetchWeather(lat, lon);
+            },
+            (error) => {
+                alert("GPS 定位被拒絕或失敗，請使用下方選項 B 手動選擇台灣地區。");
+                statusEl.innerText = "⚠️ 定位失敗，請手動選擇";
+            },
+            { timeout: 10000, enableHighAccuracy: true }
+        );
+    } else {
+        alert("您的瀏覽器不支援地理定位。");
+    }
+}
+
+// --- 選項 B：台灣手動選擇初始化與套用 ---
+function initTaiwanSelect() {
+    const citySelect = document.getElementById('select-city');
+    if (!citySelect) return;
+    
+    citySelect.innerHTML = '<option value="">請選擇縣市...</option>';
+    for (const city in taiwanDistricts) {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+    }
+}
+
+function updateDistricts() {
+    const city = document.getElementById('select-city').value;
+    const districtSelect = document.getElementById('select-district');
+    districtSelect.innerHTML = '<option value="">請選擇鄉鎮市區...</option>';
+
+    if (city && taiwanDistricts[city]) {
+        taiwanDistricts[city].forEach(district => {
             const option = document.createElement('option');
-            option.value = `${cityObj.lat},${cityObj.lon}`;
-            option.textContent = cityObj.name;
-            citySelect.appendChild(option);
+            option.value = district;
+            option.textContent = district;
+            districtSelect.appendChild(option);
         });
     }
 }
+
+function applyTaiwanManualLocation() {
+    const city = document.getElementById('select-city').value;
+    const district = document.getElementById('select-district').value;
+    
+    if (!city || !district) {
+        alert("請完整選擇台灣的縣市與鄉鎮市區！");
+        return;
+    }
+    
+    // 隱藏面板並更新狀態
+    document.getElementById('manual-location-box').style.display = 'none';
+    document.getElementById('weather-status').innerText = `🇹🇼 已選擇：${city} ${district}`;
+    
+    // 呼叫你原本將「台灣縣市區轉經緯度」的函式
+    if (typeof getLatLonForTaiwanDistrict === 'function') {
+        getLatLonForTaiwanDistrict(city, district);
+    } else {
+        console.warn("尚未定義 getLatLonForTaiwanDistrict 函式，請確認你的專案實作。");
+    }
+}
+
+
 
 // ✅ 統一的 showPane 函數（只定義一次）
 function showPane(paneId) {
