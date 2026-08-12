@@ -19,7 +19,7 @@ const langDict = {
         sym_1: '1. 持續性頭痛', sym_2: '2. 頭暈、失去平衡或步態不穩', sym_3: '3. 噁心、想吐的感覺', sym_4: '4. 疲勞感、睡眠過多或嗜睡', sym_5: '5. 注意力難以集中、記憶變差', sym_6: '6. 反應變慢、思考模糊/腦霧', sym_7: '7. 易怒、焦慮、情緒波動或性格改變', sym_8: '8. 視力模糊、對光線或噪音極度敏感', sym_9: '9. 睡眠障礙、失眠或入睡困難', sym_10: '10. 頸部疼痛、麻木或微弱抽動',
         triggers_label: '記錄日常誘因（如：使用3C、特定活動會使症狀加重嗎？）：',
         band_hr: '❤️ 即時心跳 (bpm)', band_spo2: '🩸 血氧飽和度 SpO2 (%)', band_steps: '👟 今日步數 (步)', band_avg_steps: '📊 近期平均步數 (步/日)',
-        submit_btn: '送出今日症狀日記', chart_title: '📈 近期持續性頭痛趨勢',prev_btn: '上一頁', next_btn: '下一頁'
+        submit_btn: '儲存', chart_title: '📈 近期持續性頭痛趨勢',prev_btn: '上一頁', next_btn: '下一頁'
     },
     'en': {
         consent_title: '📄 Research Informed Consent', consent_desc: 'Please carefully read the study information below:', consent_agree_btn: 'I have read and agree to participate',
@@ -38,6 +38,6 @@ const langDict = {
         sym_1: '1. Persistent Headache', sym_2: '2. Dizziness, balance issues or unstable gait', sym_3: '3. Nausea or vomiting sensation', sym_4: '4. Fatigue, hypersomnia or lethargy', sym_5: '5. Difficulty concentrating, memory impairment', sym_6: '6. Slowed reactions, brain fog / confusion', sym_7: '7. Irritability, anxiety, mood swings', sym_8: '8. Blurred vision, extreme sensitivity to light/noise', sym_9: '9. Sleep disturbances, insomnia', sym_10: '10. Neck pain, numbness or mild twitching',
         triggers_label: 'Record daily triggers (e.g., 3C usage, specific activities):',
         band_hr: '❤️ Heart Rate (bpm)', band_spo2: '🩸 SpO2 (%)', band_steps: '👟 Today Steps', band_avg_steps: '📊 Average Daily Steps',
-        submit_btn: 'Submit Symptom Journal', chart_title: '📈 Recent Persistent Headache Trend',prev_btn: 'Previous', next_btn: 'Next'
+        submit_btn: 'save', chart_title: '📈 Recent Persistent Headache Trend',prev_btn: 'Previous', next_btn: 'Next'
     }
 };
