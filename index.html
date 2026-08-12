@@ -41,8 +41,17 @@
             <span data-i18n="google_login_btn">使用 Google 帳號快速登入</span>
         </button>
     </div>
+
  
+    <!-- 3. 主表單卡片 -->
+    <div class="card card-left hidden" id="main-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛日誌</h2>
+            <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;" data-i18n="logout_btn">登出</button>
+        </div>
+     
 <!-- 1. 氣象狀態提示 -->
+<div id="weather-section">
 <div id="weather-status" style="margin-bottom: 5px; font-weight: 500;">⏳ 正在取得氣象數據...</div>
 
 <!-- 2. 手動選擇與備用定位面板 (預設隱藏，IP 失敗時自動秀出) -->
@@ -70,15 +79,8 @@
   </div>
 <button class="btn btn-sm btn-success" onclick="applyTaiwanManualLocation()">顯示地區氣象</button>
 </div>
- 
-  
- 
-    <!-- 3. 主表單卡片 -->
-    <div class="card card-left hidden" id="main-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛日誌</h2>
-            <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;" data-i18n="logout_btn">登出</button>
-        </div>
+</div>
+   
     <!-- 手機版專用：下拉式選單切換頁簽 -->
     <select class="tabs-select-mobile" onchange="switchTab(this.value)" id="mobile-tab-select">
         <option value="headache" data-i18n="tab_headache">🤕 頭痛紀錄</option>
