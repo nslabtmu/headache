@@ -272,6 +272,7 @@ function switchTab(tabName) {
     if (mobileSelect) {
         mobileSelect.value = tabName;
     }
+    document.body.setAttribute('data-active-tab', tabName);
 }
 
 // ✅ 新增：藥物輸入框的顯示/隱藏
