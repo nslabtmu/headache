@@ -41,32 +41,6 @@
             <span data-i18n="google_login_btn">使用 Google 帳號快速登入</span>
         </button>
     </div>
-
-    <!-- 3. 主表單卡片 -->
-    <div class="card card-left hidden" id="main-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛日誌</h2>
-            <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;" data-i18n="logout_btn">登出</button>
-        </div>
-    <!-- 手機版專用：下拉式選單切換頁簽 -->
-    <select class="tabs-select-mobile" onchange="switchTab(this.value)" id="mobile-tab-select">
-        <option value="headache" data-i18n="tab_headache">🤕 頭痛紀錄</option>
-        <option value="symptom" data-i18n="tab_symptom">📝 相關症狀</option>
-        <option value="band" data-i18n="tab_band">⌚ 其他資料</option>
-        <option value="chart" data-i18n="tab_chart">📈 趨勢圖表</option>
-        <option value="profile" data-i18n="tab_profile">👤 個人基本資料</option>
-    </select>
-        <!-- 頁簽切換按鈕群組 -->
-        <div class="tabs">
-            <button class="tab-btn" id="btn-tab-headache" onclick="switchTab('headache')" data-i18n="tab_headache">🤕 頭痛紀錄</button>
-            <button class="tab-btn" id="btn-tab-symptom" onclick="switchTab('symptom')" data-i18n="tab_symptom">📝 相關症狀</button>
-            <button class="tab-btn" id="btn-tab-band" onclick="switchTab('band')" data-i18n="tab_band">⌚ 其他資料</button>
-            <button class="tab-btn" id="btn-tab-chart" onclick="switchTab('chart')" data-i18n="tab_chart">📈 趨勢圖表</button>
-            <button class="tab-btn" id="btn-tab-profile" onclick="switchTab('profile')" data-i18n="tab_profile">👤 個人基本資料</button>
-        </div>
-        
-  
-        
 <!-- 1. 氣象狀態提示 -->
 <div id="weather-status" style="margin-bottom: 5px; font-weight: 500;">⏳ 正在取得氣象數據...</div>
 
@@ -95,27 +69,35 @@
     <button type="button" class="btn btn-sm btn-success" onclick="applyTaiwanManualLocation()">套用台灣選定地區</button>
   </div>
 </div>
-  <!-- 2A. 台灣專用選單 (使用你的 taiwanDistricts) -->
-  <div id="taiwan-select-group" style="display: flex; gap: 10px; margin-bottom: 10px;">
-    <select id="select-city" class="form-control" onchange="updateDistricts()">
-      <option value="">請選擇縣市...</option>
-    </select>
-    <select id="select-district" class="form-control">
-      <option value="">請先選擇縣市</option>
-    </select>
-  </div>
-
-  <!-- 2B. 非台灣國際選單 (預設隱藏) -->
-  <div id="global-select-group" style="display: none; gap: 10px; margin-bottom: 10px;">
-    <select id="select-global-country" class="form-control" onchange="updateGlobalCities()">
-      <option value="">請選擇國家...</option>
-    </select>
-    <select id="select-global-city" class="form-control">
-      <option value="">請先選擇國家</option>
-    </select>
-  </div>
+ 
 
   <button class="btn btn-sm btn-success" onclick="applyTaiwanManualLocation()">顯示地區氣象</button>
+    <!-- 3. 主表單卡片 -->
+    <div class="card card-left hidden" id="main-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛日誌</h2>
+            <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;" data-i18n="logout_btn">登出</button>
+        </div>
+    <!-- 手機版專用：下拉式選單切換頁簽 -->
+    <select class="tabs-select-mobile" onchange="switchTab(this.value)" id="mobile-tab-select">
+        <option value="headache" data-i18n="tab_headache">🤕 頭痛紀錄</option>
+        <option value="symptom" data-i18n="tab_symptom">📝 相關症狀</option>
+        <option value="band" data-i18n="tab_band">⌚ 其他資料</option>
+        <option value="chart" data-i18n="tab_chart">📈 趨勢圖表</option>
+        <option value="profile" data-i18n="tab_profile">👤 個人基本資料</option>
+    </select>
+        <!-- 頁簽切換按鈕群組 -->
+        <div class="tabs">
+            <button class="tab-btn" id="btn-tab-headache" onclick="switchTab('headache')" data-i18n="tab_headache">🤕 頭痛紀錄</button>
+            <button class="tab-btn" id="btn-tab-symptom" onclick="switchTab('symptom')" data-i18n="tab_symptom">📝 相關症狀</button>
+            <button class="tab-btn" id="btn-tab-band" onclick="switchTab('band')" data-i18n="tab_band">⌚ 其他資料</button>
+            <button class="tab-btn" id="btn-tab-chart" onclick="switchTab('chart')" data-i18n="tab_chart">📈 趨勢圖表</button>
+            <button class="tab-btn" id="btn-tab-profile" onclick="switchTab('profile')" data-i18n="tab_profile">👤 個人基本資料</button>
+        </div>
+        
+  
+        
+
 </div>
 
         
