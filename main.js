@@ -36,41 +36,18 @@ function updateDistricts() {
 // 頁面一載入，立刻執行初始化與步驟 1 (IP 定位)
 document.addEventListener("DOMContentLoaded", () => {
     initTaiwanSelect(); // 初始化台灣縣市選單備用
-    tryIPLocation();     // 步驟 1：直接 IP 定位
 });
 
-// --- 1. 直接 IP 定位 (自動優先) ---
-async function tryIPLocation() {
-    const statusEl = document.getElementById('weather-status');
-    try {
-        const response = await fetch('https://ipapi.co/json/');
-        const data = await response.json();
-        
-        if (data.latitude && data.longitude) {
-            const lat = data.latitude;
-            const lon = data.longitude;
-            statusEl.innerText = `🌍 IP 定位成功 (${data.city || '未知城市'})`;
-            
-            // 成功取得，直接呼叫你的氣象 API
-            fetchWeather(lat, lon);
-        } else {
-            throw new Error("IP 資料不完整");
-        }
-    } catch (error) {
-        console.warn("IP 定位失敗，進入備用選項：", error);
-        // 進入步驟 2：無法定位，顯示選擇面板 (選項 A 與 B)
-        handleLocationFailure();
-    }
-}
+
 
 // --- 2. 無法定位時的處理（顯示選項 A 與 B 面板） ---
-function handleLocationFailure() {
+/*function handleLocationFailure() {
     const statusEl = document.getElementById('weather-status');
     statusEl.innerText = "⚠️ 無法自動偵測您的位置";
     
     // 顯示手動選擇與 GPS 備用面板
     document.getElementById('manual-location-box').style.display = 'block';
-}
+}*/
 
 // --- 選項 A：開啟瀏覽器精準定位 (GPS) ---
 function requestBrowserGPS() {
@@ -478,6 +455,7 @@ async function fetchIpLocation(statusEl) {
         if (statusEl) statusEl.innerText = "⚠️ 無法取得位置資訊";
         locationReady = false;
         console.error("IP 定位錯誤：", err);
+            document.getElementById('manual-location-box').style.display = 'block'; // ★ 補上這行
     }
 }
 
