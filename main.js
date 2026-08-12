@@ -514,20 +514,20 @@ function getLocationAndWeather() {
 // ✅ 透過 IP 進行定位
 async function fetchIpLocation(statusEl) {
     try {
-        if (statusEl) statusEl.innerText = "⏳ 正在透過網路 IP 進行定位...";
+        if (statusEl) statusEl.innerText = "⏳ 查詢中...";
         
         const res = await fetch('https://ipapi.co/json/');
         const ipData = await res.json();
         
         if (ipData.latitude && ipData.longitude) {
-            fetchWeather(ipData.latitude, ipData.longitude, `IP 定位成功 (${ipData.city || '未知城市'})`);
+            fetchWeather(ipData.latitude, ipData.longitude, `成功 (${ipData.city || '未知城市'})`);
         } else {
-            throw new Error("IP 定位失敗");
+            throw new Error("無法取得位置資訊");
         }
     } catch (err) {
         if (statusEl) statusEl.innerText = "⚠️ 無法取得位置資訊";
         locationReady = false;
-        console.error("IP 定位錯誤：", err);
+        console.error("位置資訊錯誤：", err);
             document.getElementById('manual-location-box').style.display = 'block'; // ★ 補上這行
     }
 }
