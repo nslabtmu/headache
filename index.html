@@ -14,7 +14,7 @@
     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HeadacheV11</title>
+    <title>HeadacheV12</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -27,8 +27,7 @@
         <p style="font-size: 14px; color: #666;" data-i18n="consent_desc">請詳細閱讀以下研究說明與同意書內容：</p>
         
         <!-- 內嵌 PDF 檔案：請將 src 換成你的 PDF 網址或檔案路徑 -->
-        <iframe src="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" class="pdf-container" id="pdfFrame"></iframe>
-        
+          <iframe src="./consent.pdf" class="pdf-container" id="pdfFrame"></iframe>
        <div style="display: flex; gap: 10px; margin-top: 15px;">
         <button class="btn" style="background-color: #e74c3c; flex: 1;" onclick="disagreeConsent()">不同意參與</button>
         <button class="btn" style="flex: 1;" onclick="agreeConsent()" data-i18n="consent_agree_btn">我已閱讀並同意參與研究</button>
