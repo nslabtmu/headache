@@ -181,3 +181,20 @@ button span {
 .btn-next {
     background: #1565C0 !important;
 }
+/* -----------------------------
+   氣象區塊：桌面版固定顯示；
+   手機版只在「頭痛紀錄」首頁頁簽顯示，切到其他頁簽就隱藏
+------------------------------ */
+#weather-section {
+    display: block; /* 桌面版預設固定顯示 */
+    margin-bottom: 15px;
+}
+
+@media (max-width: 767px) {
+    #weather-section {
+        display: none; /* 手機版預設隱藏 */
+    }
+    body[data-active-tab="headache"] #weather-section {
+        display: block; /* 只有目前頁簽是首頁時才顯示 */
+    }
+}
