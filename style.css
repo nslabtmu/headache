@@ -19,8 +19,17 @@ body {
     margin: 0;
     padding: 20px;
 }
-
-
+/* 限制電腦版卡片最大寬度，避免拉太寬 */
+.card {
+    width: 95%;
+    max-width: 600px; /* 從 800px 縮小，讓表單在電腦看更集中、精緻 */
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+.card-left { text-align: left; }
 
 /* -----------------------------
    新增：nav（原本 HeadacheV3 沒有這個元件）
@@ -163,25 +172,11 @@ button span {
 }
 * { box-sizing: border-box; }
 
-body {
-    background-color: #f0f2f5;
-    margin: 0;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-}
 
-/* 限制電腦版卡片最大寬度，避免拉太寬 */
-.card {
-    width: 95%;
-    max-width: 600px; /* 從 800px 縮小，讓表單在電腦看更集中、精緻 */
-    margin: 20px auto;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
 
-.card-left { text-align: left; }
+
+
+
 
 .lang-btn {
     position: fixed; top: 10px; right: 10px; z-index: 1000;
