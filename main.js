@@ -29,6 +29,10 @@ supabase.auth.onAuthStateChange((event, session) => {
         hasEnteredMainApp = false;
     }
 });
+  <!--顯示主畫面 -->
+ document.getElementById('main-card').classList.remove('hidden');
+<!--預設切換到第一個分頁並載入資料 -->
+switchTab('headache');
 
 // ✅ 唯一的網頁載入初始化
 document.addEventListener("DOMContentLoaded", () => {
