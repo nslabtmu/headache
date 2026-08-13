@@ -251,6 +251,11 @@
         <!-- 頁簽 5：趨勢圖表 -->
         <div id="pane-chart" class="tab-pane hidden">
             <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">📈 頭痛趨勢</h3>
+         <!-- 若 Chart.js 還沒偵測到數據時顯示 -->
+            <div id="no-chart-data" style="text-align: center; padding: 40px; color: #95a5a6;">
+                <p>尚未有足夠的健康資料繪製趨勢圖。</p>
+             <p style="font-size: 13px;">提示：同時在「健康數據」頁簽填寫健康，即可查看您的長期趨勢分析！</p>
+            </div>
             <canvas id="painChart"></canvas>
         </div>
                  <!-- 頁簽 1：個人基本資料 -->
