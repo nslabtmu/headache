@@ -212,10 +212,14 @@
 
             <!-- 頁簽 4：健康資料 -->
             <div id="pane-band" class="tab-pane hidden">
-            <!-- 折疊觸發開關 -->
-             <div style="margin-bottom: 15px;">
-                <button type="button" class="btn btn-sm" style="background: #f1f2f6; color: #2f3542; border: 1px solid #dfe4ea; width: 100%; text-align: left; padding: 10px; font-weight: 500;" onclick="toggleOptionalHealthData()">
-                    ⌚ 存下健康數據 <span id="toggle-arrow">▼ 展開</span>
+            <!-- 🆕 新增：強調填寫的好處 -->
+    <div style="background: #e1f5fe; padding: 12px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid #03a9f4; color: #0277bd; font-size: 14px;">
+        <p style="margin: 0; font-weight: 500;">📊 <b>健康數據趨勢分析</b></p>
+        <p style="margin: 5px 0 0 0;">建議您填寫穿戴裝置資料，系統將協助您繪製<b>心跳與步數的長期統計趨勢圖</b>，讓您更能掌握生理狀況與頭痛的關聯！</p>
+    </div>
+             <!-- 折疊觸發開關 -->
+    <button type="button" class="btn btn-sm" style="background: #f1f2f6; color: #2f3542; border: 1px solid #dfe4ea; width: 100%; text-align: left; padding: 10px; font-weight: 500;" onclick="toggleOptionalHealthData()">
+                    ⌚ 存下健康數據 <span id="toggle-arrow" style="float: right;">▼ 展開</span>
                 </button>
              </div> 
              <!-- 預設隱藏的健康資料填寫區 -->
