@@ -65,7 +65,17 @@ body {
 .hidden {
     display: none !important;
 }
+@media (min-width: 768px) {
+    .card {
+        max-width: 720px;
+    }
+}
 
+@media (min-width: 1200px) {
+    .card {
+        max-width: 840px;
+    }
+}
 /* ==================== 按鈕 ==================== */
 .btn {
     background: var(--color-primary);
