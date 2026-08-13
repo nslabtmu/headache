@@ -154,6 +154,9 @@ body {
 }
 
 /* 使用者選單下拉項目 */
+.dropdown-account {
+    line-height: 1.5;
+}
 .dropdown-item {
     display: block;
     width: 100%;
