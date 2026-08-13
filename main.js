@@ -7,6 +7,7 @@ let currentWeather = null;
 let chartInstance = null;
 let currentLang = 'zh-TW';
 let locationReady = false;
+let hasSavedProfile = false; 
 
 // ✅ 修正：定義分頁順序與對應的 Tab 名稱陣列，供 navigate() 使用
 const pageOrder = ['pane-headache', 'pane-symptoms', 'pane-band', 'pane-chart', 'pane-profile'];
@@ -369,6 +370,7 @@ async function loadUserProfile(userId) {
         if (data.gender) document.getElementById('prof_gender').value = data.gender;
         if (data.tbi_study) document.getElementById('prof_tbi').value = data.tbi_study;
         if (data.sport_freq) document.getElementById('prof_sport').value = data.sport_freq;
+        hasSavedProfile = true;
         enterProfileViewMode();
     } else {
         enterProfileEditMode();
@@ -453,8 +455,59 @@ function checkEmergency() {
     if (warningBox) warningBox.style.display = isChecked ? 'block' : 'none';
     if (submitBtn) submitBtn.disabled = isChecked;
 }
+function validateForm() {
+    const errors = [];
 
+    // ---- 必填：頭痛程度 ----
+    const painLevel = document.getElementById('input-pain').value;
+    if (!painLevel) {
+        errors.push("請選擇「頭痛程度」");
+    }
+
+    // ---- 必填：頭痛部位（至少勾一項）----
+    const painLocations = document.querySelectorAll('input[name="pain_location"]:checked');
+    if (painLocations.length === 0) {
+        errors.push("請至少勾選一個「頭痛部位」");
+    }
+
+    // ---- 必填：是否用藥（有預設值 no，理論上不會空，但保險起見還是檢查）----
+    const medication = document.getElementById('input-medication').value;
+    if (!medication) {
+        errors.push("請選擇「是否用藥」");
+    }
+    // 如果選「是，已服用藥物」，藥名也要填
+    if (medication === 'yes') {
+        const medName = document.getElementById('input-medication-name').value.trim();
+        if (!medName) {
+            errors.push("已選擇用藥，請填寫「藥物名稱」");
+        }
+    }
+
+    // ---- 必填：個人基本資料（只有「第一次填」才強制要求，已存過就跳過）----
+    if (!hasSavedProfile) {
+        const birthyear = document.getElementById('prof_birthyear').value;
+        const gender = document.getElementById('prof_gender').value;
+        const tbi = document.getElementById('prof_tbi').value;
+        const sport = document.getElementById('prof_sport').value;
+
+        if (!birthyear) errors.push("請填寫「個人基本資料」中的出生年");
+        if (!gender) errors.push("請選擇「個人基本資料」中的性別");
+        if (!tbi) errors.push("請選擇「個人基本資料」中是否參與輕度腦外傷研究");
+        if (!sport) errors.push("請選擇「個人基本資料」中的運動頻率");
+    }
+
+    // ---- 健康資料（心跳/血氧/步數）：不檢查，允許空白 ----
+    // 這裡刻意不加任何驗證，因為 band 相關欄位是選填
+
+    return errors;
+}
 async function saveFullRecord() {
+     // ---- 送出前先驗證必填欄位 ----
+    const errors = validateForm();
+    if (errors.length > 0) {
+        alert("⚠️ 請完成以下必填項目後再送出：\n\n• " + errors.join("\n• "));
+        return;   // 擋下，不繼續往下執行
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { alert("請先登入！"); return; }
 
