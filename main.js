@@ -15,21 +15,24 @@ const tabNames = ['headache', 'symptom', 'band', 'chart', 'profile'];
 // 網頁載入完成時執行
 // 1. 頁面載入時，自動偵測登入狀態與同意狀態
 window.addEventListener('DOMContentLoaded', async () => {
+    initTaiwanSelect();
+    const hasAgreed = localStorage.getItem('has_agreed_consent')==='true';
     const { data: { session } } = await supabase.auth.getSession();
-    const hasAgreed = localStorage.getItem('has_agreed_consent');
-
+    
     if (session) {
         // 使用者已登入，檢查是否同意過條款
-        if (hasAgreed === 'true') {
-            showMainApp(); // 顯示主畫面
-            displayUserEmail();
+        if (hasAgreed) {
+            hasEnteredMainApp = true;
+            showMainApp(session.user);
         } else {
             // 已登入但尚未同意（可能是剛重新整理），顯示同意書
             showConsent();
         }
-    } else {
+    } else if (hasAgreed) {
         // 未登入，顯示登入畫面
         showLogin();
+    } else {
+        showConsent();
     }
 });
 // ==================== 2. 登入狀態與頁面載入監聽 ====================
@@ -51,7 +54,7 @@ supabase.auth.onAuthStateChange((event, session) => {
 
 
 // ✅ 唯一的網頁載入初始化
-document.addEventListener("DOMContentLoaded", () => {
+/*document.addEventListener("DOMContentLoaded", () => {
     initTaiwanSelect();
 
     // 檢查同意狀態
@@ -70,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showMainApp(session.user);
         }
     });
-});
+});*/
 
 
 // ==================== 3. 認證與同意書流程 ====================
@@ -327,10 +330,12 @@ function showMainApp(user) {
 
     initializeI18n();
     getLocationAndWeather();
+    displayUserEmail();
     if (user) {
         loadUserProfile(user.id);
         loadUserHistory(user.id);
     }
+    switchTab('headache'); // 預設切到第一個分頁
 }
 
 function showConsent() {
