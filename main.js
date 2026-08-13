@@ -208,6 +208,7 @@ function getLocationAndWeather() {
 }
 
 async function fetchIpLocation(statusEl) {
+   const locationEl = document.getElementById('current-location-text');
     try {
         if (statusEl) statusEl.innerText = "⏳ 查詢中...";
         const res = await fetch('https://ipapi.co/json/');
@@ -220,6 +221,7 @@ async function fetchIpLocation(statusEl) {
         }
     } catch (err) {
         if (statusEl) statusEl.innerText = "⚠️ 無法取得位置資訊";
+         if (locationEl) locationEl.innerText = "無法取得";
         locationReady = false;
         console.error("位置資訊錯誤：", err);
         const manualBox = document.getElementById('manual-location-box');
@@ -249,8 +251,10 @@ async function fetchWeather(lat, lon, successMsg) {
         
         locationReady = true;
         if (statusEl) statusEl.innerHTML = `📍 ${successMsg}！氣象與空污數據同步完成`;
+        if (locationEl) locationEl.innerText = successMsg;
     } catch (err) {
         if (statusEl) statusEl.innerText = "⚠️ 氣象資料解析失敗";
+        if (locationEl) locationEl.innerText = "取得失敗";
         currentWeather = { lat, lon, fetched_at: new Date().toISOString(), weather: {}, air_quality: {} };
         locationReady = true;
         console.error("取得氣象失敗：", err);
