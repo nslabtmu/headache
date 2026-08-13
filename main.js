@@ -72,7 +72,21 @@ supabase.auth.onAuthStateChange((event, session) => {
         }
     });
 });*/
-
+async function submitConsent(agreed) {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    const { error } = await supabase.from('consent_records').insert([{
+        user_id: user?.id || null,
+        user_email: user?.email || null,
+        consent_version: CONSENT_VERSION,
+        agreed: agreed,
+        agreed_at: new Date().toISOString()
+    }]);
+    
+    if (error) {
+        console.error('同意紀錄寫入失敗：', error);
+    }
+}
 
 // ==================== 3. 認證與同意書流程 ====================
 
@@ -81,7 +95,7 @@ function agreeConsent() {
     document.getElementById('consent-card').classList.add('hidden');
     document.getElementById('auth-card').classList.remove('hidden');
     // 當使用者成功登入或同意後，應該要執行這行：
-document.getElementById('resetConsentBtn').classList.remove('hidden');
+//document.getElementById('resetConsentBtn').classList.remove('hidden');
 }
 
 function disagreeConsent() {
