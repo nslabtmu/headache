@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<!-- 1. 載入 Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- 2. 載入共用設定檔 -->
+<script src="./config.js"></script>
+<!-- 語言設定檔 -->
+<script src="./i18n.js"></script>
+ <!-- 台灣鄉鎮資料 -->
+<script src="./districts.js"></script>  
+       
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HeadacheV12</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <button class="lang-btn" onclick="toggleLanguage()" style="font-size: 16px; color: #2c3e50;">🌐 中/En</button>
+  <!-- 🆕 新增：重填同意書按鈕 (預設隱藏，登入後才顯示) -->
+    <button id="resetConsentBtn" class="lang-btn hidden" onclick="resetConsent()" style="top: 60px; font-size: 14px; color: #e74c3c;">📄 重填同意書</button>
+
+    <!-- 1. 同意書卡片 (最先顯示) -->
+    <div class="card card-left" id="consent-card">
+        <h2 data-i18n="consent_title" style="margin-top:0;">📄 研究參與同意書</h2>
+        <p style="font-size: 14px; color: #666;" data-i18n="consent_desc">請詳細閱讀以下研究說明與同意書內容：</p>
+        
+        <!-- 內嵌 PDF 檔案：請將 src 換成你的 PDF 網址或檔案路徑 -->
+          <iframe src="./consent.pdf" class="pdf-container" id="pdfFrame"></iframe>
+       <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button class="btn" style="background-color: #e74c3c; flex: 1;" onclick="disagreeConsent()">不同意參與</button>
+        <button class="btn" style="flex: 1;" onclick="agreeConsent()" data-i18n="consent_agree_btn">我已閱讀並同意參與研究</button>
+       </div>
+    </div>
+
+    <!-- 2. Google 登入卡片 (同意後顯示) -->
+    <div class="card hidden" id="auth-card">
+        <h2 data-i18n="login_title">🔐 系統登入</h2>
+        <p style="color: #666; font-size: 14px; margin-bottom: 20px;" data-i18n="login_desc">請使用 Google 帳號授權登入以開始記錄</p>
+        <button class="btn google-btn" onclick="handleGoogleLogin()">
+            <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+            <span data-i18n="google_login_btn">使用 Google 帳號快速登入</span>
+        </button>
+  <!--顯示主畫面 -->
+ document.getElementById('main-card').classList.remove('hidden');
+<!--預設切換到第一個分頁並載入資料 -->
+switchTab('headache');
+    </div>
+
+ 
+    <!-- 3. 主表單卡片 -->
+    <div class="card card-left hidden" id="main-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛日誌</h2>
+            <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;" data-i18n="logout_btn">登出</button>
+        </div>
+     
+<<!-- 1. 氣象狀態與位置提示區塊 -->
+<div id="weather-section" style="background: #f8f9fa; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #e9ecef;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div id="weather-status" style="font-weight: 500; font-size: 14px;">⏳ 正在取得氣象數據...</div>
+        <!-- 🆕 新增：隨時可以手動變更位置的按鈕 -->
+        <button type="button" id="toggleLocationBtn" class="btn btn-sm" style="font-size: 12px; padding: 4px 8px; background: #6c75d7; color: white; border: none; border-radius: 4px; cursor: pointer;" onclick="toggleManualLocationBox()">📍 變更位置</button>
+    </div>
+
+    <!-- 2. 手動選擇與備用定位面板 (預設隱藏，點擊「變更位置」或定位失敗時自動展開) -->
+    <div id="manual-location-box" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;">
+        <p id="location-tip" style="margin: 0 0 8px 0; font-size: 13px; color: #666;">若自動定位不準確，您可選擇以下方式更新：</p>
+        
+        <!-- 選項 A：GPS 定位 -->
+        <div style="margin-bottom: 8px;">
+            <button type="button" class="btn btn-sm" style="font-size: 13px; background: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 4px;" onclick="requestBrowserGPS()">📍 A. 使用瀏覽器精準定位 (GPS)</button>
+        </div>
+
+        <!-- 選項 B：台灣地區手動下拉選單 -->
+        <div>
+            <p style="margin: 0 0 5px 0; font-size: 13px; color: #666;">B. 手動選擇縣市與鄉鎮區：</p>
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                <select id="select-city" class="form-control" onchange="updateDistricts()" style="flex: 1; padding: 5px;">
+                    <option value="">請選擇縣市...</option>
+                </select>
+                <select id="select-district" class="form-control" style="flex: 1; padding: 5px;">
+                    <option value="">請先選擇縣市</option>
+                </select>
+            </div>
+            <button type="button" class="btn btn-sm" style="background: #2ecc71; color: white; border: none; padding: 5px 10px; border-radius: 4px;" onclick="applyTaiwanManualLocation()">確認並套用此位置</button>
+        </div>
+    </div>
+</div>
+   
+    <!-- 手機版專用：下拉式選單切換頁簽 -->
+    <select class="tabs-select-mobile" onchange="switchTab(this.value)" id="mobile-tab-select">
+        <option value="headache" data-i18n="tab_headache">🤕 頭痛紀錄</option>
+        <option value="symptom" data-i18n="tab_symptom">📝 相關症狀</option>
+        <option value="band" data-i18n="tab_band">⌚ 其他資料</option>
+        <option value="chart" data-i18n="tab_chart">📈 趨勢圖表</option>
+        <option value="profile" data-i18n="tab_profile">👤 個人基本資料</option>
+    </select>
+        <!-- 頁簽切換按鈕群組 -->
+        <div class="tabs">
+            <button class="tab-btn" id="btn-tab-headache" onclick="switchTab('headache')" data-i18n="tab_headache">🤕 頭痛紀錄</button>
+            <button class="tab-btn" id="btn-tab-symptom" onclick="switchTab('symptom')" data-i18n="tab_symptom">📝 相關症狀</button>
+            <button class="tab-btn" id="btn-tab-band" onclick="switchTab('band')" data-i18n="tab_band">⌚ 其他資料</button>
+            <button class="tab-btn" id="btn-tab-chart" onclick="switchTab('chart')" data-i18n="tab_chart">📈 趨勢圖表</button>
+            <button class="tab-btn" id="btn-tab-profile" onclick="switchTab('profile')" data-i18n="tab_profile">👤 個人基本資料</button>
+        </div>
+
+
+        
+      <!--   <form id="attack-form" onsubmit="event.preventDefault(); saveAttackForm();">-->
+            <form id="attack-form" onsubmit="event.preventDefault(); saveFullRecord();">
+
+             <!-- 頁簽 2：頭痛紀錄 (程度 / 部位 / 用藥 / 備註) -->
+            <div id="pane-headache" class="tab-pane hidden">
+                
+                <!-- 醫療緊急警示防錯區 -->
+                <div class="emergency-box" id="emergency-section">
+                    <h3 data-i18n="emg_title" style="color: #c0392b; margin-top: 0;">⚠️ 醫療緊急警示</h3>
+                    <p data-i18n="emg_desc" style="font-size: 14px; margin: 0;">若您或觀察對象目前出現以下任何狀況，請<b>立即停止填表並立即就送</b>：</p>
+                    <div style="margin-top: 8px; font-size: 14px; line-height: 1.6;">
+                        <input type="checkbox" id="emg_1" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_1" data-i18n="emg_1">昏睡叫不醒、意識嚴重改變</label><br>
+                        <input type="checkbox" id="emg_2" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_2" data-i18n="emg_2">劇烈頭痛或持續性嘔吐</label><br>
+                        <input type="checkbox" id="emg_3" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_3" data-i18n="emg_3">四肢抽搐或癲癇發作</label><br>
+                        <input type="checkbox" id="emg_4" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_4" data-i18n="emg_4">肢體突然單側無力、手腳發麻</label><br>
+                        <input type="checkbox" id="emg_5" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_5" data-i18n="emg_5">視力模糊、複視（疊影）</label>
+                    </div>
+                    <div id="emergencyWarning" class="warning-text" data-i18n="warning_text">
+                        🚨 偵測到重大危險徵象！請勿填表，請立即前往最近的急診室就醫評估！
+                    </div>   
+                </div>
+
+                <div class="form-group">
+                    <label for="input-pain" data-i18n="headache_pain_label">頭痛程度</label>
+                    <select id="input-pain">
+                        <option value="" data-i18n="pain_option_default">請選擇疼痛程度...</option>
+                        <option value="1" data-i18n="pain_1">1 分 - 輕微隱隱作痛</option>
+                        <option value="3" data-i18n="pain_3">3 分 - 偶爾抽痛</option>
+                        <option value="5" data-i18n="pain_5">5 分 - 中度疼痛，影響日常</option>
+                        <option value="7" data-i18n="pain_7">7 分 - 重度疼痛，難以專注</option>
+                        <option value="10" data-i18n="pain_10">10 分 - 劇烈疼痛，必須躺下休息</option>
+                    </select>
+                </div>
+ 
+                <div class="form-group">
+                    <label data-i18n="headache_location_label">頭痛部位（可複選）</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="pain_location" value="forehead"> <span data-i18n="loc_forehead">前額</span></label>
+                        <label><input type="checkbox" name="pain_location" value="temple_left"> <span data-i18n="loc_temple_left">左太陽穴</span></label>
+                        <label><input type="checkbox" name="pain_location" value="temple_right"> <span data-i18n="loc_temple_right">右太陽穴</span></label>
+                        <label><input type="checkbox" name="pain_location" value="back_head"> <span data-i18n="loc_back_head">後腦勺</span></label>
+                        <label><input type="checkbox" name="pain_location" value="top_head"> <span data-i18n="loc_top_head">頭頂</span></label>
+                        <label><input type="checkbox" name="pain_location" value="whole_head"> <span data-i18n="loc_whole_head">整頭</span></label>
+                        <label><input type="checkbox" name="pain_location" value="neck"> <span data-i18n="loc_neck">頸部連帶</span></label>
+                    </div>
+                </div>
+ 
+                <div class="form-group">
+                    <label for="input-medication" data-i18n="medication_label">是否用藥</label>
+                    <select id="input-medication" onchange="toggleMedicationName()">
+                        <option value="no" data-i18n="medication_no">否，未用藥</option>
+                        <option value="yes" data-i18n="medication_yes">是，已服用藥物</option>
+                    </select>
+                    <input type="text" id="input-medication-name" style="display:none; margin-top:8px;" placeholder="例如：普拿疼、Ibuprofen">
+                </div>
+ 
+                <div class="form-group">
+                    <label for="input-content" data-i18n="headache_notes_label">備註</label>
+                    <textarea id="input-content" rows="3" placeholder="例如：右側太陽穴抽痛，可能跟昨天沒睡好有關..."></textarea>
+                </div>
+                <div class="button-group">
+                    <button type="button" class="btn btn-prev" onclick="navigate(-1)" data-i18n="prev_btn">上一頁</button>
+                    <button type="button" class="btn btn-next" onclick="navigate(1)" data-i18n="next_btn">下一頁</button>
+                </div>
+               </div>
+ 
+            <!-- 頁簽 3：10 大症狀填寫區 -->
+            <div id="pane-symptoms" class="tab-pane hidden">
+                <div class="form-group"><label data-i18n="sym_1">1. 持續性頭痛</label><div class="slider-container"><input type="range" name="sym1" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_2">2. 頭暈、失去平衡或步態不穩</label><div class="slider-container"><input type="range" name="sym2" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_3">3. 噁心、想吐的感覺</label><div class="slider-container"><input type="range" name="sym3" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_4">4. 疲勞感、睡眠過多或嗜睡</label><div class="slider-container"><input type="range" name="sym4" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_5">5. 注意力難以集中、記憶變差</label><div class="slider-container"><input type="range" name="sym5" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_6">6. 反應變慢、思考模糊/腦霧</label><div class="slider-container"><input type="range" name="sym6" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_7">7. 易怒、焦慮、情緒波動或性格改變</label><div class="slider-container"><input type="range" name="sym7" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_8">8. 視力模糊、對光線或噪音極度敏感</label><div class="slider-container"><input type="range" name="sym8" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_9">9. 睡眠障礙、失眠或入睡困難</label><div class="slider-container"><input type="range" name="sym9" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+                <div class="form-group"><label data-i18n="sym_10">10. 頸部疼痛、麻木或微弱抽動</label><div class="slider-container"><input type="range" name="sym10" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
+
+                <div class="form-group">
+                    <label for="triggers" data-i18n="triggers_label">記錄日常誘因（如：使用3C、特定活動會使症狀加重嗎？）：</label>
+                    <textarea id="triggers" name="triggers" rows="3" placeholder="請描述使您感到不舒服的活動或環境..."></textarea>
+                </div>
+                <div class="button-group">
+                    <button type="button" class="btn btn-prev" onclick="navigate(-1)" data-i18n="prev_btn">上一頁</button>
+                    <button type="button" class="btn btn-next" onclick="navigate(1)" data-i18n="next_btn">下一頁</button>
+                </div>
+            </div>
+
+            <!-- 頁簽 4：健康資料 -->
+            <div id="pane-band" class="tab-pane hidden">
+                <div class="form-group">
+                    <label data-i18n="band_hr">❤️ 即時心跳 (bpm)</label>
+                    <input type="number" id="band_heart_rate" placeholder="例如: 75">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="band_spo2">🩸 血氧飽和度 SpO2 (%)</label>
+                    <input type="number" id="band_spo2" placeholder="例如: 98">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="band_steps">👟 今日步數 (步)</label>
+                    <input type="number" id="band_steps" placeholder="例如: 6500">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="band_avg_steps">📊 近期平均步數 (步/日)</label>
+                    <input type="number" id="band_avg_steps" placeholder="例如: 7200">
+                </div>
+                <div class="button-group">
+                    <button type="button" class="btn btn-prev" onclick="navigate(-1)" data-i18n="prev_btn">上一頁</button>
+                    <button type="submit" class="btn btn-next" id="submitBtn" data-i18n="submit_btn">儲存紀錄</button>
+                </div>
+            </div>
+
+        </form>
+
+        <!-- 頁簽 5：趨勢圖表 -->
+        <div id="pane-chart" class="tab-pane hidden">
+            <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">📈 頭痛趨勢</h3>
+            <canvas id="painChart"></canvas>
+        </div>
+                 <!-- 頁簽 1：個人基本資料 -->
+            <div id="pane-profile" class="tab-pane form-group hidden">
+                <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料</h3>
+                <div class="form-group">
+                    <label data-i18n="prof_name">1. 暱稱（非必填）</label>
+                    <input type="text" id="prof_nickname" placeholder="例如: 王小明 / Alex">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="prof_birth">2. 出生年 (西元)</label>
+                    <input type="number" id="prof_birthyear" placeholder="例如: 1990">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="prof_gender">3. 性別</label>
+                    <select id="prof_gender">
+                        <option value="" data-i18n="select_default">請選擇...</option>
+                        <option value="male" data-i18n="gender_male">男性</option>
+                        <option value="female" data-i18n="gender_female">女性</option>
+                        <option value="other" data-i18n="gender_other">其他 / 不願透露</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="prof_tbi">4. 是否參與輕度腦外傷研究</label>
+                    <select id="prof_tbi">
+                    <option value="">請選擇...</option>
+                    <option value="yes">是</option>
+                    <option value="no">否</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="prof_sport">5. 運動頻率</label>
+                    <select id="prof_sport">
+                        <option value="none" data-i18n="sport_none">幾乎不運動</option>
+                        <option value="light" data-i18n="sport_light">輕度（每周 1-2 次）</option>
+                        <option value="moderate" data-i18n="sport_moderate">中度（每周 3-4 次）</option>
+                        <option value="heavy" data-i18n="sport_heavy">規律高強度（每周 5 次以上）</option>
+                    </select>
+                </div>
+                <button type="button" class="btn" id="saveProfileBtn" onclick="saveUserProfile()" data-i18n="save_profile_btn">儲存</button>
+                <button type="button" class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
+            </div>
+
+    </div>
+</div>
+    <!-- 載入 main.js 必須在最後 -->
+    <script src="./main.js"></script>
+
+</body>
+</html>
