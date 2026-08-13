@@ -18,8 +18,10 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <button class="lang-btn" onclick="toggleLanguage()" style="font-size: 16px; color: #2c3e50;">🌐 中/En</button>
+<div id="top-toolbar">
+    <button class="lang-btn" onclick="toggleLanguage()">🌐 中/En</button>
+</div>
+  <!--    <button class="lang-btn" onclick="toggleLanguage()" style="font-size: 16px; color: #2c3e50;">🌐 中/En</button>-->
   <!-- 🆕 新增：重填同意書按鈕 (預設隱藏，登入後才顯示) -->
     <button id="resetConsentBtn" 
          class="lang-btn hidden" 
@@ -53,12 +55,21 @@
  
     <!-- 3. 主表單卡片 -->
     <div class="card card-left hidden" id="main-card">
-     <div id="user-info" style="font-size: 12px; color: #7f8c8d; margin-bottom: 10px; text-align: right;">
-    👤 登入帳號：<span id="user-email">載入中...</span>
-      </div>
+     
+<div id="user-info-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+    <div style="font-size: 12px; color: #7f8c8d;">
+        👤 登入帳號：<span id="user-email">載入中...</span>
+    </div>
+    <div class="user-menu" style="position: relative;">
+        <button class="btn btn-sm" onclick="toggleUserMenu()">⋯ 更多</button>
+        <div id="user-dropdown" class="hidden" style="position:absolute; right:0; top:110%; background:var(--color-card-bg); border:1px solid var(--color-border); border-radius:8px; box-shadow:var(--shadow-card); min-width:140px; z-index:1000;">
+            <button id="resetConsentBtn" class="dropdown-item" onclick="resetConsent()">📄 重填同意書</button>
+            <button class="dropdown-item" onclick="handleLogout()">🚪 登出</button>
+        </div>
+    </div>
+</div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛日誌</h2>
-            <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;" data-i18n="logout_btn">登出</button>
+            <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛日誌</h2>  
         </div>
      
 <!-- 1. 氣象狀態與位置提示區塊 -->
