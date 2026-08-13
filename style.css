@@ -39,7 +39,11 @@ body {
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
 }
-
+#user-info-bar {
+    display: flex;
+    justify-content: flex-end;   /* 靠右排列 */
+    margin-bottom: 10px;
+}
 /* ==================== 卡片容器 ==================== */
 .card {
     background: var(--color-card-bg);
