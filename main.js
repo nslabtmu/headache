@@ -569,3 +569,14 @@ function onWeatherError(errorMsg) {
     // 失敗時主動展開手動面板，方便使用者修正
     document.getElementById('manual-location-box').style.display = 'block';
 }
+function toggleOptionalHealthData() {
+    const box = document.getElementById('optional-health-box');
+    const arrow = document.getElementById('toggle-arrow');
+    if (box.style.display === 'none' || box.style.display === '') {
+        box.style.display = 'block';
+        arrow.innerHTML = '▲ 收合';
+    } else {
+        box.style.display = 'none';
+        arrow.innerHTML = '▼ 展開';
+    }
+}
