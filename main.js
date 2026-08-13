@@ -111,10 +111,6 @@ async function handleLogout() {
     window.location.reload();
 }
 
-  <!--顯示主畫面 -->
- document.getElementById('main-card').classList.remove('hidden');
-<!--預設切換到第一個分頁並載入資料 -->
-switchTab('headache');
 // ==================== 4. 導覽、頁籤與翻頁邏輯 (修正上下頁無反應) ====================
 
 function showPane(paneId) {
@@ -263,9 +259,9 @@ function requestBrowserGPS() {
             (position) => {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
-                statusEl.innerText = "📍 GPS 定位成功";
+                statusEl.innerText = "📍 定位成功";
                 document.getElementById('manual-location-box').style.display = 'none';
-                fetchWeather(lat, lon);
+                fetchWeather(lat, lon,statusEl.innerText);
             },
             () => {
                 alert("GPS 定位被拒絕或失敗，請使用下方選項 B 手動選擇台灣地區。");
@@ -323,20 +319,20 @@ function applyTaiwanManualLocation() {
 
 
 // ==================== 6. 個人資料與主應用載入 ====================
-
-/*function showMainApp(user) {
-    document.getElementById('main-card').classList.remove('hidden');
-    initializeI18n(); 
-    getLocationAndWeather();
-    loadUserProfile(user.id);
-    loadUserHistory(user.id);
-}*/
-function showMainApp() {
+function showMainApp(user) {
     document.getElementById('consent-card')?.classList.add('hidden');
     document.getElementById('auth-card')?.classList.add('hidden');
     document.getElementById('main-card')?.classList.remove('hidden');
     document.getElementById('resetConsentBtn')?.classList.remove('hidden');
+
+    initializeI18n();
+    getLocationAndWeather();
+    if (user) {
+        loadUserProfile(user.id);
+        loadUserHistory(user.id);
+    }
 }
+
 function showConsent() {
     document.getElementById('consent-card')?.classList.remove('hidden');
     document.getElementById('auth-card')?.classList.add('hidden');
@@ -625,4 +621,8 @@ async function displayUserEmail() {
     } else {
         document.getElementById('user-email').innerText = "未登入";
     }
+}
+function resetConsent() {
+    localStorage.removeItem('has_agreed_consent');
+    window.location.reload();
 }
