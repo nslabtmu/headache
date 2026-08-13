@@ -17,19 +17,20 @@ const tabNames = ['headache', 'symptom', 'band', 'chart', 'profile'];
 // 1. 頁面載入時，自動偵測登入狀態與同意狀態
 window.addEventListener('DOMContentLoaded', async () => {
     initTaiwanSelect();
-    const hasAgreed = localStorage.getItem('has_agreed_consent')==='true';
+   // const hasAgreed = localStorage.getItem('has_agreed_consent')==='true';
+    const status = getConsentStatus();
     const { data: { session } } = await supabase.auth.getSession();
     
     if (session) {
         // 使用者已登入，檢查是否同意過條款
-        if (hasAgreed) {
+        if (status.isValid) {
             hasEnteredMainApp = true;
             showMainApp(session.user);
         } else {
             // 已登入但尚未同意（可能是剛重新整理），顯示同意書
             showConsent();
         }
-    } else if (hasAgreed) {
+    } else if (status.isValid){
         // 未登入，顯示登入畫面
         showLogin();
     } else {
@@ -87,11 +88,50 @@ async function submitConsent(agreed) {
         console.error('同意紀錄寫入失敗：', error);
     }
 }
+async function hasValidConsentFromDB(userId) {
+    const { data, error } = await supabase
+        .from('consent_records')
+        .select('consent_version, agreed')
+        .eq('user_id', userId)
+        .order('agreed_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+    
+    if (error || !data) return false;
+    return data.agreed === true && data.consent_version === CONSENT_VERSION;
+}
+function getConsentStatus() {
+    const agreed = localStorage.getItem('has_agreed_consent') === 'true';
+    const agreedVersion = localStorage.getItem('agreed_consent_version');
+    
+    return {
+        isValid: agreed && agreedVersion === CONSENT_VERSION,
+        hasOldVersion: agreed && agreedVersion !== CONSENT_VERSION,  // 曾經同意過，但版本不是最新
+        oldVersion: agreedVersion || null
+    };
+}
+function showConsent() {
+    document.getElementById('consent-card')?.classList.remove('hidden');
+    document.getElementById('auth-card')?.classList.add('hidden');
+    document.getElementById('main-card')?.classList.add('hidden');
+    
+    const status = getConsentStatus();
+    const noticeEl = document.getElementById('consent-update-notice');
+    if (noticeEl) {
+        if (status.hasOldVersion) {
+            noticeEl.classList.remove('hidden');
+            noticeEl.innerText = `📢 研究同意書已更新至最新版本（v${CONSENT_VERSION}），請重新閱讀並確認是否同意繼續參與研究。`;
+        } else {
+            noticeEl.classList.add('hidden');
+        }
+    }
+}
 
 // ==================== 3. 認證與同意書流程 ====================
 
 function agreeConsent() {
     localStorage.setItem('has_agreed_consent', 'true');
+    localStorage.setItem('agreed_consent_version', CONSENT_VERSION);
     document.getElementById('consent-card').classList.add('hidden');
     document.getElementById('auth-card').classList.remove('hidden');
     // 當使用者成功登入或同意後，應該要執行這行：
