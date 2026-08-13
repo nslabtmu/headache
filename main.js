@@ -89,8 +89,13 @@ function disagreeConsent() {
 
 async function handleGoogleLogin() {
     const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin + window.location.pathname }
+       provider: 'google',
+        options: {
+            redirectTo: window.location.origin + window.location.pathname,
+            queryParams: {
+                prompt: 'select_account'   // ← 加這行，強制每次都顯示帳號選擇畫面
+            }
+        }
     });
     if (error) {
         alert("Google 登入失敗：" + error.message);
