@@ -56,13 +56,18 @@
      
 <<!-- 1. 氣象狀態與位置提示區塊 -->
 <div id="weather-section" style="background: #f8f9fa; padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #e9ecef;">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+   <!-- 新增位置顯示：加入一個 span 來顯示當前位置 -->
+        <div style="font-size: 14px; color: #555;">
+            📍 目前位置：<span id="current-location-text" style="font-weight: bold; color: #2980b9;">查詢中...</span>
+        </div>
+   
         <div id="weather-status" style="font-weight: 500; font-size: 14px;">⏳ 正在取得氣象數據...</div>
         <!-- 🆕 新增：隨時可以手動變更位置的按鈕 -->
         <button type="button" 
         id="toggleLocationBtn" 
         class="btn btn-sm" 
-        style="font-size: 13px; padding: 6px 12px; width: 90px; background: #6c75d7; color: white; border: none; border-radius: 6px; cursor: pointer;" 
+        style="font-size: 13px; padding: 6px 12px; width: 120px; background: #6c75d7; color: white; border: none; border-radius: 6px; cursor: pointer;" 
         onclick="toggleManualLocationBox()">
        📍 變更位置
         </button>    
