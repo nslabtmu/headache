@@ -43,9 +43,6 @@ supabase.auth.onAuthStateChange((event, session) => {
 
     if (session && !hasEnteredMainApp) {
         hasEnteredMainApp = true;
-        document.getElementById('consent-card').classList.add('hidden');
-        document.getElementById('auth-card').classList.add('hidden');
-        document.getElementById('main-card').classList.remove('hidden');
         showMainApp(session.user);
     } else if (!session) {
         hasEnteredMainApp = false;
