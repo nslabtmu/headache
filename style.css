@@ -140,7 +140,7 @@ input[type="text"], input[type="number"], textarea, select {
 input[type="range"] { flex: 1; height: 40px; }
 .slider-val { font-weight: bold; min-width: 25px; text-align: center; color: #2980b9; }
 
-.hidden { display: none; }
+.hidden { display: none!important; }
 
 #weather-status { font-size: 13px; color: #555; background: #e8f4f8; padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: left; }
 
