@@ -53,6 +53,9 @@
  
     <!-- 3. 主表單卡片 -->
     <div class="card card-left hidden" id="main-card">
+     <div id="user-info" style="font-size: 12px; color: #7f8c8d; margin-bottom: 10px; text-align: right;">
+    👤 登入帳號：<span id="user-email">載入中...</span>
+      </div>
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛日誌</h2>
             <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;" data-i18n="logout_btn">登出</button>
@@ -106,7 +109,7 @@
     <select class="tabs-select-mobile" onchange="switchTab(this.value)" id="mobile-tab-select">
         <option value="headache" data-i18n="tab_headache">🤕 頭痛紀錄</option>
         <option value="symptom" data-i18n="tab_symptom">📝 相關症狀</option>
-        <option value="band" data-i18n="tab_band">⌚ 其他資料</option>
+        <option value="band" data-i18n="tab_band">⌚ 健康資料</option>
         <option value="chart" data-i18n="tab_chart">📈 趨勢圖表</option>
         <option value="profile" data-i18n="tab_profile">👤 個人基本資料</option>
     </select>
@@ -114,7 +117,7 @@
         <div class="tabs">
             <button class="tab-btn" id="btn-tab-headache" onclick="switchTab('headache')" data-i18n="tab_headache">🤕 頭痛紀錄</button>
             <button class="tab-btn" id="btn-tab-symptom" onclick="switchTab('symptom')" data-i18n="tab_symptom">📝 相關症狀</button>
-            <button class="tab-btn" id="btn-tab-band" onclick="switchTab('band')" data-i18n="tab_band">⌚ 其他資料</button>
+            <button class="tab-btn" id="btn-tab-band" onclick="switchTab('band')" data-i18n="tab_band">⌚ 健康資料</button>
             <button class="tab-btn" id="btn-tab-chart" onclick="switchTab('chart')" data-i18n="tab_chart">📈 趨勢圖表</button>
             <button class="tab-btn" id="btn-tab-profile" onclick="switchTab('profile')" data-i18n="tab_profile">👤 個人基本資料</button>
         </div>
