@@ -22,6 +22,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         // 使用者已登入，檢查是否同意過條款
         if (hasAgreed === 'true') {
             showMainApp(); // 顯示主畫面
+            displayUserEmail();
         } else {
             // 已登入但尚未同意（可能是剛重新整理），顯示同意書
             showConsent();
