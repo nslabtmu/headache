@@ -59,7 +59,13 @@
     <div style="display: flex; justify-content: space-between; align-items: center;">
         <div id="weather-status" style="font-weight: 500; font-size: 14px;">⏳ 正在取得氣象數據...</div>
         <!-- 🆕 新增：隨時可以手動變更位置的按鈕 -->
-        <button type="button" id="toggleLocationBtn" class="btn btn-sm" style="font-size: 12px; padding: 4px 8px; background: #6c75d7; color: white; border: none; border-radius: 4px; cursor: pointer;" onclick="toggleManualLocationBox()">📍 變更位置</button>
+        <button type="button" 
+        id="toggleLocationBtn" 
+        class="btn btn-sm" 
+        style="font-size: 13px; padding: 6px 12px; width: 90px; background: #6c75d7; color: white; border: none; border-radius: 6px; cursor: pointer;" 
+        onclick="toggleManualLocationBox()">
+       📍 變更位置
+        </button>    
     </div>
 
     <!-- 2. 手動選擇與備用定位面板 (預設隱藏，點擊「變更位置」或定位失敗時自動展開) -->
