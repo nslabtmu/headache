@@ -259,9 +259,8 @@ function requestBrowserGPS() {
             (position) => {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
-                statusEl.innerText = "📍 定位成功";
                 document.getElementById('manual-location-box').style.display = 'none';
-                fetchWeather(lat, lon,statusEl.innerText);
+                fetchWeather(lat, lon, "定位成功");
             },
             () => {
                 alert("GPS 定位被拒絕或失敗，請使用下方選項 B 手動選擇台灣地區。");
