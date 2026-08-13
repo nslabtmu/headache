@@ -57,12 +57,12 @@
     <div class="card card-left hidden" id="main-card">
      
 <div id="user-info-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-    <div style="font-size: 12px; color: #7f8c8d;">
-        👤 登入帳號：<span id="user-email">載入中...</span>
-    </div>
     <div class="user-menu" style="position: relative;">
-        <button class="btn btn-sm" onclick="toggleUserMenu()">⋯ 更多</button>
-        <div id="user-dropdown" class="hidden" style="position:absolute; right:0; top:110%; background:var(--color-card-bg); border:1px solid var(--color-border); border-radius:8px; box-shadow:var(--shadow-card); min-width:140px; z-index:1000;">
+        <button class="btn btn-sm" onclick="toggleUserMenu()">👤 帳號 ⋯</button>
+        <div id="user-dropdown" class="hidden" style="position:absolute; right:0; top:110%; background:var(--color-card-bg); border:1px solid var(--color-border); border-radius:8px; box-shadow:var(--shadow-card); min-width:200px; z-index:1000;">
+            <div class="dropdown-account" style="padding:10px 14px; font-size:12px; color:var(--color-text-muted); border-bottom:1px solid var(--color-border);">
+                登入帳號：<br><span id="user-email" style="color:var(--color-text-main); font-weight:500;">載入中...</span>
+            </div>
             <button id="resetConsentBtn" class="dropdown-item" onclick="resetConsent()">📄 重填同意書</button>
             <button class="dropdown-item" onclick="handleLogout()">🚪 登出</button>
         </div>
@@ -277,15 +277,15 @@
                 <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料</h3>
                 <div class="form-group">
                     <label data-i18n="prof_name">1. 暱稱（非必填）</label>
-                    <input type="text" id="prof_nickname" placeholder="例如: 王小明 / Alex">
+                    <input type="text" id="prof_nickname" disabled placeholder="例如: 王小明 / Alex">
                 </div>
                 <div class="form-group">
                     <label data-i18n="prof_birth">2. 出生年 (西元)</label>
-                    <input type="number" id="prof_birthyear" placeholder="例如: 1990">
+                    <input type="number" id="prof_birthyear" disabled placeholder="例如: 1990">
                 </div>
                 <div class="form-group">
                     <label data-i18n="prof_gender">3. 性別</label>
-                    <select id="prof_gender">
+                    <select id="prof_gender" disabled>
                         <option value="" data-i18n="select_default">請選擇...</option>
                         <option value="male" data-i18n="gender_male">男性</option>
                         <option value="female" data-i18n="gender_female">女性</option>
@@ -294,7 +294,7 @@
                 </div>
                 <div class="form-group">
                     <label data-i18n="prof_tbi">4. 是否參與輕度腦外傷研究</label>
-                    <select id="prof_tbi">
+                    <select id="prof_tbi" disabled>
                     <option value="">請選擇...</option>
                     <option value="yes">是</option>
                     <option value="no">否</option>
@@ -302,7 +302,7 @@
                 </div>
                 <div class="form-group">
                     <label data-i18n="prof_sport">5. 運動頻率</label>
-                    <select id="prof_sport">
+                    <select id="prof_sport" disabled>
                         <option value="none" data-i18n="sport_none">幾乎不運動</option>
                         <option value="light" data-i18n="sport_light">輕度（每周 1-2 次）</option>
                         <option value="moderate" data-i18n="sport_moderate">中度（每周 3-4 次）</option>
