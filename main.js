@@ -328,7 +328,6 @@ function showMainApp(user) {
     document.getElementById('consent-card')?.classList.add('hidden');
     document.getElementById('auth-card')?.classList.add('hidden');
     document.getElementById('main-card')?.classList.remove('hidden');
-    document.getElementById('resetConsentBtn')?.classList.remove('hidden');
 
     initializeI18n();
     getLocationAndWeather();
@@ -681,6 +680,19 @@ async function displayUserEmail() {
         document.getElementById('user-email').innerText = "未登入";
     }
 }
+function toggleUserMenu() {
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) dropdown.classList.toggle('hidden');
+}
+
+// 點選單以外的地方要自動收起來
+document.addEventListener('click', (e) => {
+    const menu = document.querySelector('.user-menu');
+    const dropdown = document.getElementById('user-dropdown');
+    if (menu && dropdown && !menu.contains(e.target)) {
+        dropdown.classList.add('hidden');
+    }
+});
 function resetConsent() {
     localStorage.removeItem('has_agreed_consent');
     window.location.reload();
