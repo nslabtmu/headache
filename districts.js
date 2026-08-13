@@ -18,8 +18,50 @@ const taiwanDistricts = {
     "屏東縣": ["屏東市", "潮州鎮", "東港鎮", "恆春鎮", "萬丹鄉", "長治鄉", "麟洛鄉", "九如鄉", "里港鄉", "鹽埔鄉", "高樹鄉", "萬巒鄉", "內埔鄉", "竹田鄉", "新埤鄉", "枋寮鄉", "新園鄉", "崁頂鄉", "林邊鄉", "南州鄉", "琉球鄉", "車城鄉", "滿州鄉", "枋山鄉", "三地門鄉", "霧臺鄉", "瑪家鄉", "泰武鄉", "來義鄉", "春日鄉", "獅子鄉", "牡丹鄉"],
     "宜蘭縣": ["宜蘭市", "羅東鎮", "蘇澳鎮", "頭城鎮", "礁溪鄉", "壯圍鄉", "員山鄉", "冬山鄉", "五結鄉", "三星鄉", "大同鄉", "南澳鄉"],
     "花蓮縣": ["花蓮市", "鳳林鎮", "玉里鎮", "新城鄉", "吉安鄉", "壽豐鄉", "光復鄉", "豐濱鄉", "瑞穗鄉", "富里鄉", "秀林鄉", "萬榮鄉", "卓溪鄉"],
-   "臺東縣": ["臺東市", "成功鎮", "關山鎮", "長濱鄉", "池上鄉", "東河鄉", "鹿野鄉", "延平鄉", "卑南鄉", "太麻里鄉", "大武鄉", "達仁鄉", "金峰鄉", "蘭嶼鄉", "綠島鄉", "海端鄉"],
+    "臺東縣": ["臺東市", "成功鎮", "關山鎮", "長濱鄉", "池上鄉", "東河鄉", "鹿野鄉", "延平鄉", "卑南鄉", "太麻里鄉", "大武鄉", "達仁鄉", "金峰鄉", "蘭嶼鄉", "綠島鄉", "海端鄉"],
     "澎湖縣": ["馬公市", "湖西鄉", "白沙鄉", "西嶼鄉", "望安鄉", "七美鄉"],
     "金門縣": ["金城鎮", "金湖鎮", "金沙鎮", "金寧鄉", "烈嶼鄉", "烏坵鄉"],
     "連江縣": ["南竿鄉", "北竿鄉", "莒光鄉", "東引鄉"]
   };
+// ==================== 依縣市/鄉鎮查詢經緯度並更新天氣 ====================
+// 使用 Open-Meteo 地理編碼 API（免金鑰），依「縣市＋鄉鎮」查詢座標，
+// 查到後直接呼叫 main.js 已有的 fetchWeather() 更新天氣與空污資料
+async function getLatLonForTaiwanDistrict(city, district) {
+    const statusEl = document.getElementById('weather-status');
+    try {
+        if (statusEl) statusEl.innerText = `⏳ 正在查詢 ${city}${district} 座標...`;
+
+        const query = encodeURIComponent(`${district} ${city}`);
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${query}&count=1&language=zh&country=TW`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.results && data.results.length > 0) {
+            const { latitude, longitude } = data.results[0];
+            if (typeof fetchWeather === 'function') {
+                fetchWeather(latitude, longitude, `${city}${district}`);
+            } else {
+                console.warn("fetchWeather 尚未載入，無法更新天氣資料。");
+            }
+        } else {
+            // 部分偏遠鄉鎮可能查不到，改用「僅縣市」再查一次作為備援
+            const fallbackQuery = encodeURIComponent(city);
+            const fallbackUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${fallbackQuery}&count=1&language=zh&country=TW`;
+            const fallbackRes = await fetch(fallbackUrl);
+            const fallbackData = await fallbackRes.json();
+
+            if (fallbackData.results && fallbackData.results.length > 0) {
+                const { latitude, longitude } = fallbackData.results[0];
+                if (typeof fetchWeather === 'function') {
+                    fetchWeather(latitude, longitude, `${city}${district}（以縣市中心估算）`);
+                }
+            } else {
+                if (statusEl) statusEl.innerText = `⚠️ 查無 ${city}${district} 的座標，請改用 GPS 定位`;
+            }
+        }
+    } catch (err) {
+        console.error("查詢台灣地區座標失敗：", err);
+        if (statusEl) statusEl.innerText = "⚠️ 查詢座標時發生錯誤，請改用 GPS 定位";
+    }
+}
