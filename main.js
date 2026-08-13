@@ -617,3 +617,11 @@ function toggleOptionalHealthData() {
         arrow.innerHTML = '▼ 展開';
     }
 }
+async function displayUserEmail() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user && user.email) {
+        document.getElementById('user-email').innerText = user.email;
+    } else {
+        document.getElementById('user-email').innerText = "未登入";
+    }
+}
