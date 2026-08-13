@@ -212,7 +212,15 @@
 
             <!-- 頁簽 4：健康資料 -->
             <div id="pane-band" class="tab-pane hidden">
-                <div class="form-group">
+            <!-- 折疊觸發開關 -->
+             <div style="margin-bottom: 15px;">
+                <button type="button" class="btn btn-sm" style="background: #f1f2f6; color: #2f3542; border: 1px solid #dfe4ea; width: 100%; text-align: left; padding: 10px; font-weight: 500;" onclick="toggleOptionalHealthData()">
+                    ⌚ 存下健康數據 <span id="toggle-arrow">▼ 展開</span>
+                </button>
+             </div> 
+             <!-- 預設隱藏的健康資料填寫區 -->
+         <div id="optional-health-box" style="display: none; background: #fafafa; padding: 15px; border-radius: 6px; border: 1px solid #eee;">
+             <div class="form-group">
                     <label data-i18n="band_hr">❤️ 即時心跳 (bpm)</label>
                     <input type="number" id="band_heart_rate" placeholder="例如: 75">
                 </div>
@@ -228,11 +236,11 @@
                     <label data-i18n="band_avg_steps">📊 近期平均步數 (步/日)</label>
                     <input type="number" id="band_avg_steps" placeholder="例如: 7200">
                 </div>
-                <div class="button-group">
-                    <button type="button" class="btn btn-prev" onclick="navigate(-1)" data-i18n="prev_btn">上一頁</button>
-                    <button type="submit" class="btn btn-next" id="submitBtn" data-i18n="submit_btn">儲存紀錄</button>
-                </div>
-            </div>
+                <div class="button-group" style="margin-top: 20px;">
+                <button type="button" class="btn btn-prev" onclick="navigate(-1)" data-i18n="prev_btn">上一頁</button>
+                <button type="submit" class="btn btn-next" id="submitBtn" data-i18n="submit_btn">儲存紀錄</button>
+               </div>
+           </div>
 
         </form>
 
