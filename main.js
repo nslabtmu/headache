@@ -12,7 +12,25 @@ let locationReady = false;
 const pageOrder = ['pane-headache', 'pane-symptoms', 'pane-band', 'pane-chart', 'pane-profile'];
 const tabNames = ['headache', 'symptom', 'band', 'chart', 'profile'];
 
+// 網頁載入完成時執行
+// 1. 頁面載入時，自動偵測登入狀態與同意狀態
+window.addEventListener('DOMContentLoaded', async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const hasAgreed = localStorage.getItem('has_agreed_consent');
 
+    if (session) {
+        // 使用者已登入，檢查是否同意過條款
+        if (hasAgreed === 'true') {
+            showMainApp(); // 顯示主畫面
+        } else {
+            // 已登入但尚未同意（可能是剛重新整理），顯示同意書
+            showConsent();
+        }
+    } else {
+        // 未登入，顯示登入畫面
+        showLogin();
+    }
+});
 // ==================== 2. 登入狀態與頁面載入監聽 ====================
 
 // ✅ 唯一的登入狀態即時監聽
@@ -86,8 +104,10 @@ async function handleLogout() {
     }
 
     localStorage.removeItem('has_agreed_consent');
-    hasEnteredMainApp = false;
-    window.location.href = window.location.origin + window.location.pathname;
+    //hasEnteredMainApp = false;
+    //window.location.href = window.location.origin + window.location.pathname;
+    // 直接重新整理，因為 DOMContentLoaded 會自動執行偵測邏輯
+    window.location.reload();
 }
 
   <!--顯示主畫面 -->
@@ -303,12 +323,29 @@ function applyTaiwanManualLocation() {
 
 // ==================== 6. 個人資料與主應用載入 ====================
 
-function showMainApp(user) {
+/*function showMainApp(user) {
     document.getElementById('main-card').classList.remove('hidden');
     initializeI18n(); 
     getLocationAndWeather();
     loadUserProfile(user.id);
     loadUserHistory(user.id);
+}*/
+function showMainApp() {
+    document.getElementById('consent-card')?.classList.add('hidden');
+    document.getElementById('auth-card')?.classList.add('hidden');
+    document.getElementById('main-card')?.classList.remove('hidden');
+    document.getElementById('resetConsentBtn')?.classList.remove('hidden');
+}
+function showConsent() {
+    document.getElementById('consent-card')?.classList.remove('hidden');
+    document.getElementById('auth-card')?.classList.add('hidden');
+    document.getElementById('main-card')?.classList.add('hidden');
+}
+
+function showLogin() {
+    document.getElementById('consent-card')?.classList.add('hidden');
+    document.getElementById('auth-card')?.classList.remove('hidden');
+    document.getElementById('main-card')?.classList.add('hidden');
 }
 
 async function loadUserProfile(userId) {
