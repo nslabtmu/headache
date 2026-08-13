@@ -60,6 +60,8 @@ function agreeConsent() {
     localStorage.setItem('has_agreed_consent', 'true');
     document.getElementById('consent-card').classList.add('hidden');
     document.getElementById('auth-card').classList.remove('hidden');
+    // 當使用者成功登入或同意後，應該要執行這行：
+document.getElementById('resetConsentBtn').classList.remove('hidden');
 }
 
 function disagreeConsent() {
