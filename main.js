@@ -389,6 +389,14 @@ async function fetchWeather(lat, lon, successMsg) {
         locationReady = true;
         if (statusEl) statusEl.innerHTML = `📍 ${successMsg}！氣象與空污數據同步完成`;
         if (locationEl) locationEl.innerText = successMsg;
+        const detailEl = document.getElementById('weather-detail');
+        if (detailEl) {
+            const w = currentWeather.weather;
+            const a = currentWeather.air_quality;
+            detailEl.innerText = `🌡️ ${w.temperature_2m}°C・💧 濕度 ${w.relative_humidity_2m}%・🔽 氣壓 ${w.pressure_msl} hPa・🌫️ PM2.5: ${a.pm2_5}`;
+        }
+
+        
     } catch (err) {
         if (statusEl) statusEl.innerText = "⚠️ 氣象資料解析失敗";
         if (locationEl) locationEl.innerText = "取得失敗";
