@@ -31,7 +31,14 @@ async function getLatLonForTaiwanDistrict(city, district) {
     try {
         if (statusEl) statusEl.innerText = `⏳ 正在查詢 ${city}${district} 座標...`;
 
-        const query = encodeURIComponent(`${district} ${city}`);
+        //const query = encodeURIComponent(`${district} ${city}`);
+        // 1. 去掉結尾的「區/鄉/鎮/市」，並把「臺」轉為「台」以增加搜尋命中率
+        const cleanDistrict = district.replace(/(區|鄉|鎮|市)$/, '');
+        const cleanCity = city.replace('臺', '台');
+
+        // 2. 組合成新的搜尋字串
+        const query = encodeURIComponent(`${cleanCity} ${cleanDistrict}`);
+        
         const url = `https://geocoding-api.open-meteo.com/v1/search?name=${query}&count=1&language=zh&country=TW`;
 
         const res = await fetch(url);
@@ -54,7 +61,7 @@ async function getLatLonForTaiwanDistrict(city, district) {
             if (fallbackData.results && fallbackData.results.length > 0) {
                 const { latitude, longitude } = fallbackData.results[0];
                 if (typeof fetchWeather === 'function') {
-                    fetchWeather(latitude, longitude, `${city}${district}（以縣市中心估算）`);
+                    fetchWeather(latitude, longitude, `${city}${district}`);
                 }
             } else {
                 if (statusEl) statusEl.innerText = `⚠️ 查無 ${city}${district} 的座標，請改用 GPS 定位`;
