@@ -48,7 +48,7 @@ let hasSavedProfile = false;
 // ✅ 同意書版本號：改版時只要改這一個地方
 // PDF 檔名請對應命名為 consent_v{版本號}.pdf，例如 consent_v1.0.pdf、consent_v1.1.pdf
 const CONSENT_VERSION = '4';
-const CONSENT_PDF_URL = `https://raw.githubusercontent.com/nslabtmu/headache/main/consent_v${CONSENT_VERSION}.pdf`;
+const CONSENT_PDF_URL = `./consent_v${CONSENT_VERSION}.pdf`;
 
 // 分頁順序與對應的 Tab 名稱陣列，供 navigate() 使用
 const pageOrder = ['pane-headache', 'pane-symptoms', 'pane-band', 'pane-chart', 'pane-profile'];
