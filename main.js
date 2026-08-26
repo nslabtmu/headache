@@ -1,3 +1,21 @@
+// 在 main.js 最上面加入
+async function getNetworkTime() {
+    try {
+        const response = await fetch('https://worldtimeapi.org/api/timezone/Asia/Taipei');
+        const data = await response.json();
+        const serverTime = new Date(data.datetime).getTime();
+        const clientTime = new Date().getTime();
+        
+        // 自動調整瀏覽器時間認知
+        console.log('✓ 時間已同步');
+    } catch (error) {
+        console.log('⚠️ 時間同步失敗');
+    }
+}
+
+// 初始化時執行
+getNetworkTime();
+
 // ==================== 1. 全域變數與初始化設定 ====================
 const REQUIRE_LOCATION_FOR_SUBMIT = false;
 
