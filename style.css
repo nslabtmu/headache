@@ -28,11 +28,9 @@
 
 body {
     margin: 0;
-    padding: 24px 16px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC",
-                 "Microsoft JhengHei", sans-serif;
+    padding: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
     color: var(--color-text-main);
-    /* 柔和的斜角漸層背景，帶一點呼吸感，不是死板的單色 */
     background: linear-gradient(160deg, var(--color-bg-start) 0%, var(--color-bg-end) 100%);
     background-attachment: fixed;
     min-height: 100vh;
@@ -47,13 +45,13 @@ body {
 /* ==================== 卡片容器 ==================== */
 .card {
     background: var(--color-card-bg);
-    max-width: 560px;
+    width: 100%;
+    max-width: 100%; /* 手機預設全寬 */
     margin: 0 auto 20px auto;
-    padding: 28px 24px;
+    padding: 20px 16px; /* 手機版邊距適中 */
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
     border: 1px solid var(--color-border);
-    transition: box-shadow 0.3s ease;
 }
 
 .card.card-left {
@@ -61,24 +59,34 @@ body {
 }
 
 .card h2 {
-    color: var(--color-text-main);
-    font-weight: 600;
-    letter-spacing: 0.3px;
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem); /* 自動在 20px ~ 28px 間隨螢幕縮放 */
 }
 
 .hidden {
     display: none !important;
 }
+@media (min-width: 640px) {
+    body { padding: 24px; }
+    .card {
+        max-width: 580px;
+        padding: 24px;
+    }
+}
+
 @media (min-width: 768px) {
     .card {
         max-width: 720px;
+        padding: 28px 24px;
     }
 }
 
 @media (min-width: 1200px) {
     .card {
-        max-width: 840px;
+        max-width: 880px;
     }
+}
+.btn, .form-control, select {
+    min-height: 44px;
 }
 /* ==================== 按鈕 ==================== */
 .btn {
@@ -219,8 +227,15 @@ body {
 }
 
 @media (max-width: 640px) {
-    .tabs { display: none; }
-    .tabs-select-mobile { display: block; }
+    .tabs { 
+        display: none !important; 
+    }
+    .tabs-select-mobile { 
+        display: block !important; 
+        width: 100%;
+        min-height: 44px; /* 提高手機端觸控點擊面積 */
+        font-size: 16px;  /* 保持 16px 防止 iOS Safari 自動放大頁面 */
+    }
 }
 
 /* ==================== 表單元件 ==================== */
@@ -333,10 +348,11 @@ input[type="range"] {
 /* ==================== PDF 同意書 ==================== */
 .pdf-container {
     width: 100%;
-    height: 420px;
+    height: 50vh; /* 佔用視窗高度的 50% */
+    min-height: 320px;
+    max-height: 600px;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    margin-bottom: 12px;
 }
 
 /* ==================== 圖表 ==================== */
