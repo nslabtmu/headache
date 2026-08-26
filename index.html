@@ -17,6 +17,8 @@
     <title>HeadacheV12</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
+ 
 <body>
 <div id="top-toolbar">
     <button class="lang-btn" onclick="toggleLanguage()">🌐 中/En</button>
@@ -321,6 +323,129 @@
 </div>
     <!-- 載入 main.js 必須在最後 -->
     <script src="./main.js"></script>
-
+ 
+    <!-- 🆕 新增：定位權限提醒 -->
+    <script>
+        // 頁面載入時檢查定位權限
+        window.addEventListener('DOMContentLoaded', function() {
+            checkLocationPermission();
+        });
+ 
+        // 檢查定位權限狀態
+        function checkLocationPermission() {
+            if (navigator.permissions && navigator.permissions.query) {
+                navigator.permissions.query({ name: 'geolocation' }).then(function(result) {
+                    if (result.state === 'denied') {
+                        showLocationPermissionAlert('denied');
+                    } else if (result.state === 'prompt') {
+                        showLocationPermissionAlert('prompt');
+                    }
+                    // 'granted' 則不需提醒
+                });
+            } else if (!navigator.geolocation) {
+                showLocationPermissionAlert('unsupported');
+            }
+        }
+ 
+        // 顯示定位權限提醒
+        function showLocationPermissionAlert(state) {
+            let message = '';
+            let actionText = '';
+ 
+            if (state === 'denied') {
+                message = '📍 您已拒絕位置存取權限。\n\n為了提供更準確的氣象數據和健康分析，建議您在瀏覽器設定中允許此應用程式存取您的位置資訊。';
+                actionText = '📍 開啟瀏覽器設定';
+            } else if (state === 'prompt') {
+                message = '📍 此應用程式需要您的位置資訊。\n\n點擊「允許」後，系統將自動取得您的定位，以提供最準確的氣象數據。';
+                actionText = '🔄 要求定位權限';
+            } else if (state === 'unsupported') {
+                message = '⚠️ 您的瀏覽器不支援地理定位功能。\n\n請使用現代瀏覽器（Chrome、Firefox、Safari 等），或手動選擇位置。';
+                actionText = '✓ 我知道了';
+            }
+ 
+            // 建立浮動提醒框
+            const alertBox = document.createElement('div');
+            alertBox.id = 'location-permission-alert';
+            alertBox.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 16px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                max-width: 320px;
+                z-index: 10000;
+                font-size: 14px;
+                line-height: 1.5;
+            `;
+ 
+            alertBox.innerHTML = `
+                <div style="margin-bottom: 12px; white-space: pre-wrap;">${message}</div>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="dismissLocationAlert()" style="flex: 1; padding: 6px 10px; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); border-radius: 4px; cursor: pointer; font-size: 12px;">✕ 關閉</button>
+                    <button onclick="handleLocationAlertAction('${state}')" style="flex: 1; padding: 6px 10px; background: rgba(255,255,255,0.9); color: #667eea; border: none; border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 12px;">${actionText}</button>
+                </div>
+            `;
+ 
+            // 檢查是否已有提醒，避免重複
+            const existing = document.getElementById('location-permission-alert');
+            if (existing) {
+                existing.remove();
+            }
+ 
+            document.body.appendChild(alertBox);
+        }
+ 
+        // 關閉提醒
+        function dismissLocationAlert() {
+            const alert = document.getElementById('location-permission-alert');
+            if (alert) {
+                alert.style.transition = 'opacity 0.3s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 300);
+            }
+        }
+ 
+        // 處理提醒中的按鈕點擊
+        function handleLocationAlertAction(state) {
+            if (state === 'prompt') {
+                // 請求定位權限
+                requestBrowserGPS();
+                dismissLocationAlert();
+            } else if (state === 'denied') {
+                // 導向設定說明
+                alert('🔧 如何開啟定位權限？\n\n【Chrome】\n設定 > 隱私權和安全性 > 網站設定 > 位置資訊 > 允許\n\n【Safari】\n設定 > 隱私權 > 位置資訊 > 允許\n\n【Firefox】\n設定 > 隱私權 > 權限 > 位置資訊 > 允許');
+                dismissLocationAlert();
+            } else {
+                dismissLocationAlert();
+            }
+        }
+ 
+        // 如果 requestBrowserGPS 尚未定義，這裡提供備用版本
+        if (typeof requestBrowserGPS === 'undefined') {
+            function requestBrowserGPS() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const lat = position.coords.latitude;
+                            const lon = position.coords.longitude;
+                            console.log('✓ 定位成功:', lat, lon);
+                            // 可以在這裡呼叫你現有的定位處理函數
+                            if (typeof handleGPSLocation === 'function') {
+                                handleGPSLocation(lat, lon);
+                            }
+                            dismissLocationAlert();
+                        },
+                        function(error) {
+                            console.log('✗ 定位失敗:', error.message);
+                            alert('❌ 定位失敗: ' + error.message);
+                        }
+                    );
+                }
+            }
+        }
+    </script>
 </body>
 </html>
