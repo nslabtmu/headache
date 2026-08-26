@@ -2,32 +2,30 @@
 async function getNetworkTime() {
     const apis = [
         'https://timeapi.io/api/Time/current/timezone?timeZone=Asia/Taipei',
-        'https://api.time.is/currentUnixTime',
+        'https://worldtimeapi.org/api/ip',
         'https://www.google.com'  // 備用：讀 HTTP Header
     ];
 
     for (let api of apis) {
         try {
-            console.log('嘗試連接:', api);
-            const response = await fetch(api, { 
-                method: 'HEAD',
-                mode: 'no-cors'
-            });
-            
-            // 從 Response Header 取得時間
-            const date = response.headers.get('date');
-            if (date) {
-                const serverTime = new Date(date).getTime();
+            console.log('嘗試連接時間 API:', api);
+            const response = await fetch(api, { method: 'GET' });
+            if (!response.ok) continue;
+
+            const data = await response.json();
+            // 解析兩種不同 API 的 ISO 時間格式
+            const isoString = data.datetime || data.dateTime; 
+            if (isoString) {
+                const serverTime = new Date(isoString).getTime();
                 const clientTime = new Date().getTime();
                 console.log('✓ 時間已同步，偏差:', serverTime - clientTime, 'ms');
                 return;
             }
         } catch (error) {
-            console.log('✗', api, '失敗，嘗試下一個');
+            console.log('✗', api, '連接失敗，嘗試下一個');
         }
     }
-    
-    console.log('⚠️ 所有時間 API 都無法連接，使用本地時間');
+    console.log('⚠️ 所有時間 API 都無法連接，改用本地系統時間');
 }
 
 // 頁面載入時執行
