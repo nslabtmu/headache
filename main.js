@@ -1,20 +1,39 @@
 // 在 main.js 最上面加入
 async function getNetworkTime() {
-    try {
-        const response = await fetch('https://worldtimeapi.org/api/timezone/Asia/Taipei');
-        const data = await response.json();
-        const serverTime = new Date(data.datetime).getTime();
-        const clientTime = new Date().getTime();
-        
-        // 自動調整瀏覽器時間認知
-        console.log('✓ 時間已同步');
-    } catch (error) {
-        console.log('⚠️ 時間同步失敗');
+    const apis = [
+        'https://timeapi.io/api/Time/current/timezone?timeZone=Asia/Taipei',
+        'https://api.time.is/currentUnixTime',
+        'https://www.google.com'  // 備用：讀 HTTP Header
+    ];
+
+    for (let api of apis) {
+        try {
+            console.log('嘗試連接:', api);
+            const response = await fetch(api, { 
+                method: 'HEAD',
+                mode: 'no-cors'
+            });
+            
+            // 從 Response Header 取得時間
+            const date = response.headers.get('date');
+            if (date) {
+                const serverTime = new Date(date).getTime();
+                const clientTime = new Date().getTime();
+                console.log('✓ 時間已同步，偏差:', serverTime - clientTime, 'ms');
+                return;
+            }
+        } catch (error) {
+            console.log('✗', api, '失敗，嘗試下一個');
+        }
     }
+    
+    console.log('⚠️ 所有時間 API 都無法連接，使用本地時間');
 }
 
-// 初始化時執行
-getNetworkTime();
+// 頁面載入時執行
+window.addEventListener('DOMContentLoaded', function() {
+    getNetworkTime();
+});
 
 // ==================== 1. 全域變數與初始化設定 ====================
 const REQUIRE_LOCATION_FOR_SUBMIT = false;
