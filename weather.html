@@ -1,0 +1,21 @@
+<div class="card p-4">
+    <h2 class="text-xl font-bold mb-3">📍 當地氣象與定位</h2>
+    <div id="weather-status" class="mb-2 text-sm text-gray-600">⏳ 正在取得定位與氣象...</div>
+    <div id="current-location-text" class="font-semibold mb-2">未取得定位</div>
+    <div id="weather-detail" class="text-sm bg-blue-50 p-3 rounded mb-4">🌡️ 載入中...</div>
+    
+    <!-- 手動定位選單 (若自動定位失敗時顯示) -->
+    <div id="manual-location-box" style="display:none;" class="border p-3 rounded mt-3">
+        <p class="text-sm mb-2">自動定位失敗，請手動選擇：</p>
+        <button onclick="requestBrowserGPS()" class="bg-blue-500 text-white px-3 py-1 rounded text-sm mb-2">重新嘗試 GPS 定位</button>
+        <div class="flex gap-2">
+            <select id="select-city" onchange="updateDistricts()" class="border p-1 rounded text-sm">
+                <option value="">請選擇縣市...</option>
+            </select>
+            <select id="select-district" class="border p-1 rounded text-sm">
+                <option value="">請選擇鄉鎮市區...</option>
+            </select>
+            <button onclick="applyTaiwanManualLocation()" class="bg-green-500 text-white px-3 py-1 rounded text-sm">確認</button>
+        </div>
+    </div>
+</div>
