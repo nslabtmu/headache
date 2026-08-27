@@ -1,9 +1,9 @@
 // 在 main.js 最上面加入
+// 在 main.js 最上面
 async function getNetworkTime() {
     const apis = [
         'https://timeapi.io/api/Time/current/timezone?timeZone=Asia/Taipei',
-        'https://worldtimeapi.org/api/ip',
-        'https://www.google.com'  // 備用：讀 HTTP Header
+        'https://weather-worker.nslab.workers.dev/api/time' // 改用你自己的 Worker
     ];
 
     for (let api of apis) {
@@ -13,8 +13,7 @@ async function getNetworkTime() {
             if (!response.ok) continue;
 
             const data = await response.json();
-            // 解析兩種不同 API 的 ISO 時間格式
-            const isoString = data.datetime || data.dateTime; 
+            const isoString = data.datetime || data.dateTime || data.now; 
             if (isoString) {
                 const serverTime = new Date(isoString).getTime();
                 const clientTime = new Date().getTime();
@@ -28,10 +27,7 @@ async function getNetworkTime() {
     console.log('⚠️ 所有時間 API 都無法連接，改用本地系統時間');
 }
 
-// 頁面載入時執行
-window.addEventListener('DOMContentLoaded', function() {
-    getNetworkTime();
-});
+
 
 // ==================== 1. 全域變數與初始化設定 ====================
 const REQUIRE_LOCATION_FOR_SUBMIT = false;
@@ -65,20 +61,25 @@ const pageOrder = ['pane-headache', 'pane-symptoms', 'pane-band', 'pane-chart', 
 const tabNames = ['headache', 'symptom', 'band', 'chart', 'profile'];
 
 // ==================== 2. 頁面載入時的初始化 ====================
+// ==================== 2. 頁面載入時的初始化 ====================
 
 window.addEventListener('DOMContentLoaded', async () => {
+    // 1. 執行時間同步
+    getNetworkTime();
+
+    // 2. 初始化台灣縣市下拉選單
     initTaiwanSelect();
 
-    // 動態設定同意書 PDF 路徑（跟著 CONSENT_VERSION 自動變動，不用手動改兩個地方）
+    // 3. 動態設定同意書 PDF 路徑
     const pdfFrame = document.getElementById('pdfFrame');
     if (pdfFrame) {
         pdfFrame.src = CONSENT_PDF_URL;
     }
 
+    // 4. 檢查 Supabase 登入狀態
     const { data: { session } } = await supabase.auth.getSession();
 
     if (session) {
-        // 已登入：真正查資料庫，確認是否同意過「目前版本」（跨裝置也準確）
         const isValid = await hasValidConsentFromDB(session.user.id);
         if (isValid) {
             hasEnteredMainApp = true;
@@ -87,7 +88,6 @@ window.addEventListener('DOMContentLoaded', async () => {
             await showConsent(session);
         }
     } else {
-        // 尚未登入：還不知道使用者是誰，先用 localStorage 做初步判斷
         const status = getConsentStatus();
         if (status.isValid) {
             showLogin();
