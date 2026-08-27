@@ -1,0 +1,670 @@
+/* ==================== 
+   HeadacheV12 - 重寫 CSS
+   設計理念：低飽和度、低對比、柔和漸層（頭痛/偏頭痛友善）
+   ==================== */
+
+/* ==================== 1. 全域設定 ==================== */
+:root {
+    /* === 顏色變數 - 燈光模式 === */
+    --color-bg-start: #f3ede4;      /* 米杏色 */
+    --color-bg-end: #e8ede6;        /* 淡鼠尾草綠 */
+    --color-card-bg: #fdfbf8;       /* 卡片底色 - 近白但不刺眼 */
+    --color-primary: #8b9a8b;       /* 鼠尾草綠 */
+    --color-primary-dark: #6f7d6f;  /* 深鼠尾草綠 */
+    --color-secondary: #b0a4c7;     /* 薰衣草紫 */
+    --color-accent: #d9a679;        /* 溫暖赭色 */
+    --color-danger: #c97b6d;        /* 柔和磚紅 */
+    --color-danger-bg: #f7e9e6;     /* 警示區底色 */
+    --color-text-main: #4a4640;     /* 深灰棕 */
+    --color-text-muted: #8a8478;    /* 淺灰棕 */
+    --color-border: #e2dcd0;        /* 邊框色 */
+    
+    /* === 陰影 === */
+    --shadow-soft: 0 4px 20px rgba(139, 154, 139, 0.12);
+    --shadow-card: 0 2px 12px rgba(74, 70, 64, 0.06);
+    
+    /* === 圓角 === */
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --radius-sm: 6px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    color: var(--color-text-main);
+    background: linear-gradient(160deg, var(--color-bg-start) 0%, var(--color-bg-end) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ==================== 2. 卡片容器 ==================== */
+.card {
+    background: var(--color-card-bg);
+    width: 100%;
+    margin: 0 auto 20px auto;
+    padding: 20px 16px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--color-border);
+}
+
+.card.card-left {
+    text-align: left;
+}
+
+.card h2 {
+    margin: 0 0 16px 0;
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    color: var(--color-text-main);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ==================== 3. 右上角工具列 ==================== */
+#top-toolbar {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 1000;
+}
+
+#user-info-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* ==================== 4. 按鈕 ==================== */
+.btn,
+.form-control,
+select,
+input[type="text"],
+input[type="number"],
+textarea {
+    min-height: 44px;  /* 觸控友善高度 */
+}
+
+.btn {
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 2px 8px rgba(139, 154, 139, 0.25);
+}
+
+.btn:hover {
+    background: var(--color-primary-dark);
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn:disabled {
+    background: #cfc9bd;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.btn-sm {
+    padding: 8px 14px;
+    font-size: 13px;
+    border-radius: var(--radius-sm);
+}
+
+.btn-prev {
+    background: #cfc4d8;
+    color: var(--color-text-main);
+}
+
+.btn-prev:hover {
+    background: #b8a9c7;
+}
+
+.btn-next {
+    background: var(--color-primary);
+}
+
+/* Google 登入按鈕 */
+.google-btn {
+    background: #fff;
+    color: var(--color-text-main);
+    border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    box-shadow: var(--shadow-card);
+}
+
+.google-btn:hover {
+    background: #faf8f5;
+}
+
+/* 語言切換按鈕 */
+.lang-btn {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    cursor: pointer;
+    box-shadow: var(--shadow-card);
+    color: var(--color-text-main);
+    font-size: 13px;
+}
+
+.lang-btn:hover {
+    background: rgba(139, 154, 139, 0.1);
+}
+
+/* ==================== 5. 使用者選單 ==================== */
+.user-menu {
+    position: relative;
+}
+
+#user-dropdown {
+    position: absolute;
+    right: 0;
+    top: 110%;
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+    min-width: 200px;
+    z-index: 1000;
+}
+
+.dropdown-account {
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--color-text-muted);
+    border-bottom: 1px solid var(--color-border);
+}
+
+#user-email {
+    color: var(--color-text-main);
+    font-weight: 500;
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--color-text-main);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background: var(--color-bg-start);
+}
+
+.dropdown-item + .dropdown-item {
+    border-top: 1px solid var(--color-border);
+}
+
+/* ==================== 6. 分頁 Tabs ==================== */
+.tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    flex: 1;
+    min-width: 90px;
+    background: #ece7dd;
+    color: var(--color-text-muted);
+    border: none;
+    padding: 10px 8px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 40px;
+}
+
+.tab-btn:hover {
+    background: #e0d9ce;
+}
+
+.tab-btn.active {
+    background: var(--color-secondary);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(176, 164, 199, 0.35);
+}
+
+/* 手機版下拉選單 */
+.tabs-select-mobile {
+    display: none;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px;
+    margin-bottom: 16px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-card-bg);
+    color: var(--color-text-main);
+    font-size: 16px;  /* iOS Safari 防止自動放大 */
+    cursor: pointer;
+}
+
+/* ==================== 7. 表單元件 ==================== */
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: var(--color-text-main);
+    font-weight: 500;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="date"],
+input[type="time"],
+select,
+textarea,
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--color-text-main);
+    font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-family: inherit;
+}
+
+input[type="text"]::placeholder,
+input[type="number"]::placeholder,
+input[type="email"]::placeholder,
+textarea::placeholder {
+    color: #bbb;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 3px rgba(176, 164, 199, 0.15);
+}
+
+/* 複選框與單選框 */
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f5f1ea;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 400;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.checkbox-group label:hover {
+    background: #ede5d9;
+}
+
+.checkbox-group input[type="checkbox"],
+.checkbox-group input[type="radio"] {
+    cursor: pointer;
+}
+
+/* 滑桿 */
+.slider-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+input[type="range"] {
+    flex: 1;
+    accent-color: var(--color-secondary);
+    cursor: pointer;
+}
+
+.slider-val {
+    min-width: 24px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--color-secondary);
+}
+
+/* ==================== 8. 警示與緊急區塊 ==================== */
+.emergency-box {
+    background: var(--color-danger-bg);
+    border: 1px solid #ecd3cd;
+    border-left: 4px solid var(--color-danger);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.warning-text {
+    display: none;
+    margin-top: 10px;
+    background: var(--color-danger);
+    color: #fff;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* ==================== 9. 按鈕群組 ==================== */
+.button-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.button-group .btn {
+    flex: 1;
+}
+
+/* ==================== 10. PDF 容器 ==================== */
+.pdf-container {
+    width: 100%;
+    height: 50vh;
+    min-height: 320px;
+    max-height: 600px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+/* ==================== 11. 圖表容器 ==================== */
+#pane-chart canvas {
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 12px;
+    border: 1px solid var(--color-border);
+}
+
+/* ==================== 12. 天氣區塊 ==================== */
+.mb-4 {
+    margin-bottom: 16px;
+}
+
+/* ==================== 13. 標籤 ==================== */
+.tag {
+    display: inline-block;
+    background: #f0e8df;
+    color: var(--color-text-muted);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+}
+
+/* ==================== 14. 媒體查詢 - 平板 (640px+) ==================== */
+@media (min-width: 640px) {
+    body {
+        padding: 24px;
+    }
+
+    .card {
+        max-width: 580px;
+        padding: 24px;
+    }
+
+    .tabs-select-mobile {
+        display: none !important;
+    }
+
+    .tabs {
+        display: flex !important;
+    }
+}
+
+/* ==================== 15. 媒體查詢 - 平板大 (768px+) ==================== */
+@media (min-width: 768px) {
+    body {
+        padding: 24px;
+    }
+
+    .card {
+        max-width: 720px;
+        padding: 28px 24px;
+    }
+}
+
+/* ==================== 16. 媒體查詢 - 桌面 (1200px+) ==================== */
+@media (min-width: 1200px) {
+    body {
+        padding: 32px;
+    }
+
+    .card {
+        max-width: 880px;
+        padding: 32px 28px;
+    }
+}
+
+/* ==================== 17. 媒體查詢 - 手機版 (max-width: 640px) ==================== */
+@media (max-width: 640px) {
+    body {
+        padding: 12px;
+    }
+
+    .card {
+        max-width: 100%;
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+
+    .tabs {
+        display: none !important;
+    }
+
+    .tabs-select-mobile {
+        display: block !important;
+    }
+
+    .tab-btn {
+        min-width: 75px;
+        font-size: 12px;
+    }
+
+    .button-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .button-group .btn {
+        width: 100%;
+    }
+}
+
+/* ==================== 18. 深色模式 ==================== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-bg-start: #24221f;      /* 暖炭灰 */
+        --color-bg-end: #1f2320;        /* 深鼠尾草灰綠 */
+        --color-card-bg: #2c2a26;       /* 卡片底色 */
+        --color-primary: #8fa38f;       /* 柔和鼠尾草綠 */
+        --color-primary-dark: #a8bba8;  /* hover 時變亮 */
+        --color-secondary: #a596b8;     /* 柔和薰衣草紫 */
+        --color-accent: #c99a72;        /* 暗赭色 */
+        --color-danger: #d08a7c;        /* 柔和珊瑚紅 */
+        --color-danger-bg: #3a2b28;     /* 深咖啡紅 */
+        --color-text-main: #e8e3d9;     /* 米白 */
+        --color-text-muted: #a39d8f;    /* 淺灰棕 */
+        --color-border: #423e37;        /* 邊框 */
+        --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.35);
+        --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    body {
+        background: linear-gradient(160deg, var(--color-bg-start) 0%, var(--color-bg-end) 100%);
+    }
+
+    /* 輸入框在深色模式 */
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="date"],
+    input[type="time"],
+    select,
+    textarea,
+    .form-control {
+        background: #33312c;
+        color: var(--color-text-main);
+        border-color: var(--color-border);
+    }
+
+    input[type="text"]::placeholder,
+    input[type="number"]::placeholder,
+    input[type="email"]::placeholder,
+    textarea::placeholder {
+        color: #6e6a5f;
+    }
+
+    /* 下拉選單選項 */
+    select option {
+        background: #2c2a26;
+        color: var(--color-text-main);
+    }
+
+    /* Tab 按鈕 */
+    .tab-btn {
+        background: #35322c;
+        color: var(--color-text-muted);
+    }
+
+    .tab-btn:hover {
+        background: #3f3c35;
+    }
+
+    .tab-btn.active {
+        background: var(--color-secondary);
+        color: #1f1d1a;  /* 深色文字在亮紫底 */
+    }
+
+    /* 複選框群組 */
+    .checkbox-group label {
+        background: #35322c;
+        color: var(--color-text-main);
+    }
+
+    .checkbox-group label:hover {
+        background: #3f3c35;
+    }
+
+    /* 手機下拉選單 */
+    .tabs-select-mobile {
+        background: var(--color-card-bg);
+        color: var(--color-text-main);
+        border-color: var(--color-border);
+    }
+
+    /* Google 登入按鈕 */
+    .google-btn {
+        background: #f5f3ef;
+        border-color: var(--color-border);
+        color: #1f1d1a;
+    }
+
+    .google-btn:hover {
+        background: #ede5d9;
+    }
+
+    /* 語言切換按鈕 */
+    .lang-btn {
+        background: transparent;
+        color: var(--color-text-main);
+        border-color: var(--color-border);
+    }
+
+    .lang-btn:hover {
+        background: rgba(176, 164, 199, 0.1);
+    }
+
+    /* 圖表 */
+    #pane-chart canvas {
+        background: #2c2a26;
+        border-color: var(--color-border);
+    }
+
+    /* PDF 容器 */
+    .pdf-container {
+        border-color: var(--color-border);
+    }
+
+    /* 警示文字 */
+    .warning-text {
+        background: var(--color-danger);
+        color: #241a17;
+    }
+
+    /* Focus 光暈 */
+    input:focus,
+    select:focus,
+    textarea:focus {
+        box-shadow: 0 0 0 3px rgba(165, 150, 184, 0.25);
+    }
+
+    /* 標籤 */
+    .tag {
+        background: #35322c;
+        color: var(--color-text-muted);
+    }
+}
+
+/* ==================== 19. 列印樣式 ==================== */
+@media print {
+    body {
+        background: white;
+    }
+
+    .card {
+        box-shadow: none;
+        page-break-inside: avoid;
+    }
+
+    .btn,
+    .lang-btn,
+    #top-toolbar {
+        display: none;
+    }
+}
