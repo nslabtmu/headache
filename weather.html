@@ -9,10 +9,10 @@
         <p class="text-sm mb-2">自動定位失敗，請手動選擇：</p>
         <button onclick="requestBrowserGPS()" class="bg-blue-500 text-white px-3 py-1 rounded text-sm mb-2">重新嘗試 GPS 定位</button>
         <div class="flex gap-2">
-            <select id="select-city" onchange="updateDistricts()" class="border p-1 rounded text-sm">
+            <select id="city-select" onchange="updateDistricts()" class="border p-1 rounded text-sm">
                 <option value="">請選擇縣市...</option>
             </select>
-            <select id="select-district" class="border p-1 rounded text-sm">
+            <select id="district-select" class="border p-1 rounded text-sm">
                 <option value="">請選擇鄉鎮市區...</option>
             </select>
             <button onclick="applyTaiwanManualLocation()" class="bg-green-500 text-white px-3 py-1 rounded text-sm">確認</button>
