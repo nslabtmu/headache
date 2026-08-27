@@ -396,7 +396,7 @@ async function fetchIpLocation(statusEl) {
         const ipData = await res.json();
 
         if (ipData.latitude && ipData.longitude) {
-            fetchWeather(ipData.latitude, ipData.longitude, `成功 (${ipData.city || '未知城市'})`);
+            fetchWeather(ipData.latitude, ipData.longitude, `${ipData.city || '未知城市'}`);
         } else {
             throw new Error("無法取得位置資訊");
         }
@@ -410,7 +410,74 @@ async function fetchIpLocation(statusEl) {
     }
 }
 
+// 💡 透過你的 Cloudflare Worker 取得天氣，解決公司防火牆阻擋問題
 async function fetchWeather(lat, lon, successMsg) {
+    const statusEl = document.getElementById('weather-status');
+    const locationEl = document.getElementById('current-location-text');
+    try {
+        if (statusEl) statusEl.innerText = "⏳ 正在取得氣象資料...";
+
+        // 改打你的 Cloudflare Worker (由雲端伺服器去抓 Open-Meteo，不受公司防火牆限制)
+        const response = await fetch('https://weather-worker.nslab.workers.dev', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ lat: lat, lng: lon })
+        });
+
+        if (!response.ok) throw new Error("Cloudflare Worker 回應失敗");
+
+        const resultData = await response.json();
+        
+        // 配合你的 Cloudflare Worker 回傳格式調整（假設回傳結構包含 weather 與 air_quality 或直接是 current）
+        currentWeather = {
+            lat, lon,
+            fetched_at: new Date().toISOString(),
+            weather: resultData.weather || resultData.current || {},
+            air_quality: resultData.air_quality || {}
+        };
+
+        locationReady = true;
+        if (statusEl) statusEl.innerHTML = `📍 ${successMsg}！氣象與空污數據同步完成`;
+        if (locationEl) locationEl.innerText = successMsg;
+        
+        const detailEl = document.getElementById('weather-detail');
+        if (detailEl) {
+            const w = currentWeather.weather;
+            const a = currentWeather.air_quality;
+            // 防呆：若欄位名稱不同可彈性顯示
+            const temp = w.temperature_2m !== undefined ? w.temperature_2m : (w.temperature || '--');
+            const hum = w.relative_humidity_2m !== undefined ? w.relative_humidity_2m : '--';
+            const press = w.pressure_msl !== undefined ? w.pressure_msl : '--';
+            const pm25 = a.pm2_5 !== undefined ? a.pm2_5 : '--';
+            
+            detailEl.innerText = `🌡️ ${temp}°C・💧 濕度 ${hum}%・🔽 氣壓 ${press} hPa・🌫️ PM2.5: ${pm25}`;
+        }
+
+    } catch (err) {
+        if (statusEl) statusEl.innerText = "⚠️ 氣象資料解析失敗";
+        if (locationEl) locationEl.innerText = "取得失敗";
+        currentWeather = { lat, lon, fetched_at: new Date().toISOString(), weather: {}, air_quality: {} };
+        locationReady = true;
+        console.error("取得氣象失敗：", err);
+    }
+}
+
+/*
+document.getElementById('weatherBtn')?.addEventListener('click', async () => {
+  const response = await fetch(
+    'https://weather-worker.nslab.workers.dev',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lat: 25.02, lng: 121.56 })
+    }
+  );
+
+  const data = await response.json();
+  console.log(data);
+});
+*/
+/*async function fetchWeather(lat, lon, successMsg) {
     const statusEl = document.getElementById('weather-status');
     const locationEl = document.getElementById('current-location-text');
     try {
@@ -450,7 +517,7 @@ async function fetchWeather(lat, lon, successMsg) {
         console.error("取得氣象失敗：", err);
     }
 }
-
+*/
 function requestBrowserGPS() {
     const statusEl = document.getElementById('weather-status');
     if (navigator.geolocation) {
