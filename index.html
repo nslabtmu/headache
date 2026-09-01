@@ -18,13 +18,15 @@
     
 </head>
 <body>
-    <button class="lang-btn" onclick="toggleLanguage()">🌐 中/En</button>
-<button id="resetConsentBtn" class="lang-btn hidden" onclick="resetConsent()" style="top: 60px; color: #e74c3c;">📄 重填同意書</button>
+<button id="resetConsentBtn" class="lang-btn hidden" onclick="resetConsent()" style="position: fixed; top: 15px; left: 15px; color: #e74c3c;">📄 重填同意書</button>
 
-    <!-- 右上角使用者選單容器 -->
-    <div id="top-toolbar">
+    <!-- 右上角使用者選單與語言切換容器 -->
+    <div id="top-toolbar" style="display: flex; align-items: center; gap: 8px;">
+        <!-- 語言切換按鈕放到選單內，平行排列 -->
+        <button class="lang-btn" onclick="toggleLanguage()" style="margin: 0;">🌐 中/En</button>
+        
         <div id="user-info-bar" class="hidden">
-            <div class="user-menu">
+            <div class="user-menu" style="display: flex; align-items: center; gap: 8px;">
                 <button id="user-email-btn" class="lang-btn" onclick="toggleUserDropdown()">👤 <span id="user-email-text"></span></button>
                 <div id="user-dropdown" class="hidden">
                     <div class="dropdown-account">登入帳號：<br><b id="user-email"></b></div>
