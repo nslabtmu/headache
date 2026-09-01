@@ -4,7 +4,7 @@
     <!-- 1. 優先設定編碼與視口 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HeadacheV10</title>
+    <title>HeadacheV11</title>
 
     <!-- 2. 載入 CSS 樣式表 -->
     <link rel="stylesheet" href="style.css">
@@ -121,9 +121,7 @@
             <button class="tab-btn active" id="btn-tab-profile" onclick="switchTab('profile')" data-i18n="tab_profile">👤 個人基本資料</button>
         </div>
         <form id="attack-form" onsubmit="event.preventDefault(); saveFullRecord();">
-        <div id="weather-status" data-i18n="weather_loading">⏳ 正在取得氣象及空污數據...</div>
-
-
+        
 <!-- 頁簽 1：個人基本資料 -->
 <div id="pane-profile" class="tab-pane form-group hidden">
     <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料</h3>
@@ -163,71 +161,33 @@
     </div>
     <button type="button" class="btn" id="saveProfileBtn" onclick="saveUserProfile()" data-i18n="save_profile_btn">儲存</button>
     <button type="button" class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
-</div>
+                <div class="button-group" style="margin-top: 15px;">
+                    <button type="button" class="btn" onclick="navigate(1)">下一頁</button>
+                </div>
+            </div>
 
         <!-- 醫療緊急警示防錯區 (僅在症狀頁顯示) -->
-        <div class="emergency-box" id="emergency-section" style="display:none;">
-            <h3 data-i18n="emg_title" style="color: #c0392b; margin-top: 0;">⚠️ 醫療緊急警示</h3>
-            <p data-i18n="emg_desc" style="font-size: 14px; margin: 0;">若您或觀察對象目前出現以下任何狀況，請<b>立即停止填表並立即就送</b>：</p>
-            <div style="margin-top: 8px; font-size: 14px; line-height: 1.6;">
-                <input type="checkbox" id="emg_1" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_1" data-i18n="emg_1">昏睡叫不醒、意識嚴重改變</label><br>
-                <input type="checkbox" id="emg_2" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_2" data-i18n="emg_2">劇烈頭痛或持續性嘔吐</label><br>
-                <input type="checkbox" id="emg_3" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_3" data-i18n="emg_3">四肢抽搐或癲癇發作</label><br>
-                <input type="checkbox" id="emg_4" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_4" data-i18n="emg_4">肢體突然單側無力、手腳發麻</label><br>
-                <input type="checkbox" id="emg_5" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_5" data-i18n="emg_5">視力模糊、複視（疊影）</label>
+       <!-- 醫療緊急警示防錯區 -->
+            <div class="emergency-box" id="emergency-section" style="display:none;">
+                <h3 data-i18n="emg_title" style="color: #c0392b; margin-top: 0;">⚠️ 醫療緊急警示</h3>
+                <p data-i18n="emg_desc" style="font-size: 14px; margin: 0;">若您或觀察對象目前出現以下任何狀況，請<b>立即停止填表並立即就送</b>：</p>
+                <div style="margin-top: 8px; font-size: 14px; line-height: 1.6;">
+                    <input type="checkbox" id="emg_1" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_1" data-i18n="emg_1">昏睡叫不醒、意識嚴重改變</label><br>
+                    <input type="checkbox" id="emg_2" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_2" data-i18n="emg_2">劇烈頭痛或持續性嘔吐</label><br>
+                    <input type="checkbox" id="emg_3" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_3" data-i18n="emg_3">四肢抽搐或癲癇發作</label><br>
+                    <input type="checkbox" id="emg_4" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_4" data-i18n="emg_4">肢體突然單側無力、手腳發麻</label><br>
+                    <input type="checkbox" id="emg_5" class="emg-check" onchange="checkEmergency()"> <label style="display:inline;" for="emg_5" data-i18n="emg_5">視力模糊、複視（疊影）</label>
+                </div>
+                <div id="emergencyWarning" class="warning-text" style="display:none;" data-i18n="warning_text">
+                    🚨 偵測到重大危險徵象！請勿填表，請立即前往最近的急診室就醫評估！
+                </div>   
             </div>
-            <div id="emergencyWarning" class="warning-text" data-i18n="warning_text">
-                🚨 偵測到重大危險徵象！請勿填表，請立即前往最近的急診室就醫評估！
-            </div>   
-        </div>
-
-        <form id="attack-form" onsubmit="event.preventDefault(); saveAttackForm();">
              <!-- 頁簽 2：頭痛紀錄 (程度 / 部位 / 用藥 / 備註) -->
-            <!-- 頁簽：頭痛紀錄 -->
+           >
             <div id="pane-headache" class="tab-pane hidden">
                 <iframe src="headache.html" style="width: 100%; height: 500px; border: none;"></iframe>
             </div>
-            <!-- <div id="pane-headache" class="hidden">
-                <div class="form-group">
-                    <label for="input-pain" data-i18n="headache_pain_label">頭痛程度</label>
-                    <select id="input-pain">
-                        <option value="" data-i18n="pain_option_default">請選擇疼痛程度...</option>
-                        <option value="1" data-i18n="pain_1">1 分 - 輕微隱隱作痛</option>
-                        <option value="3" data-i18n="pain_3">3 分 - 偶爾抽痛</option>
-                        <option value="5" data-i18n="pain_5">5 分 - 中度疼痛，影響日常</option>
-                        <option value="7" data-i18n="pain_7">7 分 - 重度疼痛，難以專注</option>
-                        <option value="10" data-i18n="pain_10">10 分 - 劇烈疼痛，必須躺下休息</option>
-                    </select>
-                </div>
- 
-                <div class="form-group">
-                    <label data-i18n="headache_location_label">頭痛部位（可複選）</label>
-                    <div class="checkbox-group">
-                        <label><input type="checkbox" name="pain_location" value="forehead"> <span data-i18n="loc_forehead">前額</span></label>
-                        <label><input type="checkbox" name="pain_location" value="temple_left"> <span data-i18n="loc_temple_left">左太陽穴</span></label>
-                        <label><input type="checkbox" name="pain_location" value="temple_right"> <span data-i18n="loc_temple_right">右太陽穴</span></label>
-                        <label><input type="checkbox" name="pain_location" value="back_head"> <span data-i18n="loc_back_head">後腦勺</span></label>
-                        <label><input type="checkbox" name="pain_location" value="top_head"> <span data-i18n="loc_top_head">頭頂</span></label>
-                        <label><input type="checkbox" name="pain_location" value="whole_head"> <span data-i18n="loc_whole_head">整頭</span></label>
-                        <label><input type="checkbox" name="pain_location" value="neck"> <span data-i18n="loc_neck">頸部連帶</span></label>
-                    </div>
-                </div>
- 
-                <div class="form-group">
-                    <label for="input-medication" data-i18n="medication_label">是否用藥</label>
-                    <select id="input-medication" onchange="toggleMedicationName()">
-                        <option value="no" data-i18n="medication_no">否，未用藥</option>
-                        <option value="yes" data-i18n="medication_yes">是，已服用藥物</option>
-                    </select>
-                    <input type="text" id="input-medication-name" style="display:none; margin-top:8px;" placeholder="例如：普拿疼、Ibuprofen">
-                </div>
- 
-                <div class="form-group">
-                    <label for="input-content" data-i18n="headache_notes_label">備註</label>
-                    <textarea id="input-content" rows="3" placeholder="例如：右側太陽穴抽痛，可能跟昨天沒睡好有關..."></textarea>
-                </div>
-                <button type="button" class="btn" onclick="navigate(1)">下一頁</button>
-             </div>-->
+
  
             <!-- 頁簽 3：10 大症狀填寫區 (已修正 ID) -->
             <div id="pane-symptom" class="tab-pane hidden">
