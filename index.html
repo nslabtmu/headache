@@ -1,23 +1,20 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-
-    
-    
+    <!-- 1. 優先設定編碼與視口 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>HeadacheV7</title>
-  <link rel="stylesheet" href="style.css">
 
-    <!-- 1. 載入 Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- 2. 載入共用設定檔 -->
-<script src="./config.js"></script>
-<!-- 語言設定檔 -->
-<script src="./i18n.js"></script>
-<script src="./main.js"></script>
-    
+    <!-- 2. 載入 CSS 樣式表 -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- 3. 載入外部與本機 JavaScript 腳本 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./config.js"></script>
+    <script src="./i18n.js"></script>
+    <script src="./main.js"></script>
 </head>
 <body>
 
@@ -28,7 +25,7 @@
         <h2 data-i18n="consent_title" style="margin-top:0;">📄 研究參與同意書</h2>
         <p style="font-size: 14px; color: #666;" data-i18n="consent_desc">請詳細閱讀以下研究說明與同意書內容：</p>
         
-        <!-- 內嵌 PDF 檔案：請將 src 換成你的 PDF 網址或檔案路徑 -->
+        <!-- 內嵌 PDF 檔案 -->
         <iframe src="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" class="pdf-container" id="pdfFrame"></iframe>
         
         <button class="btn" onclick="agreeConsent()" data-i18n="consent_agree_btn">我已閱讀並同意參與研究</button>
@@ -162,8 +159,8 @@
                 <button type="button" class="btn" onclick="navigate(1)">下一頁</button>
              </div>
  
-            <!-- 頁簽 3：10 大症狀填寫區 -->
-            <div id="pane-symptom" class="tab-pane" style="display:none;">
+            <!-- 頁簽 3：10 大症狀填寫區 (已修正 ID) -->
+            <div id="pane-symptom" class="tab-pane hidden">
                 <div class="form-group"><label data-i18n="sym_1">1. 持續性頭痛</label><div class="slider-container"><input type="range" name="sym1" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
                 <div class="form-group"><label data-i18n="sym_2">2. 頭暈、失去平衡或步態不穩</label><div class="slider-container"><input type="range" name="sym2" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
                 <div class="form-group"><label data-i18n="sym_3">3. 噁心、想吐的感覺</label><div class="slider-container"><input type="range" name="sym3" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
@@ -185,7 +182,7 @@
                 </div>
             </div>
 
-            <!-- 頁簽 3：健康資料 -->
+            <!-- 頁簽 4：健康資料 -->
             <div id="pane-band" class="hidden">
                 <div class="form-group">
                     <label data-i18n="band_hr">❤️ 即時心跳 (bpm)</label>
@@ -208,14 +205,13 @@
             </div>
 
         </form>
-        <!-- 頁簽 4：趨勢圖表 -->
+        
+        <!-- 頁簽 5：趨勢圖表 -->
         <div id="pane-chart" class="hidden">
-        <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">📈 頭痛趨勢</h3>
-        <canvas id="painChart"></canvas>
+            <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">📈 頭痛趨勢</h3>
+            <canvas id="painChart"></canvas>
         </div>
     </div>
-
-
 
 </body>
 </html>
