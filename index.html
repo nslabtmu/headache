@@ -15,14 +15,14 @@
     <script src="./config.js"></script>
     <script src="./i18n.js"></script>
     <script src="./districts.js"></script>
-    
 </head>
 <body>
-<button id="resetConsentBtn" class="lang-btn hidden" onclick="resetConsent()" style="position: fixed; top: 15px; left: 15px; color: #e74c3c;">📄 重填同意書</button>
+
+    <!-- 重填同意書按鈕 -->
+    <button id="resetConsentBtn" class="lang-btn hidden" onclick="resetConsent()" style="position: fixed; top: 15px; left: 15px; color: #e74c3c;">📄 重填同意書</button>
 
     <!-- 右上角使用者選單與語言切換容器 -->
     <div id="top-toolbar" style="display: flex; align-items: center; gap: 8px;">
-        
         <div id="user-info-bar" class="hidden">
             <div class="user-menu" style="display: flex; align-items: center; gap: 8px;">
                 <button id="user-email-btn" class="lang-btn" onclick="toggleUserDropdown()">👤 <span id="user-email-text"></span></button>
@@ -33,6 +33,7 @@
             </div>
         </div>
     </div>
+
     <!-- 1. 同意書卡片 (最先顯示) -->
     <div class="card card-left" id="consent-card">
         <h2 data-i18n="consent_title" style="margin-top:0;">📄 研究參與同意書</h2>
@@ -41,32 +42,38 @@
         <!-- 內嵌 PDF 檔案 -->
         <iframe src="./consent_v4.pdf" class="pdf-container" id="pdfFrame"></iframe>
         
-<div style="display: flex; gap: 10px; margin-top: 15px;">
-    <!-- 不同意：改為深紅色底 (#8b0000)、白色文字 -->
-    <button type="button" 
-            class="btn" 
-            style="background-color: #8b0000; color: #ffffff; flex: 1; border: none; cursor: pointer;" 
-            onclick="alert('您已拒絕參與研究')">
-        不同意參與
-    </button>
-    
-    <!-- 同意：改為淺綠色底 (#a8e6cf 或 #98fb98)、深色文字 -->
-    <button type="button" 
-            class="btn" 
-            style="background-color: #a8e6cf; color: #2d572c; flex: 2; border: none; cursor: pointer; font-weight: bold;" 
-            onclick="agreeConsent()" 
-            data-i18n="consent_agree_btn">
-        我已閱讀並同意參與研究
-    </button>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <!-- 不同意按鈕 -->
+            <button type="button" 
+                    class="btn" 
+                    style="background-color: #8b0000; color: #ffffff; flex: 1; border: none; cursor: pointer;" 
+                    onclick="alert('您已拒絕參與研究')">
+                不同意參與
+            </button>
+            
+            <!-- 同意按鈕 -->
+            <button type="button" 
+                    class="btn" 
+                    style="background-color: #a8e6cf; color: #2d572c; flex: 2; border: none; cursor: pointer; font-weight: bold;" 
+                    onclick="agreeConsent()" 
+                    data-i18n="consent_agree_btn">
+                我已閱讀並同意參與研究
+            </button>
+        </div>
     </div>
-</div>
 
     <!-- 2. Google 登入卡片 (同意後顯示) -->
     <div class="card hidden" id="auth-card">
         <h2 data-i18n="login_title">🔐 系統登入</h2>
         <p style="color: #666; font-size: 14px; margin-bottom: 20px;" data-i18n="login_desc">請使用 Google 帳號授權登入以開始記錄</p>
         <button class="btn google-btn" onclick="handleGoogleLogin()">
-            <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+            <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                <path fill="none" d="M0 0h48v48H0z"/>
+            </svg>
             <span data-i18n="google_login_btn">使用 Google 帳號快速登入</span>
         </button>
     </div>
@@ -75,57 +82,59 @@
     <div class="card card-left hidden" id="main-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛與環境日誌</h2>
+            
             <!-- 右側按鈕群組：中英文按鈕放置於紅色登出鈕旁邊 -->
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <button type="button" class="lang-btn" onclick="toggleLanguage()" style="margin: 0; padding: 6px 12px; height: 32px; line-height: 1;">🌐 中/En</button>
-            <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; height: 32px; line-height: 1;" data-i18n="logout_btn">登出</button>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button type="button" class="lang-btn" onclick="toggleLanguage()" style="margin: 0; padding: 6px 12px; height: 32px; line-height: 1;">🌐 中/En</button>
+                <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; height: 32px; line-height: 1;" data-i18n="logout_btn">登出</button>
+            </div>
         </div>
 
-<div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
-    <div id="weather-status" style="font-weight: 500; font-size: 15px; color: #2c3e50;">
-        ⏳ 正在取得氣象數據...
-    </div>
+        <!-- 氣象模組 -->
+        <div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+            <div id="weather-status" style="font-weight: 500; font-size: 15px; color: #2c3e50;">
+                ⏳ 正在取得氣象數據...
+            </div>
 
-    <!-- 自動載入成功的氣象資料顯示區 -->
-    <div id="weather-data-display" class="hidden" style="margin-top: 10px; display: flex; gap: 15px; flex-wrap: wrap; background: #fff; padding: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-    <!-- 這裡會顯示：新北市 中和區 或 依 IP/GPS 查到的地區名稱 -->
-    <div style="font-weight: bold; color: #2c3e50;">📍 當前位置：<span id="wx-location" style="color: #2980b9;">正在取得地點...</span></div>
-        <div>🌡️ 氣溫：<span id="wx-temp">-</span> °C</div>
-        <div>💧 濕度：<span id="wx-humidity">-</span> %</div>
-        <div>🧭 氣壓：<span id="wx-pressure">-</span> hPa</div>
-    </div>
+            <!-- 自動載入成功的氣象資料顯示區 -->
+            <div id="weather-data-display" class="hidden" style="margin-top: 10px; display: flex; gap: 15px; flex-wrap: wrap; background: #fff; padding: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <div style="font-weight: bold; color: #2c3e50;">📍 當前位置：<span id="wx-location" style="color: #2980b9;">正在取得地點...</span></div>
+                <div>🌡️ 氣溫：<span id="wx-temp">-</span> °C</div>
+                <div>💧 濕度：<span id="wx-humidity">-</span> %</div>
+                <div>🧭 氣壓：<span id="wx-pressure">-</span> hPa</div>
+            </div>
 
-    <!-- 取得失敗或無法定位時顯示的手動切換選單 -->
-    <div id="manual-location-box" style="display: none; margin-top: 12px; padding: 15px; background: #fff; border: 1px solid #f1c40f; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-        <h6 style="margin-top: 0; color: #e67e22; font-size: 14px;">⚠️ 自動定位失敗或被阻擋，請選擇以下備用方式：</h6>
+            <!-- 取得失敗或無法定位時顯示的手動切換選單 -->
+            <div id="manual-location-box" style="display: none; margin-top: 12px; padding: 15px; background: #fff; border: 1px solid #f1c40f; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                <h6 style="margin-top: 0; color: #e67e22; font-size: 14px;">⚠️ 自動定位失敗或被阻擋，請選擇以下備用方式：</h6>
+                
+                <!-- 選項 A：精準 GPS -->
+                <div style="margin-bottom: 12px;">
+                    <button type="button" class="btn" style="background: #3498db; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%; text-align: left;" onclick="requestBrowserGPS()">
+                        📍 A. 重新開啟瀏覽器精準定位 (GPS)
+                    </button>
+                </div>
+
+                <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
+
+                <!-- 選項 B：台灣縣市手動選擇 -->
+                <div>
+                    <p style="margin: 0 0 8px 0; font-size: 13px; color: #555; font-weight: bold;">B. 台灣地區手動選擇縣市：</p>
+                    <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+                        <select id="select-city" class="form-control" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;" onchange="updateDistricts()">
+                            <option value="">請選擇縣市...</option>
+                        </select>
+                        <select id="select-district" class="form-control" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                            <option value="">請先選擇縣市</option>
+                        </select>
+                    </div> 
+                    <button type="button" class="btn" style="background: #2ecc71; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold;" onclick="applyTaiwanManualLocation()">
+                        顯示地區氣象數據
+                    </button>
+                </div>
+            </div>
+        </div>
         
-        <!-- 選項 A：精準 GPS -->
-        <div style="margin-bottom: 12px;">
-            <button type="button" class="btn" style="background: #3498db; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%; text-align: left;" onclick="requestBrowserGPS()">
-                📍 A. 重新開啟瀏覽器精準定位 (GPS)
-            </button>
-        </div>
-
-        <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
-
-        <!-- 選項 B：台灣縣市手動選擇 -->
-        <div>
-            <p style="margin: 0 0 8px 0; font-size: 13px; color: #555; font-weight: bold;">B. 台灣地區手動選擇縣市：</p>
-            <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                <select id="select-city" class="form-control" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;" onchange="updateDistricts()">
-                    <option value="">請選擇縣市...</option>
-                </select>
-                <select id="select-district" class="form-control" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-                    <option value="">請先選擇縣市</option>
-                </select>
-            </div> 
-            <button type="button" class="btn" style="background: #2ecc71; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold;" onclick="applyTaiwanManualLocation()">
-                顯示地區氣象數據
-            </button>
-        </div>
-    </div>
-</div>
-       
         <!-- 手機版專用：下拉式選單切換頁簽 -->
         <select class="tabs-select-mobile" onchange="switchTab(this.value)" id="mobile-tab-select">
             <option value="headache" data-i18n="tab_headache">🤕 頭痛紀錄</option>
@@ -134,6 +143,7 @@
             <option value="chart" data-i18n="tab_chart">📈 趨勢圖表</option>
             <option value="profile" data-i18n="tab_profile">👤 個人基本資料</option>
         </select>
+
         <!-- 頁簽切換按鈕群組 -->
         <div class="tabs">
             <button class="tab-btn active" id="btn-tab-headache" onclick="switchTab('headache')" data-i18n="tab_headache">🤕 頭痛紀錄</button>
@@ -142,54 +152,55 @@
             <button class="tab-btn" id="btn-tab-chart" onclick="switchTab('chart')" data-i18n="tab_chart">📈 趨勢圖表</button>
             <button class="tab-btn" id="btn-tab-profile" onclick="switchTab('profile')" data-i18n="tab_profile">👤 個人基本資料</button>
         </div>
+
+        <!-- 主表單 -->
         <form id="attack-form" onsubmit="event.preventDefault(); saveFullRecord();">
-        
-<!-- 頁簽 1：個人基本資料 -->
-<div id="pane-profile" class="tab-pane form-group hidden">
-    <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料</h3>
-    <div class="form-group">
-        <label data-i18n="prof_name">1. 暱稱（非必填）</label>
-        <input type="text" id="prof_nickname" placeholder="例如: 王小明 / Alex">
-    </div>
-    <div class="form-group">
-        <label data-i18n="prof_birth">2. 出生年 (西元)</label>
-        <input type="number" id="prof_birthyear" placeholder="例如: 1990">
-    </div>
-    <div class="form-group">
-        <label data-i18n="prof_gender">3. 性別</label>
-        <select id="prof_gender">
-            <option value="" data-i18n="select_default">請選擇...</option>
-            <option value="male" data-i18n="gender_male">男性</option>
-            <option value="female" data-i18n="gender_female">女性</option>
-            <option value="other" data-i18n="gender_other">其他 / 不願透露</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label data-i18n="prof_tbi">4. 是否參與輕度腦外傷研究</label>
-        <select id="prof_tbi">
-        <option value="">請選擇...</option>
-        <option value="yes">是</option>
-        <option value="no">否</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label data-i18n="prof_sport">5. 運動頻率</label>
-        <select id="prof_sport">
-            <option value="none" data-i18n="sport_none">幾乎不運動</option>
-            <option value="light" data-i18n="sport_light">輕度（每周 1-2 次）</option>
-            <option value="moderate" data-i18n="sport_moderate">中度（每周 3-4 次）</option>
-            <option value="heavy" data-i18n="sport_heavy">規律高強度（每周 5 次以上）</option>
-        </select>
-    </div>
-    <button type="button" class="btn" id="saveProfileBtn" onclick="saveUserProfile()" data-i18n="save_profile_btn">儲存</button>
-    <button type="button" class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
+            
+            <!-- 頁簽 1：個人基本資料 -->
+            <div id="pane-profile" class="tab-pane form-group hidden">
+                <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料</h3>
+                <div class="form-group">
+                    <label data-i18n="prof_name">1. 暱稱（非必填）</label>
+                    <input type="text" id="prof_nickname" placeholder="例如: 王小明 / Alex">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="prof_birth">2. 出生年 (西元)</label>
+                    <input type="number" id="prof_birthyear" placeholder="例如: 1990">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="prof_gender">3. 性別</label>
+                    <select id="prof_gender">
+                        <option value="" data-i18n="select_default">請選擇...</option>
+                        <option value="male" data-i18n="gender_male">男性</option>
+                        <option value="female" data-i18n="gender_female">女性</option>
+                        <option value="other" data-i18n="gender_other">其他 / 不願透露</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="prof_tbi">4. 是否參與輕度腦外傷研究</label>
+                    <select id="prof_tbi">
+                        <option value="">請選擇...</option>
+                        <option value="yes">是</option>
+                        <option value="no">否</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="prof_sport">5. 運動頻率</label>
+                    <select id="prof_sport">
+                        <option value="none" data-i18n="sport_none">幾乎不運動</option>
+                        <option value="light" data-i18n="sport_light">輕度（每周 1-2 次）</option>
+                        <option value="moderate" data-i18n="sport_moderate">中度（每周 3-4 次）</option>
+                        <option value="heavy" data-i18n="sport_heavy">規律高強度（每周 5 次以上）</option>
+                    </select>
+                </div>
+                <button type="button" class="btn" id="saveProfileBtn" onclick="saveUserProfile()" data-i18n="save_profile_btn">儲存</button>
+                <button type="button" class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
                 <div class="button-group" style="margin-top: 15px;">
                     <button type="button" class="btn" onclick="navigate(1)">下一頁</button>
                 </div>
             </div>
 
-        <!-- 醫療緊急警示防錯區 (僅在症狀頁顯示) -->
-       <!-- 醫療緊急警示防錯區 -->
+            <!-- 醫療緊急警示防錯區 -->
             <div class="emergency-box" id="emergency-section" style="display:none;">
                 <h3 data-i18n="emg_title" style="color: #c0392b; margin-top: 0;">⚠️ 醫療緊急警示</h3>
                 <p data-i18n="emg_desc" style="font-size: 14px; margin: 0;">若您或觀察對象目前出現以下任何狀況，請<b>立即停止填表並立即就送</b>：</p>
@@ -202,16 +213,15 @@
                 </div>
                 <div id="emergencyWarning" class="warning-text" style="display:none;" data-i18n="warning_text">
                     🚨 偵測到重大危險徵象！請勿填表，請立即前往最近的急診室就醫評估！
-                </div>   
+                </div>    
             </div>
-             <!-- 頁簽 2：頭痛紀錄 (程度 / 部位 / 用藥 / 備註) -->
-           >
+
+            <!-- 頁簽 2：頭痛紀錄 -->
             <div id="pane-headache" class="tab-pane hidden">
                 <iframe src="headache.html" style="width: 100%; height: 500px; border: none;"></iframe>
             </div>
 
- 
-            <!-- 頁簽 3：10 大症狀填寫區 (已修正 ID) -->
+            <!-- 頁簽 3：10 大症狀填寫區 -->
             <div id="pane-symptom" class="tab-pane hidden">
                 <div class="form-group"><label data-i18n="sym_1">1. 持續性頭痛</label><div class="slider-container"><input type="range" name="sym1" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
                 <div class="form-group"><label data-i18n="sym_2">2. 頭暈、失去平衡或步態不穩</label><div class="slider-container"><input type="range" name="sym2" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
@@ -229,13 +239,13 @@
                     <textarea id="triggers" name="triggers" rows="3" placeholder="請描述使您感到不舒服的活動或環境..."></textarea>
                 </div>
                 <div class="button-group">
-                <button type="button" class="btn" onclick="navigate(-1)">上一頁</button>
-                <button type="button" class="btn" onclick="navigate(1)">下一頁</button>
+                    <button type="button" class="btn" onclick="navigate(-1)">上一頁</button>
+                    <button type="button" class="btn" onclick="navigate(1)">下一頁</button>
                 </div>
             </div>
 
             <!-- 頁簽 4：健康資料 -->
-            <div id="pane-band" class="hidden">
+            <div id="pane-band" class="tab-pane hidden">
                 <div class="form-group">
                     <label data-i18n="band_hr">❤️ 即時心跳 (bpm)</label>
                     <input type="number" id="band_heart_rate" placeholder="例如: 75">
@@ -253,19 +263,19 @@
                     <input type="number" id="band_avg_steps" placeholder="例如: 7200">
                 </div>
                 <div class="button-group">
-                <button type="button" class="btn" onclick="navigate(-1)">上一頁</button>
-                <button type="button" class="btn" onclick="saveFullRecord()">儲存紀錄</button>
-            </div>
+                    <button type="button" class="btn" onclick="navigate(-1)">上一頁</button>
+                    <button type="button" class="btn" onclick="saveFullRecord()">儲存紀錄</button>
+                </div>
             </div>
         </form>
         
         <!-- 頁簽 5：趨勢圖表 -->
-        <div id="pane-chart" class="hidden">
+        <div id="pane-chart" class="tab-pane hidden">
             <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">📈 頭痛趨勢</h3>
             <canvas id="painChart"></canvas>
         </div>
     </div>
     
-<script src="./main.js"></script>
+    <script src="./main.js"></script>
 </body>
 </html>
