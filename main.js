@@ -10,12 +10,17 @@
     const pageOrder = ['pane-profile', 'pane-headache', 'pane-symptoms', 'pane-band'];
 
 // 初始化監聽與狀態確認
-document.addEventListener('DOMContentLoaded', async () => {
-    // 檢查使用者是否已登入
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-        showMainApp(user);
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    // 使用 Supabase 狀態監聽器，無論是重新整理還是 OAuth 跳轉回來的登入成功，都能完美捕捉
+    supabase.auth.onAuthStateChange((event, session) => {
+        if (session && session.user) {
+            // 已登入：顯示主畫面
+            showMainApp(session.user);
+        } else {
+            // 未登入：回到同意書/登入流程
+            showAuthFlow();
+        }
+    });
 });
 //========= 頁籤切換與導覽控制 =======
   function switchTab(tabName) {
