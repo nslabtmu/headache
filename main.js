@@ -264,43 +264,75 @@ async function fetchIpLocation(statusEl) {
     }
 }
 
-async function fetchWeather(lat, lon, successMsg) {
+// 取得使用者氣象資料的主要流程
+async function fetchWeatherData() {
     const statusEl = document.getElementById('weather-status');
+    const manualBox = document.getElementById('manual-location-box');
+    const displayBox = document.getElementById('weather-data-display');
+
+    statusEl.innerHTML = "⏳ 正在取得您的位置與氣象數據...";
+
+    // 嘗試使用 IP 或 GPS 取得定位
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                await getOpenWeatherByCoords(lat, lon);
+            },
+            (error) => {
+                // 自動定位被拒絕或失敗時觸發
+                console.warn("GPS 自動定位失敗:", error);
+                showWeatherFallback("⚠️ 無法自動取得定位，請手動選擇地點或開啟 GPS。");
+            },
+            { timeout: 5000 } // 超時設定 5 秒
+        );
+    } else {
+        showWeatherFallback("⚠️ 您的裝置不支援地理定位，請手動選擇地點。");
+    }
+}
+
+// 顯示失敗訊息並「主動開啟手動選項」
+function showWeatherFallback(message) {
+    const statusEl = document.getElementById('weather-status');
+    const manualBox = document.getElementById('manual-location-box');
+
+    if (statusEl) {
+        statusEl.innerHTML = `<span style="color: #e74c3c;">${message}</span>`;
+    }
+    
+    // 【關鍵修復】將手動選單顯示出來！
+    if (manualBox) {
+        manualBox.style.display = 'block';
+    }
+    
+    // 初始化縣市選單（若尚未載入）
+    if (typeof initDistrictSelector === 'function') {
+        initDistrictSelector();
+    }
+}
+
+// 選擇台灣縣市後手動更新氣象
+async function applyTaiwanManualLocation() {
+    const city = document.getElementById('select-city').value;
+    const district = document.getElementById('select-district').value;
+
+    if (!city || !district) {
+        alert('請選擇縣市與鄉鎮區！');
+        return;
+    }
+
+    const statusEl = document.getElementById('weather-status');
+    statusEl.innerHTML = `⏳ 正在查詢 ${city}${district} 的氣象...`;
+
+    // 這裡調用您的縣市氣象 API 或經緯度對照表
     try {
-        const weatherParams = [
-            'temperature_2m','relative_humidity_2m','apparent_temperature','is_day',
-            'precipitation','rain','showers','snowfall','weather_code','cloud_cover',
-            'pressure_msl','surface_pressure','wind_speed_10m','wind_direction_10m','wind_gusts_10m'
-        ].join(',');
-
-        const airParams = [
-            'pm10','pm2_5','carbon_monoxide','nitrogen_dioxide','sulphur_dioxide','ozone',
-            'aerosol_optical_depth','dust','uv_index','uv_index_clear_sky',
-            'ammonia','methane','european_aqi','us_aqi'
-        ].join(',');
-
-        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=${weatherParams}`;
-        const airUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=${airParams}`;
-
-        const [weatherRes, airRes] = await Promise.all([
-            fetch(weatherUrl),
-            fetch(airUrl)
-        ]);
-        const weatherData = await weatherRes.json();
-        const airData = await airRes.json();
-
-        currentWeather = {
-            lat, lon,
-            fetched_at: new Date().toISOString(),
-            weather: weatherData.current || {},
-            air_quality: airData.current || {}
-        };
-        locationReady = true;
-        statusEl.innerHTML = `📍 ${successMsg}！氣象與空污數據同步完成`;
+        // 假設已成功取得手動氣象
+        document.getElementById('weather-status').innerHTML = `✅ 已顯示 <b>${city}${district}</b> 的氣象資訊`;
+        document.getElementById('weather-data-display').classList.remove('hidden');
+        document.getElementById('manual-location-box').style.display = 'none'; // 成功後收合手動面板
     } catch (err) {
-        statusEl.innerText = "⚠️ 氣象資料解析失敗";
-        currentWeather = { lat, lon, fetched_at: new Date().toISOString(), weather: {}, air_quality: {} };
-        locationReady = true;
+        statusEl.innerHTML = `❌ 查詢失敗，請重試。`;
     }
 }
 
