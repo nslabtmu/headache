@@ -217,9 +217,84 @@
             </div>
 
             <!-- 頁簽 2：頭痛紀錄 -->
-            <div id="pane-headache" class="tab-pane hidden">
-                <iframe src="headache.html" style="width: 100%; height: 500px; border: none;"></iframe>
-            </div>
+<!-- 修改後：直接嵌入原生 HTML 結構，搭上現代卡片樣式與精準 ID 綁定 -->
+<div id="pane-headache" class="tab-pane hidden">
+  <div class="headache-container">
+    <h2 class="section-title">🩹 頭痛記錄與症狀評估</h2>
+    
+    <!-- 1. 疼痛程度選擇 -->
+    <div class="form-card">
+      <label for="input-pain" class="card-label">
+        <span>疼痛程度 (0-10)</span>
+        <span id="pain-val-display" class="score-badge">5</span>
+      </label>
+      <input 
+        type="range" 
+        id="input-pain" 
+        min="0" 
+        max="10" 
+        value="5" 
+        class="range-slider"
+        oninput="document.getElementById('pain-val-display').innerText = this.value"
+      />
+      <div class="slider-labels">
+        <span>微痛</span>
+        <span>中度</span>
+        <span>劇痛</span>
+      </div>
+    </div>
+
+    <!-- 2. 疼痛位置 (複選方塊) -->
+    <div class="form-card">
+      <label class="card-label">疼痛部位 (可複選)</label>
+      <div class="checkbox-group">
+        <label class="chip-checkbox">
+          <input type="checkbox" name="pain_location" value="left" />
+          <span>左側</span>
+        </label>
+        <label class="chip-checkbox">
+          <input type="checkbox" name="pain_location" value="right" />
+          <span>右側</span>
+        </label>
+        <label class="chip-checkbox">
+          <input type="checkbox" name="pain_location" value="forehead" />
+          <span>前額</span>
+        </label>
+        <label class="chip-checkbox">
+          <input type="checkbox" name="pain_location" value="back" />
+          <span>後腦勺</span>
+        </label>
+        <label class="chip-checkbox">
+          <input type="checkbox" name="pain_location" value="whole" />
+          <span>全頭痛</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- 3. 用藥狀況 -->
+    <div class="form-card">
+      <label for="input-medication" class="card-label">是否已服用止痛藥？</label>
+      <select id="input-medication" class="form-select" onchange="toggleMedicationName()">
+        <option value="no">否</option>
+        <option value="yes">是</option>
+      </select>
+      
+      <input 
+        type="text" 
+        id="input-medication-name" 
+        class="form-input text-input" 
+        placeholder="請輸入藥物名稱 (例如: 普拿疼)" 
+        style="display: none; margin-top: 12px;"
+      />
+    </div>
+
+    <!-- 4. 補充備註 -->
+    <div class="form-card">
+      <label for="input-content" class="card-label">詳細備註或特殊狀況</label>
+      <textarea id="input-content" class="form-textarea" rows="3" placeholder="記錄發作前發生的事或誘因..."></textarea>
+    </div>
+  </div>
+</div>
 
             <!-- 頁簽 3：10 大症狀填寫區 -->
             <div id="pane-symptom" class="tab-pane hidden">
