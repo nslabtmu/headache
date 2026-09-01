@@ -254,7 +254,7 @@ async function fetchIpLocation(statusEl) {
 }
 
 // 取得使用者氣象資料的主要流程
-async function fetchWeatherData() {
+/*async function fetchWeatherData() {
     const statusEl = document.getElementById('weather-status');
     const manualBox = document.getElementById('manual-location-box');
     const displayBox = document.getElementById('weather-data-display');
@@ -267,9 +267,11 @@ async function fetchWeatherData() {
             async (position) => {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
+                // 根據 GPS 經緯度反查地區名稱（例如：新北市 中和區）
+                await getLocationNameByCoords(lat, lon);
                 await getOpenWeatherByCoords(lat, lon);
             },
-            (error) => {
+            async(error) => {
                 // 自動定位被拒絕或失敗時觸發
                 console.warn("GPS 自動定位失敗:", error);
                 showWeatherFallback("⚠️ 無法自動取得定位，請手動選擇地點或開啟 GPS。");
@@ -279,8 +281,86 @@ async function fetchWeatherData() {
     } else {
         showWeatherFallback("⚠️ 您的裝置不支援地理定位，請手動選擇地點。");
     }
+}*/
+// 1. 主要取得定位與氣象流程
+async function fetchWeatherData() {
+    const statusEl = document.getElementById('weather-status');
+    const displayBox = document.getElementById('weather-data-display');
+    
+    statusEl.innerHTML = "⏳ 正在取得您的位置與氣象數據...";
+
+    // 優先嘗試瀏覽器精準定位 (GPS)
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                
+                // 根據 GPS 經緯度反查地區名稱（例如：新北市 中和區）
+                await getLocationNameByCoords(lat, lon);
+                // 讀取該經緯度的氣象數據
+                await getWeatherData(lat, lon);
+            },
+            async (error) => {
+                console.warn("GPS 定位失敗或被拒絕，改用 IP 定位：", error);
+                // GPS 失敗時，自動降級改用 電腦 IP 位址 定位
+                await getLocationByIP();
+            },
+            { timeout: 5000 }
+        );
+    } else {
+        // 裝置不支援 GPS，直接改用 IP 定位
+        await getLocationByIP();
+    }
 }
 
+// 2. 備用方案：透過電腦 IP 位址 取得地區名稱
+async function getLocationByIP() {
+    try {
+        // 呼叫免費 IP 定位 API
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        
+        // 取得 IP 解析出的城市 (例如 New Taipei / Taipei)
+        const cityName = data.city || data.region || "未知地區";
+        
+        // 顯示在畫面上
+        document.getElementById('wx-location').innerText = `${cityName} (IP定位)`;
+        document.getElementById('weather-data-display').classList.remove('hidden');
+        document.getElementById('weather-status').innerHTML = `✅ 已透過 IP 自動定位：<b>${cityName}</b>`;
+
+        // 帶入 IP 取得的經緯度查詢氣象
+        if (data.latitude && data.longitude) {
+            await getWeatherData(data.latitude, data.longitude);
+        }
+    } catch (err) {
+        console.error("IP 定位失敗:", err);
+        showWeatherFallback("⚠️ 無法透過 IP 取得位置，請手動選擇地區。");
+    }
+}
+
+// 3. 透過 GPS 經緯度反查詳細地名 (經緯度 -> 鄉鎮市區)
+async function getLocationNameByCoords(lat, lon) {
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=zh-TW`);
+        const data = await response.json();
+        
+        if (data && data.address) {
+            const city = data.address.city || data.address.county || ""; // 縣市 (例如：新北市)
+            const district = data.address.suburb || data.address.town || data.address.district || ""; // 鄉鎮區 (例如：中和區)
+            
+            const fullLocation = `${city} ${district}`.trim() || "精準定位點";
+            
+            // 寫入畫面
+            document.getElementById('wx-location').innerText = fullLocation;
+            document.getElementById('weather-data-display').classList.remove('hidden');
+            document.getElementById('weather-status').innerHTML = `✅ 自動定位成功：<b>${fullLocation}</b>`;
+        }
+    } catch (e) {
+        console.warn("反查地名失敗，改顯示座標", e);
+        document.getElementById('wx-location').innerText = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+    }
+}
 // 顯示失敗訊息並「主動開啟手動選項」
 function showWeatherFallback(message) {
     const statusEl = document.getElementById('weather-status');
