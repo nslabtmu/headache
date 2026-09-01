@@ -58,8 +58,8 @@
             data-i18n="consent_agree_btn">
         我已閱讀並同意參與研究
     </button>
-</div>
     </div>
+</div>
 
     <!-- 2. Google 登入卡片 (同意後顯示) -->
     <div class="card hidden" id="auth-card">
@@ -123,7 +123,7 @@
         <form id="attack-form" onsubmit="event.preventDefault(); saveFullRecord();">
         <div id="weather-status" data-i18n="weather_loading">⏳ 正在取得氣象及空污數據...</div>
 
-        <!-- 頁簽 1：個人基本資料 -->
+
 <!-- 頁簽 1：個人基本資料 -->
 <div id="pane-profile" class="tab-pane form-group hidden">
     <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料</h3>
@@ -187,7 +187,7 @@
             <div id="pane-headache" class="tab-pane hidden">
                 <iframe src="headache.html" style="width: 100%; height: 500px; border: none;"></iframe>
             </div>
-            <div id="pane-headache" class="hidden">
+            <!-- <div id="pane-headache" class="hidden">
                 <div class="form-group">
                     <label for="input-pain" data-i18n="headache_pain_label">頭痛程度</label>
                     <select id="input-pain">
@@ -227,7 +227,7 @@
                     <textarea id="input-content" rows="3" placeholder="例如：右側太陽穴抽痛，可能跟昨天沒睡好有關..."></textarea>
                 </div>
                 <button type="button" class="btn" onclick="navigate(1)">下一頁</button>
-             </div>
+             </div>-->
  
             <!-- 頁簽 3：10 大症狀填寫區 (已修正 ID) -->
             <div id="pane-symptom" class="tab-pane hidden">
@@ -270,10 +270,11 @@
                     <label data-i18n="band_avg_steps">📊 近期平均步數 (步/日)</label>
                     <input type="number" id="band_avg_steps" placeholder="例如: 7200">
                 </div>
+                <div class="button-group">
                 <button type="button" class="btn" onclick="navigate(-1)">上一頁</button>
                 <button type="button" class="btn" onclick="saveFullRecord()">儲存紀錄</button>
             </div>
-
+            </div>
         </form>
         
         <!-- 頁簽 5：趨勢圖表 -->
