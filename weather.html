@@ -1,0 +1,63 @@
+<div class="card p-4">
+    <h2 class="text-xl font-bold mb-3">📍 當地氣象與定位</h2>
+    <div id="weather-status" class="mb-2 text-sm text-gray-600">⏳ 正在取得定位與氣象...</div>
+    <div id="current-location-text" class="font-semibold mb-2">未取得定位</div>
+    <div id="weather-detail" class="text-sm bg-blue-50 p-3 rounded mb-4">🌡️ 載入中...</div>
+    
+    <!-- 手動定位選單 (若自動定位失敗時顯示) -->
+    <div id="manual-location-box" style="display:none;" class="border p-3 rounded mt-3">
+        <p class="text-sm mb-2">自動定位失敗，請手動選擇：</p>
+        <button onclick="requestBrowserGPS()" class="bg-blue-500 text-white px-3 py-1 rounded text-sm mb-2">重新嘗試 GPS 定位</button>
+        <div class="flex gap-2">
+            <select id="city-select" onchange="updateDistricts()" class="border p-1 rounded text-sm">
+                <option value="">請選擇縣市...</option>
+            </select>
+            <select id="district-select" class="border p-1 rounded text-sm">
+                <option value="">請選擇鄉鎮市區...</option>
+            </select>
+            <button onclick="applyTaiwanManualLocation()" class="bg-green-500 text-white px-3 py-1 rounded text-sm">確認</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 氣象與手動定位介面 ==================== -->
+<div id="weather-container" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+    <!-- 氣象狀態與自動/手動切換提示 -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+            <span id="weather-status">⏳ 正在取得位置與氣象資料...</span>
+            <div id="weather-detail" style="font-size: 0.9rem; color: #555; margin-top: 4px;"></div>
+        </div>
+        <div>
+            <button onclick="toggleManualLocationBox()" style="padding: 6px 12px; font-size: 0.85rem; cursor: pointer; background: #e2e8f0; border: none; border-radius: 4px;">
+                🔄 手動選擇地區
+            </button>
+        </div>
+    </div>
+
+    <!-- 手動選擇台灣縣市/鄉鎮的隱藏區塊（點擊上方按鈕後展開） -->
+    <div id="manual-location-box" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #cbd5e1;">
+        <p style="margin-bottom: 8px; font-size: 0.9rem; font-weight: bold; color: #333;">🇹🇼 手動選擇台灣地區：</p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <!-- 縣市下拉選單 -->
+            <select id="select-city" onchange="updateDistricts()" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
+                <option value="">請選擇縣市...</option>
+            </select>
+
+            <!-- 鄉鎮市區下拉選單 -->
+            <select id="select-district" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
+                <option value="">請選擇鄉鎮市區...</option>
+            </select>
+
+            <!-- 套用按鈕 -->
+            <button onclick="applyTaiwanManualLocation()" style="padding: 6px 14px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                確認套用
+            </button>
+            
+            <!-- 重新嘗試 GPS 定位 -->
+            <button onclick="requestBrowserGPS()" style="padding: 6px 12px; background: #64748b; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                使用 GPS 定位
+            </button>
+        </div>
+    </div>
+</div>
