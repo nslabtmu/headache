@@ -11,39 +11,42 @@
     </style>
 </head>
 <body>
-    <div class="card p-4">
-    <h2 class="text-xl font-bold mb-3">⚡ 頭痛狀態紀錄</h2>
-    
-    <div class="mb-4">
-        <label class="block font-medium mb-1">頭痛程度 (1-10 分): <span id="pain-val">5</span></label>
-        <input type="range" id="input-pain" min="1" max="10" value="5" class="w-full" oninput="updateVal(this)">
+    <div class="form-group">
+        <label for="input-pain">頭痛程度</label>
+        <select id="input-pain">
+            <option value="">請選擇疼痛程度...</option>
+            <option value="1">1 分 - 輕微隱隱作痛</option>
+            <option value="3">3 分 - 偶爾抽痛</option>
+            <option value="5">5 分 - 中度疼痛，影響日常</option>
+            <option value="7">7 分 - 重度疼痛，難以專注</option>
+            <option value="10">10 分 - 劇烈疼痛，必須躺下休息</option>
+        </select>
     </div>
 
-    <div class="mb-4">
-        <label class="block font-medium mb-1">頭痛部位 (可複選):</label>
-        <div class="flex flex-wrap gap-3">
-            <label><input type="checkbox" name="pain_location" value="前額"> 前額</label>
-            <label><input type="checkbox" name="pain_location" value="太陽穴"> 太陽穴</label>
-            <label><input type="checkbox" name="pain_location" value="後腦勺"> 後腦勺</label>
-            <label><input type="checkbox" name="pain_location" value="全頭"> 全頭</label>
+    <div class="form-group">
+        <label>頭痛部位（可複選）</label>
+        <div class="checkbox-group">
+            <label><input type="checkbox" name="pain_location" value="forehead"> 前額</label>
+            <label><input type="checkbox" name="pain_location" value="temple_left"> 左太陽穴</label>
+            <label><input type="checkbox" name="pain_location" value="temple_right"> 右太陽穴</label>
+            <!-- ... 其他選項 ... -->
         </div>
     </div>
 
-    <div class="mb-4">
-        <label class="block font-medium mb-1">是否用藥：</label>
-        <select id="input-medication" onchange="toggleMedicationName()" class="border p-2 rounded w-full">
-            <option value="">請選擇...</option>
-            <option value="yes">是</option>
-            <option value="no">否</option>
+    <div class="form-group">
+        <label for="input-medication">是否用藥</label>
+        <select id="input-medication" onchange="toggleMedicationName()">
+            <option value="no">否，未用藥</option>
+            <option value="yes">是，已服用藥物</option>
         </select>
-        <input type="text" id="input-medication-name" placeholder="請輸入藥物名稱" style="display:none;" class="border p-2 rounded w-full mt-2">
+        <input type="text" id="input-medication-name" style="display:none; margin-top:8px;" placeholder="例如：普拿疼、Ibuprofen">
     </div>
 
-    <div class="mb-4">
-        <label class="block font-medium mb-1">備註說明：</label>
-        <textarea id="input-content" placeholder="其他狀況補充..." class="border p-2 rounded w-full"></textarea>
+    <div class="form-group">
+        <label for="input-content">備註</label>
+        <textarea id="input-content" rows="3" placeholder="例如：右側太陽穴抽痛..."></textarea>
     </div>
-</div>
+
     <script>
         // headache.html 的 JavaScript
         function toggleMedicationName() {
