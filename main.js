@@ -22,13 +22,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
 //========= 頁籤切換與導覽控制 =======
   function switchTab(tabName) {
     // 統一 ID 命名為復數形式，請確保 HTML 中的 ID 也是 pane-symptoms, pane-headache 等
     const panes = {
         profile: document.getElementById('pane-profile'),
         headache: document.getElementById('pane-headache'),
-        symptom: document.getElementById('pane-symptoms'), // 這裡修正了
+        symptom: document.getElementById('pane-symptom'), 
         band: document.getElementById('pane-band'),
         chart: document.getElementById('pane-chart')
     };
@@ -39,7 +40,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 顯示目標
-    if(panes[tabName]) panes[tabName].classList.remove('hidden');
+   if (panes[tabName]) {
+        panes[tabName].classList.remove('hidden');
+    }
+
+    // 同步更新按鈕 active 狀態 (選填優化)
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById(`btn-tab-${tabName}`);
+    if (activeBtn) activeBtn.classList.add('active');
 }
 
 // 如果你想要更聰明的按鈕，可以使用這個函式
@@ -82,22 +90,39 @@ function agreeConsent() {
 }
 
     async function handleGoogleLogin() {
+        const redirectUrl = window.location.origin + window.location.pathname;
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: { redirectTo: window.location.href }
         });
         if (error) alert("Google 登入失敗：" + error.message);
     }
-    async function handleLogout() {
-        await supabase.auth.signOut();
-        location.reload(); // 重新整理回到同意書
+async function handleLogout() {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+        alert("登出失敗：" + error.message);
+    } else {
+        // 登出後清理畫面狀態並刷頁
+        window.location.href = window.location.origin + window.location.pathname;
     }
+}
 
+// 顯示主應用介面 (登入後)
 function showMainApp(user) {
+    // 1. 隱藏登入頁與同意書
+    const consentCard = document.getElementById('consent-card');
+    const authCard = document.getElementById('auth-card');
+    if (consentCard) consentCard.classList.add('hidden');
+    if (authCard) authCard.classList.add('hidden');
+
+    // 2. 顯示主內容卡片
     const mainCard = document.getElementById('main-card');
     if (mainCard) mainCard.classList.remove('hidden');
-    
-    // 顯示右上角使用者帳號
+
+    // 3. 預設顯示第一個頁簽 (個人資料)
+    switchTab('profile');
+
+    // 4. 顯示右上角使用者帳號資訊
     const userEmailText = document.getElementById('user-email-text');
     const userEmail = document.getElementById('user-email');
     const userInfoBar = document.getElementById('user-info-bar');
@@ -105,9 +130,24 @@ function showMainApp(user) {
     if (userEmail) userEmail.innerText = user.email;
     if (userInfoBar) userInfoBar.classList.remove('hidden');
 
+    // 5. 載入資料與氣象
     getLocationAndWeather();
     loadUserProfile(user.id);
     loadUserHistory(user.id);
+}
+
+function showAuthFlow() {
+    const mainCard = document.getElementById('main-card');
+    const userInfoBar = document.getElementById('user-info-bar');
+    const authCard = document.getElementById('auth-card');
+    const consentCard = document.getElementById('consent-card');
+
+    if (mainCard) mainCard.classList.add('hidden');
+    if (userInfoBar) userInfoBar.classList.add('hidden');
+    
+    // 預設顯示同意書 (若已同意過可切換顯示 authCard)
+    if (consentCard) consentCard.classList.remove('hidden');
+    if (authCard) authCard.classList.add('hidden');
 }
 // ==================== 個人資料設定面板 ==
 async function loadUserProfile(userId) {
