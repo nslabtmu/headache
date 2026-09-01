@@ -668,3 +668,12 @@ input[type="range"] {
         display: none;
     }
 }
+/* ==================== 9/1 固定語言按鈕至左上角 ==================== */
+.lang-btn {
+    position: fixed !important;
+    top: 15px !important;
+    left:  auto !important;
+    right: 15px !important;
+    z-index: 9999 !important;
+    background: var(--color-card-bg);
+}
