@@ -1,5 +1,3 @@
-
-//<script>
     const REQUIRE_LOCATION_FOR_SUBMIT = false; //如果要鎖定位置要改true//////////////////////////
 
     var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -250,134 +248,32 @@ function updateVal(slider) {
         if (isChecked) { warningBox.style.display = 'block'; submitBtn.disabled = true; }
         else { warningBox.style.display = 'none'; submitBtn.disabled = false; }
     }
-
-
-
-
-
-
-
-function showPane(paneId) {
-    document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
-    document.getElementById(paneId).style.display = 'block';
-}
-
-
-
-function showPane(paneId) {
-    // 隱藏所有頁籤
-    document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
-    // 顯示目標頁籤
-    document.getElementById(paneId).style.display = 'block';
-}
-async function saveFullRecord() {
-    // 1. 抓取所有症狀滑桿的數值
-    const symptomInputs = document.querySelectorAll('#pane-symptom input[type="range"]');
-    const symptomsData = {};
-    
-    symptomInputs.forEach(input => {
-        symptomsData[input.name] = input.value;
-    });
-
-    // 2. 抓取文字框資料
-    symptomsData.triggers = document.getElementById('triggers').value;
-
-    // 3. 準備完整打包物件 (包含 profile, health 等其他頁籤資料)
-    const fullPayload = {
-        user_id: supabase.auth.user().id, // 確保已登入
-        symptoms: symptomsData,
-        // profile: {...},
-        // health: {...},
-        updated_at: new Date().toISOString()
-    };
-
-    // 4. 送出資料
-    const { data, error } = await supabase
-        .from('user_research_data')
-        .upsert([fullPayload]);
-
-    if (error) alert("儲存失敗：" + error.message);
-    else alert("成功儲存完整紀錄！");
-}
- 
-
-    async function saveAttackForm() {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { alert("請先登入！"); return; }
-
-        const symptoms = {};
-        for (let i = 1; i <= 10; i++) {
-            const slider = document.querySelector(`input[name="sym${i}"]`);
-            if (slider) symptoms[`sym_${i}`] = Number(slider.value);
-        }
-
-        const newRecord = {
-            user_id: user.id,
-            user_email: user.email,
-            symptoms: symptoms,
-            triggers: document.getElementById('triggers').value.trim() || "無",
-            weather: currentWeather || { note: "未取得" }
-        };
-
-        const { error } = await supabase.from('user_data').insert([newRecord]);
-        if (error) alert("❌ 儲存失敗：" + error.message);
-        else { alert("✅ 症狀日記送出成功！"); loadUserHistory(user.id); }
-    }
-
-    async function saveBandData() {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { alert("請先登入！"); return; }
-
-        const smartBandData = {
-            heart_rate: Number(document.getElementById('band_heart_rate').value) || null,
-            spo2: Number(document.getElementById('band_spo2').value) || null,
-            steps: Number(document.getElementById('band_steps').value) || null,
-            avg_steps: Number(document.getElementById('band_avg_steps').value) || null
-        };
-
-        const newRecord = {
-            user_id: user.id,
-            user_email: user.email,
-            health_data: smartBandData,
-            weather: currentWeather || { note: "未取得" }
-        };
-
-        const { error } = await supabase.from('user_data').insert([newRecord]);
-        if (error) alert("❌ 儲存失敗：" + error.message);
-        else { alert("✅ 手環數據送出成功！"); }
-    }
-
-    async function loadUserHistory(userId) {
-        const { data } = await supabase.from('user_data').select('*').eq('user_id', userId).order('created_at', { ascending: true }).limit(30);
-        if (!data) return;
-        const labels = data.map(item => new Date(item.created_at).toLocaleDateString());
-        const painScores = data.map(item => item.symptoms?.sym_1 || 0);
-
-        const ctx = document.getElementById('painChart').getContext('2d');
-        if (chartInstance) chartInstance.destroy();
-
-        chartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{ label: '頭痛評分趨勢 (Sym 1)', data: painScores, borderColor: '#3498db', backgroundColor: 'rgba(52, 152, 219, 0.1)', borderWidth: 2, fill: true }]
-            },
-            options: { responsive: true, scales: { y: { min: 1, max: 10 } } }
-        });
-    }
-    // 範例：送出資料時的打包方式
+   // ==================== 統一整合資料儲存 (核心) ==
 async function saveAllResearchData() {
+    if (REQUIRE_LOCATION_FOR_SUBMIT && !locationReady) {
+        alert("⚠️ 尚未取得定位資訊，無法送出！");
+        return;
+    }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { alert("請先登入！"); return; }
-
-    // 1. 打包個人基本資料 JSONB
-    const profileData = {
-        nickname: document.getElementById('prof_nickname').value.trim(),
-        birth_year: Number(document.getElementById('prof_birthyear').value) || null,
-        gender: document.getElementById('prof_gender').value,
-        tbi_study: document.getElementById('prof_tbi').value,
-        sport_freq: document.getElementById('prof_sport').value
+    
+        // 1. 抓取頭痛資料
+    const painLocations = Array.from(document.querySelectorAll('input[name="pain_location"]:checked')).map(cb => cb.value);
+    const headacheData = {
+        pain_score: Number(document.getElementById('input-pain')?.value || 0),
+        locations: painLocations,
+        medication_used: document.getElementById('input-medication')?.value === 'yes',
+        medication_name: document.getElementById('input-medication-name')?.value || '',
+        notes: document.getElementById('input-content')?.value || ''
     };
+    // 1. 打包個人基本資料 JSONB
+    //const profileData = {
+    //    nickname: document.getElementById('prof_nickname').value.trim(),
+    //    birth_year: Number(document.getElementById('prof_birthyear').value) || null,
+    //    gender: document.getElementById('prof_gender').value,
+    //    tbi_study: document.getElementById('prof_tbi').value,
+   //     sport_freq: document.getElementById('prof_sport').value
+    //};
 
     // 2. 打包 10 大症狀與誘因 JSONB (你可以把症狀也放進 health 或獨立，這裡示範放一起或另外開)
     const symptomsData = {};
@@ -400,10 +296,12 @@ async function saveAllResearchData() {
     const payload = {
         user_id: user.id,
         user_email: user.email,
-        profile_data: profileData,
+        //profile_data: profileData,
+        headache_data: headacheData,
         symptoms_data: symptomsData, // 包含症狀
         health_data: healthData,     // 包含手環
-        weather_data: currentWeather || { note: "未取得" } // 氣象
+        weather_data: currentWeather || { note: "未取得" }, // 氣象
+        created_at: new Date().toISOString()
     };
 
     // 5. 寫入 Supabase 的 user_data 資料表
@@ -413,6 +311,32 @@ async function saveAllResearchData() {
         alert("❌ 儲存失敗：" + error.message);
     } else {
         alert("✅ 今日研究日誌與數據已成功送出！");
+        loadUserHistory(user.id);
     }
 }
-//</script>
+// 供主表單的 onsubmit 監聽綁定
+function saveFullRecord() {
+    saveAllResearchData();
+}
+
+    async function loadUserHistory(userId) {
+        const { data } = await supabase.from('user_data').select('*').eq('user_id', userId).order('created_at', { ascending: true }).limit(30);
+        if (!data) return;
+        const labels = data.map(item => new Date(item.created_at).toLocaleDateString());
+        // 優先讀取 headache_data 的分數，若無則讀取症狀 1 的分數
+        const painScores = data.map(item => item.headache_data?.pain_score || item.symptoms_data?.sym_1 || 0);
+        const canvas = document.getElementById('painChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{ label: '頭痛程度分數 (Sym 1)', data: painScores, borderColor: '#3498db', backgroundColor: 'rgba(52, 152, 219, 0.1)', borderWidth: 2, fill: true }]
+            },
+            options: { responsive: true, scales: { y: { min: 0, max: 10 } } }
+        });
+    }
+
