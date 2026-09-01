@@ -23,41 +23,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
 //========= 頁籤切換與導覽控制 =======
 function switchTab(tabName) {
-    const panes = {
-        profile: document.getElementById('pane-profile'),
-        headache: document.getElementById('pane-headache'),
-        symptom: document.getElementById('pane-symptom'),
-        band: document.getElementById('pane-band'),
-        chart: document.getElementById('pane-chart')
-    };
-    
-    // 隱藏所有
-    Object.values(panes).forEach(p => {
-        if(p) p.classList.add('hidden');
-    });
+    // 隱藏所有頁簽內容
+    const panes = document.querySelectorAll('.tab-pane');
+    panes.forEach(pane => pane.classList.add('hidden'));
 
-    // 顯示目標
-    if (panes[tabName]) {
-        panes[tabName].classList.remove('hidden');
+    // 移除所有按鈕 active 樣式
+    const buttons = document.querySelectorAll('.tab-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    // 顯示指定頁簽
+    const targetPane = document.getElementById(`pane-${tabName}`);
+    if (targetPane) {
+        targetPane.classList.remove('hidden');
     }
 
-    // 同步更新按鈕 active 狀態
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    const activeBtn = document.getElementById(`btn-tab-${tabName}`);
-    if (activeBtn) activeBtn.classList.add('active');
+    // 啟用對應按鈕 active 樣式
+    const targetBtn = document.getElementById(`btn-tab-${tabName}`);
+    if (targetBtn) {
+        targetBtn.classList.add('active');
+    }
 
-    // 同步更新 mobile select
+    // 同步更新手機版下拉選單
     const mobileSelect = document.getElementById('mobile-tab-select');
-    if (mobileSelect) mobileSelect.value = tabName;
-
-    // ✅ 新增：顯示/隱藏緊急警示區塊
-    const emergencySection = document.getElementById('emergency-section');
-    if (emergencySection) {
-        if (tabName === 'symptom') {
-            emergencySection.style.display = 'block';
-        } else {
-            emergencySection.style.display = 'none';
-        }
+    if (mobileSelect) {
+        mobileSelect.value = tabName;
     }
 }
 
@@ -135,7 +124,7 @@ function showMainApp(user) {
     const mainCard = document.getElementById('main-card');
     if (mainCard) mainCard.classList.remove('hidden');
 
-    switchTab('profile');
+    switchTab('headache');
 
     const userEmailText = document.getElementById('user-email-text');
     const userEmail = document.getElementById('user-email');
