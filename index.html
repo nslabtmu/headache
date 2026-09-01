@@ -41,10 +41,24 @@
         <!-- 內嵌 PDF 檔案 -->
         <iframe src="./consent_v4.pdf" class="pdf-container" id="pdfFrame"></iframe>
         
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button class="btn" style="background-color: #95a5a6; flex: 1;" onclick="disagreeConsent()">不同意參與</button>
-            <button class="btn" style="flex: 2;" onclick="agreeConsent()" data-i18n="consent_agree_btn">我已閱讀並同意參與研究</button>
-        </div>
+<div style="display: flex; gap: 10px; margin-top: 15px;">
+    <!-- 不同意：改為深紅色底 (#8b0000)、白色文字 -->
+    <button type="button" 
+            class="btn" 
+            style="background-color: #8b0000; color: #ffffff; flex: 1; border: none; cursor: pointer;" 
+            onclick="handleDisagreeConsent()">
+        不同意參與
+    </button>
+    
+    <!-- 同意：改為淺綠色底 (#a8e6cf 或 #98fb98)、深色文字 -->
+    <button type="button" 
+            class="btn" 
+            style="background-color: #a8e6cf; color: #2d572c; flex: 2; border: none; cursor: pointer; font-weight: bold;" 
+            onclick="handleAgreeConsent()" 
+            data-i18n="consent_agree_btn">
+        我已閱讀並同意參與研究
+    </button>
+</div>
     </div>
 
     <!-- 2. Google 登入卡片 (同意後顯示) -->
