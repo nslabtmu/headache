@@ -87,13 +87,18 @@ function agreeConsent() {
     const authCard = document.getElementById('auth-card');
     if (consentCard) consentCard.classList.add('hidden');
     if (authCard) authCard.classList.remove('hidden');
+    // ✅ 新增：檢查使用者是否已登入
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session && session.user) {
+        showMainApp(session.user);  // 直接進入主應用
+    }
 }
 
     async function handleGoogleLogin() {
         const redirectUrl = window.location.origin + window.location.pathname;
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
-            options: { redirectTo: window.location.href }
+            options: { redirectTo: redirectUrl }
         });
         if (error) alert("Google 登入失敗：" + error.message);
     }
