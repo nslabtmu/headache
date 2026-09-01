@@ -99,15 +99,18 @@ function agreeConsent() {
 }
 
 async function handleGoogleLogin() {
-    // ✅ 修正：使用純淨的基礎 URL
     const redirectUrl = window.location.origin + window.location.pathname;
     const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: redirectUrl }
+        options: { 
+            redirectTo: redirectUrl,
+            queryParams: {
+                prompt: 'select_account'  // ⭐ 每次都跳出帳號選擇窗口
+            }
+        }
     });
     if (error) alert("Google 登入失敗：" + error.message);
 }
-
 async function handleLogout() {
     const { error } = await supabase.auth.signOut();
     if (error) {
