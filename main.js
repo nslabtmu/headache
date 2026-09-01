@@ -123,7 +123,133 @@ async function loadUserProfile(userId) {
     }
 }
 
+function setProfileFieldsDisabled(disabled) {
+    ['prof_nickname', 'prof_birthyear', 'prof_gender', 'prof_tbi', 'prof_sport'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = disabled;
+    });
+}
 
+function enterProfileViewMode() {
+    setProfileFieldsDisabled(true);
+    const saveBtn = document.getElementById('saveProfileBtn');
+    const editBtn = document.getElementById('editProfileBtn');
+    if (saveBtn) saveBtn.classList.add('hidden');
+    if (editBtn) editBtn.classList.remove('hidden');
+}
+
+function enterProfileEditMode() {
+    setProfileFieldsDisabled(false);
+    const saveBtn = document.getElementById('saveProfileBtn');
+    const editBtn = document.getElementById('editProfileBtn');
+    if (saveBtn) saveBtn.classList.remove('hidden');
+    if (editBtn) editBtn.classList.add('hidden');
+}
+    function enableProfileEdit() {
+        enterProfileEditMode();
+    }
+
+async function saveUserProfile() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return alert("請先登入！");
+
+    const profileData = {
+        user_id: user.id,
+        nickname: document.getElementById('prof_nickname').value.trim(),
+        birth_year: Number(document.getElementById('prof_birthyear').value) || null,
+        gender: document.getElementById('prof_gender').value,
+        tbi_study: document.getElementById('prof_tbi').value,
+        sport_freq: document.getElementById('prof_sport').value,
+        updated_at: new Date().toISOString()
+    };
+
+    const { error } = await supabase.from('profiles').upsert([profileData]);
+    if (error) {
+        alert("儲存個人資料失敗：" + error.message);
+    } else {
+        alert("個人資料已更新！");
+        enterProfileViewMode();
+    }
+}
+// ==================== 定位與氣象資訊 API ===
+    function getLocationAndWeather() {
+        const statusEl = document.getElementById('weather-status');
+        if (!navigator.geolocation) { fetchIpLocation(statusEl); return; }
+        navigator.geolocation.getCurrentPosition(
+            (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude, "GPS 定位成功"),
+            () => fetchIpLocation(statusEl),
+            { timeout: 8000 }
+        );
+    }
+
+    async function fetchIpLocation(statusEl) {
+        try {
+            statusEl.innerText = "⏳ 正在透過網路 IP 進行定位...";
+            const res = await fetch('https://ipapi.co/json/');
+            const ipData = await res.json();
+            if (ipData.latitude && ipData.longitude) {
+                fetchWeather(ipData.latitude, ipData.longitude, `IP 定位成功 (${ipData.city || '未知城市'})`);
+            } else { throw new Error(); }
+        } catch (err) {
+            statusEl.innerText = "⚠️ 無法取得位置資訊";
+            locationReady = false;
+        }
+    }
+
+async function fetchWeather(lat, lon, successMsg) {
+    const statusEl = document.getElementById('weather-status');
+    try {
+        // 15 項氣象參數
+        const weatherParams = [
+            'temperature_2m','relative_humidity_2m','apparent_temperature','is_day',
+            'precipitation','rain','showers','snowfall','weather_code','cloud_cover',
+            'pressure_msl','surface_pressure','wind_speed_10m','wind_direction_10m','wind_gusts_10m'
+        ].join(',');
+
+        // 14 項空污參數
+        const airParams = [
+            'pm10','pm2_5','carbon_monoxide','nitrogen_dioxide','sulphur_dioxide','ozone',
+            'aerosol_optical_depth','dust','uv_index','uv_index_clear_sky',
+            'ammonia','methane','european_aqi','us_aqi'
+        ].join(',');
+
+        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=${weatherParams}`;
+        const airUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=${airParams}`;
+
+        const [weatherRes, airRes] = await Promise.all([
+            fetch(weatherUrl),
+            fetch(airUrl)
+        ]);
+        const weatherData = await weatherRes.json();
+        const airData = await airRes.json();
+
+        currentWeather = {
+            lat, lon,
+            fetched_at: new Date().toISOString(),
+            weather: weatherData.current || {},
+            air_quality: airData.current || {}
+        };
+        locationReady = true;
+        statusEl.innerHTML = `📍 ${successMsg}！氣象與空污數據同步完成`;
+    } catch (err) {
+        statusEl.innerText = "⚠️ 氣象資料解析失敗";
+        currentWeather = { lat, lon, fetched_at: new Date().toISOString(), weather: {}, air_quality: {} };
+        locationReady = true;
+    }
+}
+// ==================== 表單互動與檢查 ==
+function updateVal(slider) { 
+    if (slider.nextElementSibling) slider.nextElementSibling.innerText = slider.value; 
+}
+    function checkEmergency() {
+        const checkboxes = document.querySelectorAll('.emg-check');
+        const warningBox = document.getElementById('emergencyWarning');
+        const submitBtn = document.getElementById('submitBtn');
+        let isChecked = false;
+        checkboxes.forEach(cb => { if (cb.checked) isChecked = true; });
+        if (isChecked) { warningBox.style.display = 'block'; submitBtn.disabled = true; }
+        else { warningBox.style.display = 'none'; submitBtn.disabled = false; }
+    }
 
 
 
@@ -174,116 +300,6 @@ async function saveFullRecord() {
     else alert("成功儲存完整紀錄！");
 }
  
-
-
-
-
-
-
-
-
- 
-    function setProfileFieldsDisabled(disabled) {
-        document.getElementById('prof_nickname').disabled = disabled;
-        document.getElementById('prof_birthyear').disabled = disabled;
-        document.getElementById('prof_gender').disabled = disabled;
-        document.getElementById('prof_tbi').disabled = disabled;
-        document.getElementById('prof_sport').disabled = disabled;
-    }
- 
-    function enterProfileViewMode() {
-        setProfileFieldsDisabled(true);
-        document.getElementById('saveProfileBtn').classList.add('hidden');
-        document.getElementById('editProfileBtn').classList.remove('hidden');
-    }
- 
-    function enterProfileEditMode() {
-        setProfileFieldsDisabled(false);
-        document.getElementById('saveProfileBtn').classList.remove('hidden');
-        document.getElementById('editProfileBtn').classList.add('hidden');
-    }
- 
-    function enableProfileEdit() {
-        enterProfileEditMode();
-    }
-
-    function getLocationAndWeather() {
-        const statusEl = document.getElementById('weather-status');
-        if (!navigator.geolocation) { fetchIpLocation(statusEl); return; }
-        navigator.geolocation.getCurrentPosition(
-            (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude, "GPS 定位成功"),
-            () => fetchIpLocation(statusEl),
-            { timeout: 8000 }
-        );
-    }
-
-    async function fetchIpLocation(statusEl) {
-        try {
-            statusEl.innerText = "⏳ 正在透過網路 IP 進行定位...";
-            const res = await fetch('https://ipapi.co/json/');
-            const ipData = await res.json();
-            if (ipData.latitude && ipData.longitude) {
-                fetchWeather(ipData.latitude, ipData.longitude, `IP 定位成功 (${ipData.city || '未知城市'})`);
-            } else { throw new Error(); }
-        } catch (err) {
-            statusEl.innerText = "⚠️ 無法取得位置資訊";
-            locationReady = false;
-        }
-    }
-
- 
-async function fetchWeather(lat, lon, successMsg) {
-    const statusEl = document.getElementById('weather-status');
-    try {
-        // 15 項氣象參數
-        const weatherParams = [
-            'temperature_2m','relative_humidity_2m','apparent_temperature','is_day',
-            'precipitation','rain','showers','snowfall','weather_code','cloud_cover',
-            'pressure_msl','surface_pressure','wind_speed_10m','wind_direction_10m','wind_gusts_10m'
-        ].join(',');
-
-        // 14 項空污參數
-        const airParams = [
-            'pm10','pm2_5','carbon_monoxide','nitrogen_dioxide','sulphur_dioxide','ozone',
-            'aerosol_optical_depth','dust','uv_index','uv_index_clear_sky',
-            'ammonia','methane','european_aqi','us_aqi'
-        ].join(',');
-
-        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=${weatherParams}`;
-        const airUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=${airParams}`;
-
-        const [weatherRes, airRes] = await Promise.all([
-            fetch(weatherUrl),
-            fetch(airUrl)
-        ]);
-        const weatherData = await weatherRes.json();
-        const airData = await airRes.json();
-
-        currentWeather = {
-            lat, lon,
-            fetched_at: new Date().toISOString(),
-            weather: weatherData.current || {},
-            air_quality: airData.current || {}
-        };
-        locationReady = true;
-        statusEl.innerHTML = `📍 ${successMsg}！氣象與空污數據同步完成`;
-    } catch (err) {
-        statusEl.innerText = "⚠️ 氣象資料解析失敗";
-        currentWeather = { lat, lon, fetched_at: new Date().toISOString(), weather: {}, air_quality: {} };
-        locationReady = true;
-    }
-}
-    function updateVal(slider) { slider.nextElementSibling.innerText = slider.value; }
-
-    function checkEmergency() {
-        const checkboxes = document.querySelectorAll('.emg-check');
-        const warningBox = document.getElementById('emergencyWarning');
-        const submitBtn = document.getElementById('submitBtn');
-        let isChecked = false;
-        checkboxes.forEach(cb => { if (cb.checked) isChecked = true; });
-        if (isChecked) { warningBox.style.display = 'block'; submitBtn.disabled = true; }
-        else { warningBox.style.display = 'none'; submitBtn.disabled = false; }
-    }
 
     async function saveAttackForm() {
         const { data: { user } } = await supabase.auth.getUser();
