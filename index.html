@@ -88,7 +88,8 @@
 
     <!-- 自動載入成功的氣象資料顯示區 -->
     <div id="weather-data-display" class="hidden" style="margin-top: 10px; display: flex; gap: 15px; flex-wrap: wrap; background: #fff; padding: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <div>📍 位置：<b id="wx-location">-</b></div>
+    <!-- 這裡會顯示：新北市 中和區 或 依 IP/GPS 查到的地區名稱 -->
+    <div style="font-weight: bold; color: #2c3e50;">📍 當前位置：<span id="wx-location" style="color: #2980b9;">正在取得地點...</span></div>
         <div>🌡️ 氣溫：<span id="wx-temp">-</span> °C</div>
         <div>💧 濕度：<span id="wx-humidity">-</span> %</div>
         <div>🧭 氣壓：<span id="wx-pressure">-</span> hPa</div>
