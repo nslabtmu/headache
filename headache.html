@@ -44,4 +44,13 @@
         <textarea id="input-content" placeholder="其他狀況補充..." class="border p-2 rounded w-full"></textarea>
     </div>
 </div>
+    <script>
+        // headache.html 的 JavaScript
+        function toggleMedicationName() {
+            const select = document.getElementById('input-medication');
+            const input = document.getElementById('input-medication-name');
+            input.style.display = select.value === 'yes' ? 'block' : 'none';
+        }
+    </script>
 </body>
+</html>
