@@ -22,8 +22,6 @@
 
     <!-- 右上角使用者選單與語言切換容器 -->
     <div id="top-toolbar" style="display: flex; align-items: center; gap: 8px;">
-        <!-- 語言切換按鈕放到選單內，平行排列 -->
-        <button class="lang-btn" onclick="toggleLanguage()" style="margin: 0;">🌐 中/En</button>
         
         <div id="user-info-bar" class="hidden">
             <div class="user-menu" style="display: flex; align-items: center; gap: 8px;">
@@ -77,8 +75,12 @@
     <div class="card card-left hidden" id="main-card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h2 data-i18n="form_title" style="margin: 0;">📝 頭痛與環境日誌</h2>
-            <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;" data-i18n="logout_btn">登出</button>
+            <!-- 右側按鈕群組：中英文按鈕放置於紅色登出鈕旁邊 -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" class="lang-btn" onclick="toggleLanguage()" style="margin: 0; padding: 6px 12px; height: 32px; line-height: 1;">🌐 中/En</button>
+            <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; height: 32px; line-height: 1;" data-i18n="logout_btn">登出</button>
         </div>
+
 <div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
     <div id="weather-status" style="font-weight: 500; font-size: 15px; color: #2c3e50;">
         ⏳ 正在取得氣象數據...
