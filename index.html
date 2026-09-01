@@ -124,44 +124,46 @@
         <div id="weather-status" data-i18n="weather_loading">⏳ 正在取得氣象及空污數據...</div>
 
         <!-- 頁簽 1：個人基本資料 -->
-        <div id="pane-profile" class="form-group">
-            <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料設定</h3>
-            <div class="form-group">
-                <label data-i18n="prof_name">1. 暱稱（非必填）</label>
-                <input type="text" id="prof_nickname" placeholder="例如: 王小明 / Alex">
-            </div>
-            <div class="form-group">
-                <label data-i18n="prof_birth">2. 出生年 (西元)</label>
-                <input type="number" id="prof_birthyear" placeholder="例如: 1990">
-            </div>
-            <div class="form-group">
-                <label data-i18n="prof_gender">3. 性別</label>
-                <select id="prof_gender">
-                    <option value="" data-i18n="select_default">請選擇...</option>
-                    <option value="male" data-i18n="gender_male">男性</option>
-                    <option value="female" data-i18n="gender_female">女性</option>
-                    <option value="other" data-i18n="gender_other">其他 / 不願透露</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label data-i18n="prof_tbi">4. 是否參與輕度腦外傷研究</label>
-                <select id="prof_tbi">
-                    <option value="yes" data-i18n="yes">是</option>
-                    <option value="no" data-i18n="no">否</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label data-i18n="prof_sport">5. 運動頻率</label>
-                <select id="prof_sport">
-                    <option value="none" data-i18n="sport_none">幾乎不運動</option>
-                    <option value="light" data-i18n="sport_light">輕度（每周 1-2 次）</option>
-                    <option value="moderate" data-i18n="sport_moderate">中度（每周 3-4 次）</option>
-                    <option value="heavy" data-i18n="sport_heavy">規律高強度（每周 5 次以上）</option>
-                </select>
-            </div>
-            <button class="btn" onclick="saveAllResearchData()" data-i18n="save_profile_btn">儲存</button>
-            <button class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
-        </div>
+<!-- 頁簽 1：個人基本資料 -->
+<div id="pane-profile" class="tab-pane form-group hidden">
+    <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料</h3>
+    <div class="form-group">
+        <label data-i18n="prof_name">1. 暱稱（非必填）</label>
+        <input type="text" id="prof_nickname" placeholder="例如: 王小明 / Alex">
+    </div>
+    <div class="form-group">
+        <label data-i18n="prof_birth">2. 出生年 (西元)</label>
+        <input type="number" id="prof_birthyear" placeholder="例如: 1990">
+    </div>
+    <div class="form-group">
+        <label data-i18n="prof_gender">3. 性別</label>
+        <select id="prof_gender">
+            <option value="" data-i18n="select_default">請選擇...</option>
+            <option value="male" data-i18n="gender_male">男性</option>
+            <option value="female" data-i18n="gender_female">女性</option>
+            <option value="other" data-i18n="gender_other">其他 / 不願透露</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label data-i18n="prof_tbi">4. 是否參與輕度腦外傷研究</label>
+        <select id="prof_tbi">
+        <option value="">請選擇...</option>
+        <option value="yes">是</option>
+        <option value="no">否</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label data-i18n="prof_sport">5. 運動頻率</label>
+        <select id="prof_sport">
+            <option value="none" data-i18n="sport_none">幾乎不運動</option>
+            <option value="light" data-i18n="sport_light">輕度（每周 1-2 次）</option>
+            <option value="moderate" data-i18n="sport_moderate">中度（每周 3-4 次）</option>
+            <option value="heavy" data-i18n="sport_heavy">規律高強度（每周 5 次以上）</option>
+        </select>
+    </div>
+    <button type="button" class="btn" id="saveProfileBtn" onclick="saveUserProfile()" data-i18n="save_profile_btn">儲存</button>
+    <button type="button" class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
+</div>
 
         <!-- 醫療緊急警示防錯區 (僅在症狀頁顯示) -->
         <div class="emergency-box" id="emergency-section" style="display:none;">
