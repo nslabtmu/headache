@@ -94,7 +94,7 @@ function agreeConsent() {
     }
 }
 
-    async function handleGoogleLogin() {
+async function handleGoogleLogin() {
         const redirectUrl = window.location.origin + window.location.pathname;
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
