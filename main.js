@@ -1,5 +1,5 @@
 
-<script>
+//<script>
     const REQUIRE_LOCATION_FOR_SUBMIT = false; //如果要鎖定位置要改true//////////////////////////
 
     var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -9,25 +9,56 @@
     let currentLang = 'zh-TW';
     let locationReady = false;
 
-    const pageOrder = ['pane-profile', 'pane-headache', 'pane-symptoms', 'pane-health'];
+    const pageOrder = ['pane-profile', 'pane-headache', 'pane-symptoms', 'pane-band'];
 
-function showPane(paneId) {
-    document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
-    document.getElementById(paneId).style.display = 'block';
+// 初始化監聽與狀態確認
+document.addEventListener('DOMContentLoaded', async () => {
+    // 檢查使用者是否已登入
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+        showMainApp(user);
+    }
+});
+//========= 頁籤切換與導覽控制 =======
+  function switchTab(tabName) {
+    // 統一 ID 命名為復數形式，請確保 HTML 中的 ID 也是 pane-symptoms, pane-headache 等
+    const panes = {
+        profile: document.getElementById('pane-profile'),
+        headache: document.getElementById('pane-headache'),
+        symptom: document.getElementById('pane-symptoms'), // 這裡修正了
+        band: document.getElementById('pane-band'),
+        chart: document.getElementById('pane-chart')
+    };
+    
+    // 隱藏所有
+    Object.values(panes).forEach(p => {
+        if(p) p.classList.add('hidden');
+    });
+
+    // 顯示目標
+    if(panes[tabName]) panes[tabName].classList.remove('hidden');
 }
 
 // 如果你想要更聰明的按鈕，可以使用這個函式
 function navigate(direction) {
-    const currentPane = document.querySelector('.tab-pane[style*="display: block"]') || 
-                        document.querySelector('.tab-pane[style*="display:block"]');
-    const currentIndex = pageOrder.indexOf(currentPane.id);
-    
+    // 找出當前未被隱藏的頁籤
+    const currentPane = pageOrder.find(id => {
+        const el = document.getElementById(id);
+        return el && !el.classList.contains('hidden');
+    });
+
+    const currentIndex = pageOrder.indexOf(currentPane);
     let targetIndex = currentIndex + direction;
-    
+
     if (targetIndex >= 0 && targetIndex < pageOrder.length) {
-        showPane(pageOrder[targetIndex]);
+        const targetId = pageOrder[targetIndex];
+        const tabKey = targetId.replace('pane-', '');
+        // 映射至 switchTab 相對應的 key
+        const keyMap = { profile: 'profile', headache: 'headache', symptoms: 'symptom', band: 'band' };
+        switchTab(keyMap[tabKey] || tabKey);
     }
 }
+
     function toggleLanguage() {
         currentLang = (currentLang === 'zh-TW') ? 'en' : 'zh-TW';
         document.documentElement.lang = currentLang;
@@ -38,6 +69,75 @@ function navigate(direction) {
             }
         });
     }
+
+// ==================== 身份驗證與頁面跳轉 ====================
+function agreeConsent() {
+    const consentCard = document.getElementById('consent-card');
+    const authCard = document.getElementById('auth-card');
+    if (consentCard) consentCard.classList.add('hidden');
+    if (authCard) authCard.classList.remove('hidden');
+}
+
+    async function handleGoogleLogin() {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: window.location.href }
+        });
+        if (error) alert("Google 登入失敗：" + error.message);
+    }
+    async function handleLogout() {
+        await supabase.auth.signOut();
+        location.reload(); // 重新整理回到同意書
+    }
+
+function showMainApp(user) {
+    const mainCard = document.getElementById('main-card');
+    if (mainCard) mainCard.classList.remove('hidden');
+    
+    // 顯示右上角使用者帳號
+    const userEmailText = document.getElementById('user-email-text');
+    const userEmail = document.getElementById('user-email');
+    const userInfoBar = document.getElementById('user-info-bar');
+    if (userEmailText) userEmailText.innerText = user.email;
+    if (userEmail) userEmail.innerText = user.email;
+    if (userInfoBar) userInfoBar.classList.remove('hidden');
+
+    getLocationAndWeather();
+    loadUserProfile(user.id);
+    loadUserHistory(user.id);
+}
+// ==================== 個人資料設定面板 ==
+async function loadUserProfile(userId) {
+    const { data, error } = await supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle();
+    if (error) { console.error("讀取個人資料失敗：", error.message); return; }
+    
+    if (data) {
+        if(document.getElementById('prof_nickname')) document.getElementById('prof_nickname').value = data.nickname || '';
+        if(document.getElementById('prof_birthyear')) document.getElementById('prof_birthyear').value = data.birth_year || '';
+        if(document.getElementById('prof_gender')) document.getElementById('prof_gender').value = data.gender || '';
+        if(document.getElementById('prof_tbi')) document.getElementById('prof_tbi').value = data.tbi_study || '';
+        if(document.getElementById('prof_sport')) document.getElementById('prof_sport').value = data.sport_freq || '';
+        enterProfileViewMode();
+    } else {
+        enterProfileEditMode();
+    }
+}
+
+
+
+
+
+
+
+
+
+function showPane(paneId) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+    document.getElementById(paneId).style.display = 'block';
+}
+
+
+
 function showPane(paneId) {
     // 隱藏所有頁籤
     document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
@@ -73,65 +173,15 @@ async function saveFullRecord() {
     if (error) alert("儲存失敗：" + error.message);
     else alert("成功儲存完整紀錄！");
 }
-    // 點擊同意書後進入登入畫面
-    function agreeConsent() {
-        document.getElementById('consent-card').classList.add('hidden');
-        document.getElementById('auth-card').classList.remove('hidden');
-    }
+ 
 
-  function switchTab(tabName) {
-    // 統一 ID 命名為復數形式，請確保 HTML 中的 ID 也是 pane-symptoms, pane-headache 等
-    const panes = {
-        profile: document.getElementById('pane-profile'),
-        headache: document.getElementById('pane-headache'),
-        symptom: document.getElementById('pane-symptoms'), // 這裡修正了
-        band: document.getElementById('pane-band'),
-        chart: document.getElementById('pane-chart')
-    };
-    
-    // 隱藏所有
-    Object.values(panes).forEach(p => {
-        if(p) p.classList.add('hidden');
-    });
 
-    // 顯示目標
-    if(panes[tabName]) panes[tabName].classList.remove('hidden');
-}
 
-    async function handleGoogleLogin() {
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: { redirectTo: window.location.href }
-        });
-        if (error) alert("Google 登入失敗：" + error.message);
-    }
 
-    async function handleLogout() {
-        await supabase.auth.signOut();
-        location.reload(); // 重新整理回到同意書
-    }
 
-    function showMainApp(user) {
-        document.getElementById('main-card').classList.remove('hidden');
-        getLocationAndWeather();
-        loadUserProfile(user.id);
-        loadUserHistory(user.id);
-    }
 
-    async function loadUserProfile(userId) {
-        const { data, error } = await supabase.from('profiles').select('*').eq('user_id', userId).maybeSingle();
-        if (error) { console.error("讀取個人資料失敗：", error.message); return; }
-        if (data) {
-            document.getElementById('prof_nickname').value = data.nickname || '';
-            document.getElementById('prof_birthyear').value = data.birth_year || '';
-            if (data.gender) document.getElementById('prof_gender').value = data.gender;
-            if (data.tbi_study) document.getElementById('prof_tbi').value = data.tbi_study;
-            if (data.sport_freq) document.getElementById('prof_sport').value = data.sport_freq;
-            enterProfileViewMode();   // 已有資料 → 鎖定欄位，顯示「修改」按鈕
-        } else {
-            enterProfileEditMode();   // 尚無資料（第一次使用）→ 保持可直接填寫
-        }
-    }
+
+
  
     function setProfileFieldsDisabled(disabled) {
         document.getElementById('prof_nickname').disabled = disabled;
@@ -349,4 +399,4 @@ async function saveAllResearchData() {
         alert("✅ 今日研究日誌與數據已成功送出！");
     }
 }
-</script>
+//</script>
