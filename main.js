@@ -450,20 +450,15 @@ async function applyTaiwanManualLocation() {
     if (statusEl) statusEl.innerHTML = `⏳ 正在查詢 ${city}${district} 的氣象...`;
 
     try {
-        const locEl = document.getElementById('wx-location');
-        if (locEl) locEl.innerText = `${city} ${district}`;
-        
-        const displayEl = document.getElementById('weather-data-display');
-        if (displayEl) displayEl.classList.remove('hidden');
+        // ✅ 呼叫 districts.js 中的函數，取得座標並查詢真實氣象
+        await getLatLonForTaiwanDistrict(city, district);
         
         const manualBox = document.getElementById('manual-location-box');
         if (manualBox) manualBox.style.display = 'none';
-
-        if (statusEl) statusEl.innerHTML = `✅ 已顯示 <b>${city}${district}</b> 的氣象資訊`;
         
-        currentWeather = { city, district, manual: true, fetched_at: new Date().toISOString() };
         locationReady = true;
     } catch (err) {
+        console.error("查詢失敗：", err);
         if (statusEl) statusEl.innerHTML = `❌ 查詢失敗，請重試。`;
     }
 }
