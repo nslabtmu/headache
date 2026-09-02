@@ -235,54 +235,35 @@
       </div>
     </div>
 
-  <!-- 服藥詳細資訊區塊（預設隱藏） -->
-  <div id="medication-details" style="display: none; margin-top: 16px;">
-    
-    <!-- 1. 藥物類別 (複選) -->
-    <div class="sub-field">
-      <label class="sub-label">止痛藥類別 (可複選)：</label>
-      <div class="checkbox-group">
-        <label class="checkbox-item">
-          <input type="checkbox" name="med-category" value="acetaminophen"> 乙醯胺酚類 (如：普拿疼)
-        </label>
-        <label class="checkbox-item">
-          <input type="checkbox" name="med-category" value="nsaid"> 非類固醇消炎藥 (如：布洛芬、EVE、服他寧)
-        </label>
-        <label class="checkbox-item">
-          <input type="checkbox" name="med-category" value="opioid"> 鴉片類 / 處方強效止痛藥 (如：處方可待因、嗎啡)
-        </label>
-        <label class="checkbox-item">
-          <input type="checkbox" name="med-category" value="unknown"> 不清楚藥物類別
-        </label>
-      </div>
-    </div>
+  <!-- 服藥詳細資訊區塊 -->
+                        <div id="medication-details" style="display: none; margin-top: 16px;">
+                            <div class="sub-field">
+                                <label class="sub-label">止痛藥類別 (可複選)：</label>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-item"><input type="checkbox" name="med-category" value="acetaminophen"> 乙醯胺酚類 (如：普拿疼)</label>
+                                    <label class="checkbox-item"><input type="checkbox" name="med-category" value="nsaid"> 非類固醇消炎藥 (如：布洛芬、EVE、服他寧)</label>
+                                    <label class="checkbox-item"><input type="checkbox" name="med-category" value="opioid"> 鴉片類 / 處方強效止痛藥 (如：處方可待因、嗎啡)</label>
+                                    <label class="checkbox-item"><input type="checkbox" name="med-category" value="unknown"> 不清楚藥物類別</label>
+                                </div>
+                            </div>
 
-    <!-- 2. 藥物名稱 (文字補充) -->
-    <div class="sub-field" style="margin-top: 12px;">
-      <label for="input-medication-name" class="sub-label">具體藥品名稱 (選填)：</label>
-      <input 
-        type="text" 
-        id="input-medication-name" 
-        class="form-input text-input" 
-        placeholder="例如：普拿疼加強錠、EVE Quick"
-      />
-    </div>
+                            <div class="sub-field" style="margin-top: 12px;">
+                                <label for="input-medication-name" class="sub-label">具體藥品名稱 (選填)：</label>
+                                <input type="text" id="input-medication-name" class="form-input text-input" placeholder="例如：普拿疼加強錠、EVE Quick"/>
+                            </div>
 
-    <!-- 3. 效果評估 -->
-    <div class="sub-field" style="margin-top: 12px;">
-      <label for="input-medication-effect" class="sub-label">服藥後效果評估：</label>
-      <select id="input-medication-effect" class="form-select">
-        <option value="" disabled selected>請選擇服藥後的改善狀況</option>
-        <option value="complete">完全緩解（不再疼痛）</option>
-        <option value="partial">部分緩解（症狀減輕但仍不適）</option>
-        <option value="none">完全無效</option>
-        <option value="worse">症狀加重</option>
-        <option value="too_early">剛服用（尚在觀察中）</option>
-      </select>
-    </div>
-
-  </div>
-</div>
+                            <div class="sub-field" style="margin-top: 12px;">
+                                <label for="input-medication-effect" class="sub-label">服藥後效果評估：</label>
+                                <select id="input-medication-effect" class="form-select">
+                                    <option value="" disabled selected>請選擇服藥後的改善狀況</option>
+                                    <option value="complete">完全緩解（不再疼痛）</option>
+                                    <option value="partial">部分緩解（症狀減輕但仍不適）</option>
+                                    <option value="none">完全無效</option>
+                                    <option value="worse">症狀加重</option>
+                                    <option value="too_early">剛服用（尚在觀察中）</option>
+                                </select>
+                            </div>
+                        </div>
 
     <!-- 4. 補充備註 -->
     <div class="form-card">
