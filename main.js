@@ -587,15 +587,37 @@ function switchSubTab(event, tabId) {
 
 // 3. 切換帳戶選單選單開關
 function toggleAccountMenu() {
-  document.getElementById('account-menu').classList.toggle('show');
-}
-
-// 點擊空白處關閉帳戶選單
-window.onclick = function(event) {
-  if (!event.target.closest('.account-dropdown')) {
-    const menu = document.getElementById('account-menu');
-    if (menu && menu.classList.contains('show')) {
-      menu.classList.remove('show');
-    }
+  const menu = document.getElementById('account-menu');
+  if (menu) {
+    menu.classList.toggle('show');
   }
 }
+
+/ 點擊選單外面時自動關閉選單
+window.addEventListener('click', function(event) {
+  const dropdown = document.querySelector('.account-dropdown');
+  const menu = document.getElementById('account-menu');
+  
+  if (dropdown && menu && !dropdown.contains(event.target)) {
+    menu.classList.remove('show');
+  }
+});
+
+// 2. 語系按鈕切換效果 (假設配合 toggleLanguage 或 i18n 系統)
+document.addEventListener('DOMContentLoaded', () => {
+  const langBtns = document.querySelectorAll('.lang-switch .lang-btn');
+  langBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      langBtns.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      
+      // 呼叫您原有的切換語言函式，例如：
+      if (typeof toggleLanguage === 'function') {
+        toggleLanguage(this.textContent.trim().toLowerCase());
+      }
+    });
+  });
+});
+
+// 將 toggleAccountMenu 掛載到 window 確保 HTML onclick 找不到的錯誤不會發生
+window.toggleAccountMenu = toggleAccountMenu;
