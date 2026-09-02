@@ -237,14 +237,13 @@
 <!-- 3. 是否使用藥物 (新增觸發問答) -->
 <div class="form-card" style="margin-top: 16px;">
     <label class="card-label">💊 本次頭痛發作是否已服用藥物？</label>
-    <div style="display: flex; gap: 20px; margin-top: 8px;">
-        <label style="cursor: pointer; font-size: 15px;">
-            <input type="radio" name="use_medication" value="yes" onchange="toggleMedicationDetails(true)"> <b>有服用藥物</b>
-        </label>
-        <label style="cursor: pointer; font-size: 15px;">
-            <input type="radio" name="use_medication" value="no" onchange="toggleMedicationDetails(false)" checked> <b>未服用藥物</b>
-        </label>
-    </div>
+    <select id="input-medication" onchange="toggleMedicationSection()">
+  <option value="no">否</option>
+  <option value="yes">是</option>
+</select>
+
+<!-- 被控制顯示/隱藏的區塊 -->
+<div id="medication-details" style="display: none;">
 </div>
   <!-- 服藥詳細資訊區塊 -->
                         <div id="medication-details" style="display: none; margin-top: 16px;">
