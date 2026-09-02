@@ -732,3 +732,29 @@ input[type="range"] {
     font-weight: bold;
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
 }
+.sub-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sub-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #4A5568;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
