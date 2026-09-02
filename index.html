@@ -102,6 +102,12 @@
                 <div>🌡️ 氣溫：<span id="wx-temp">-</span> °C</div>
                 <div>💧 濕度：<span id="wx-humidity">-</span> %</div>
                 <div>🧭 氣壓：<span id="wx-pressure">-</span> hPa</div>
+                <!-- ✅ 新增：變更位置按鈕 -->
+                <div style="flex: 1 1 100%; text-align: right;">
+                <button type="button" class="btn" style="background: #95a5a6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;" onclick="toggleChangeLocation()">
+            🔄 變更位置
+                </button>
+                </div>
             </div>
 
             <!-- 取得失敗或無法定位時顯示的手動切換選單 -->
