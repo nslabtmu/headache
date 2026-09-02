@@ -74,8 +74,8 @@ async function getLatLonForTaiwanDistrict(city, district) {
 }
 // ==================== 初始化下拉選單邏輯 ====================
 document.addEventListener('DOMContentLoaded', () => {
-    const citySelect = document.getElementById('city-select');
-    const districtSelect = document.getElementById('district-select');
+    const citySelect = document.getElementById('select-city');
+    const districtSelect = document.getElementById('select-district');
 
     if (!citySelect || !districtSelect) return;
 
