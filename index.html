@@ -1,0 +1,23 @@
+
+
+
+<!-- 3. 主系統卡片 -->
+    <div class="card card-left hidden" id="main-card">
+        
+        <!-- [頂部欄 Header] 乾淨大標 + 右側控制 -->
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #eee;">
+            <h2 data-i18n="form_title" style="margin: 0;">🩺 頭痛環境日記</h2>
+            
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button type="button" class="lang-btn" onclick="toggleLanguage()" style="margin: 0; padding: 6px 12px; height: 32px; line-height: 1;">🌐 中/En</button>
+                
+                <!-- 帳戶選單區塊 -->
+                <div id="user-info-bar" class="hidden" style="display: inline-block;">
+                    <button id="user-email-btn" class="lang-btn" onclick="toggleUserDropdown()" style="height: 32px; padding: 6px 12px;">👤 <span id="user-email-text"></span> ▾</button>
+                    <div id="user-dropdown" class="hidden" style="position: absolute; right: 20px; background: white; border: 1px solid #ccc; padding: 10px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 100;">
+                        <div class="dropdown-account" style="font-size: 12px; color: #666; margin-bottom: 8px;">登入帳號：<br><b id="user-email" style="color: #333;"></b></div>
+                        <button class="dropdown-item" onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; width: 100%;" data-i18n="logout_btn">🚪 登出系統</button>
+                    </div>
+                </div>
+            </div>
+        </header>
