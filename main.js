@@ -513,14 +513,23 @@ async function saveAllResearchData() {
         steps: Number(document.getElementById('band_steps')?.value) || null,
         avg_steps: Number(document.getElementById('band_avg_steps')?.value) || null
     };
-
+// ✅ 新增：儲存當下的氣象資料
+    const weatherData = currentWeather ? {
+        temperature: currentWeather.data?.temperature_2m || null,
+        humidity: currentWeather.data?.relative_humidity_2m || null,
+        pressure: currentWeather.data?.surface_pressure || null,
+        location: currentWeather.location || "未知位置",
+        fetched_at: currentWeather.fetched_at
+    } : { note: "未取得" };
+ 
     const payload = {
         user_id: user.id,
         user_email: user.email,
         headache_data: headacheData,
         symptoms_data: symptomsData,
         health_data: healthData,
-        weather_data: currentWeather || { note: "未取得" },
+        // 9/1 weather_data: currentWeather || { note: "未取得" },
+        weather_data: weatherData, 
         created_at: new Date().toISOString()
     };
 
@@ -538,25 +547,6 @@ function saveFullRecord() {
     saveAllResearchData();
 }
 
-async function loadUserHistory(userId) {
-    const { data } = await supabase.from('user_data').select('*').eq('user_id', userId).order('created_at', { ascending: true }).limit(30);
-    if (!data) return;
-    const labels = data.map(item => new Date(item.created_at).toLocaleDateString());
-    const painScores = data.map(item => item.headache_data?.pain_score || item.symptoms_data?.sym_1 || 0);
-    const canvas = document.getElementById('painChart');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (chartInstance) chartInstance.destroy();
-
-    chartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{ label: '頭痛程度分數 (Sym 1)', data: painScores, borderColor: '#3498db', backgroundColor: 'rgba(52, 152, 219, 0.1)', borderWidth: 2, fill: true }]
-        },
-        options: { responsive: true, scales: { y: { min: 0, max: 10 } } }
-    });
-}
 // ✅ 新增：切換變更位置面板
 function toggleChangeLocation() {
     const manualBox = document.getElementById('manual-location-box');
