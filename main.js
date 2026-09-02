@@ -651,3 +651,17 @@ async function loadUserHistory(userId) {
         options: { responsive: true, scales: { y: { min: 0, max: 10 } } }
     });
 }
+// ✅ 新增：切換變更位置面板
+function toggleChangeLocation() {
+    const manualBox = document.getElementById('manual-location-box');
+    if (manualBox) {
+        manualBox.style.display = manualBox.style.display === 'none' ? 'block' : 'none';
+    }
+    
+    // 如果展開就初始化下拉選單
+    if (manualBox && manualBox.style.display === 'block') {
+        if (typeof initDistrictSelector === 'function') {
+            initDistrictSelector();
+        }
+    }
+}
