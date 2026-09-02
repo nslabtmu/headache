@@ -572,8 +572,12 @@ function switchMainTab(event, tabId) {
   document.querySelectorAll('.main-tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.main-tab-btn').forEach(el => el.classList.remove('active'));
 
-  document.getElementById(tabId).classList.add('active');
-  event.currentTarget.classList.add('active');
+  const targetEl = document.getElementById(tabId);
+  if (targetEl) targetEl.classList.add('active');
+
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
+  }
 }
 
 // 2. 切換次頁籤 (頭痛紀錄 vs 相關症狀 vs 健康資料)
@@ -581,11 +585,15 @@ function switchSubTab(event, tabId) {
   document.querySelectorAll('.sub-tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.sub-tab-btn').forEach(el => el.classList.remove('active'));
 
-  document.getElementById(tabId).classList.add('active');
-  event.currentTarget.classList.add('active');
+  const targetEl = document.getElementById(tabId);
+  if (targetEl) targetEl.classList.add('active');
+
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
+  }
 }
 
-// 3. 切換帳戶選單選單開關
+// 3. 切換帳戶選單開關
 function toggleAccountMenu() {
   const menu = document.getElementById('account-menu');
   if (menu) {
@@ -593,7 +601,7 @@ function toggleAccountMenu() {
   }
 }
 
-/ 點擊選單外面時自動關閉選單
+// 4. 點擊選單外面時自動關閉選單
 window.addEventListener('click', function(event) {
   const dropdown = document.querySelector('.account-dropdown');
   const menu = document.getElementById('account-menu');
@@ -603,7 +611,7 @@ window.addEventListener('click', function(event) {
   }
 });
 
-// 2. 語系按鈕切換效果 (假設配合 toggleLanguage 或 i18n 系統)
+// 5. 語系按鈕切換效果 (配合 toggleLanguage 或 i18n 系統)
 document.addEventListener('DOMContentLoaded', () => {
   const langBtns = document.querySelectorAll('.lang-switch .lang-btn');
   langBtns.forEach(btn => {
@@ -611,7 +619,6 @@ document.addEventListener('DOMContentLoaded', () => {
       langBtns.forEach(b => b.classList.remove('active'));
       this.classList.add('active');
       
-      // 呼叫您原有的切換語言函式，例如：
       if (typeof toggleLanguage === 'function') {
         toggleLanguage(this.textContent.trim().toLowerCase());
       }
@@ -619,5 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// 將 toggleAccountMenu 掛載到 window 確保 HTML onclick 找不到的錯誤不會發生
+// 6. 全域掛載，確保 HTML onclick 可以順利呼叫
+window.switchMainTab = switchMainTab;
+window.switchSubTab = switchSubTab;
 window.toggleAccountMenu = toggleAccountMenu;
