@@ -561,3 +561,9 @@ function toggleChangeLocation() {
         }
     }
 }
+// 用藥
+function toggleMedicationSection() {
+  const select = document.getElementById('input-medication');
+  const details = document.getElementById('medication-details');
+  details.style.display = select.value === 'yes' ? 'block' : 'none';
+}
