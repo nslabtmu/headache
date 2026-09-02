@@ -236,10 +236,10 @@ async function saveUserProfile() {
 // 1. 取得氣象資料 (使用 Open-Meteo API)
 async function fetchWeather(lat, lon, statusMessage) {
     const statusEl = document.getElementById('weather-status');
-    const tempEl = document.getElementById('temp');
-    const humidityEl = document.getElementById('humidity');
-    const pressureEl = document.getElementById('pressure');
-    const locationEl = document.getElementById('location-name');
+    const tempEl = document.getElementById('wx-temp');
+    const humidityEl = document.getElementById('wx-humidity');
+    const pressureEl = document.getElementById('wx-pressure');
+    const locationEl = document.getElementById('wx-location-name');
 
     try {
         if (statusEl) statusEl.innerText = "⏳ 正在載入氣象資料...";
