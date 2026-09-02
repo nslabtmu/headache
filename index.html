@@ -98,16 +98,18 @@
 
             <!-- 自動載入成功的氣象資料顯示區 -->
             <div id="weather-data-display" class="hidden" style="margin-top: 10px; display: flex; gap: 15px; flex-wrap: wrap; background: #fff; padding: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <div style="font-weight: bold; color: #2c3e50;">📍 當前位置：<span id="wx-location" style="color: #2980b9;">正在取得地點...</span></div>
-                <div>🌡️ 氣溫：<span id="wx-temp">-</span> °C</div>
-                <div>💧 濕度：<span id="wx-humidity">-</span> %</div>
-                <div>🧭 氣壓：<span id="wx-pressure">-</span> hPa</div>
-                <!-- ✅ 新增：變更位置按鈕 -->
-                <div style="flex: 1 1 100%; text-align: right;">
-                <button type="button" class="btn" style="background: #95a5a6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;" onclick="toggleChangeLocation()">
+            <!-- 左邊：位置和氣象資訊 -->
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+             <div style="font-weight: bold; color: #2c3e50;">📍 當前位置：<span id="wx-location" style="color: #2980b9;">正在取得地點...</span></div>
+             <div>🌡️ 氣溫：<span id="wx-temp">-</span> °C</div>
+             <div>💧 濕度：<span id="wx-humidity">-</span> %</div>
+             <div>🧭 氣壓：<span id="wx-pressure">-</span> hPa</div>
+            </div>
+    
+            <!-- ✅ 右邊：變更位置按鈕 -->
+        <button type="button" class="btn" style="background: #95a5a6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; white-space: nowrap;" onclick="toggleChangeLocation()">
             🔄 變更位置
-                </button>
-                </div>
+        </button>
             </div>
 
             <!-- 取得失敗或無法定位時顯示的手動切換選單 -->
