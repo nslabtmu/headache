@@ -19,10 +19,8 @@
 </head>
 <body>
 
-    <!-- 重填同意書按鈕 -->
-    <button id="resetConsentBtn" class="lang-btn hidden" onclick="resetConsent()" style="position: fixed; top: 15px; left: 15px; color: #e74c3c;">📄 重填同意書</button>
-
-    <!-- 右上角使用者選單與語言切換容器 -->
+   
+    <!-- 右上角使用者選單與語言切換容器 
     <div id="top-toolbar" style="display: flex; align-items: center; gap: 8px;">
         <div id="user-info-bar" class="hidden">
             <div class="user-menu" style="display: flex; align-items: center; gap: 8px;">
@@ -33,7 +31,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- 1. 同意書卡片 (最先顯示) -->
     <div class="card card-left" id="consent-card">
@@ -84,7 +82,7 @@
         
         <!-- [頂部欄 Header] 乾淨大標 + 右側控制 -->
         <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #eee;">
-            <h2 data-i18n="form_title" style="margin: 0;">🩺 頭痛環境日記</h2>
+            <h2 data-i18n="form_title" style="margin: 0;">🩺 頭痛與環境日記</h2>
             
 <div class="header-actions">
     <!-- 語系切換 -->
@@ -95,18 +93,26 @@
 
     <!-- 帳戶下拉選單 (個人資料與登出合併於此) -->
     <div class="account-dropdown">
-      <button class="account-btn" onclick="toggleAccountMenu()">
-        <span class="avatar">小</span>
-        <span class="username">張小明</span>
+        <button id="user-email-btn" class="lang-btn" onclick="toggleUserDropdown()">👤 <span id="user-email-text"></span>
         <span class="arrow">▾</span>
       </button>
+ <!-- 重填同意書按鈕 -->
+    <button id="resetConsentBtn" class="lang-btn hidden" onclick="resetConsent()" style="position: fixed; top: 15px; left: 15px; color: #e74c3c;">📄 重填同意書</button>
 
-      <div id="account-menu" class="dropdown-menu">
-        <a href="#profile" class="dropdown-item">👤 個人資料設定</a>
-        <a href="#export" class="dropdown-item">📥 匯出紀錄</a>
-        <hr class="dropdown-divider" />
-        <a href="#logout" class="dropdown-item logout-btn">🚪 登出系統</a>
-      </div>
+<div id="account-menu" class="dropdown-menu">
+  <!-- 1. 切換至個人資料頁籤 -->
+  <a href="javascript:void(0)" class="dropdown-item" onclick="switchTab('profile'); toggleAccountMenu();">👤 個人資料設定</a>
+  <!-- 2. 重新開啟同意書頁面 -->
+  <a href="javascript:void(0)" class="dropdown-item" onclick="resetConsent(); toggleAccountMenu();">📄 重填同意書</a>
+
+  <!-- 3. 匯出紀錄 (如果已經有匯出函式可帶入，沒有可先留空或彈窗提示) -->
+  <a href="javascript:void(0)" class="dropdown-item" onclick="exportData(); toggleAccountMenu();">📥 匯出紀錄</a>
+
+  <hr class="dropdown-divider" />
+
+  <!-- 4. 觸發 Supabase 登出 -->
+  <a href="javascript:void(0)" class="dropdown-item logout-btn" onclick="handleLogout(); toggleAccountMenu();">🚪 登出系統</a>
+</div>
     </div>
   </div>
 </header>
