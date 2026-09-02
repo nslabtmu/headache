@@ -312,14 +312,28 @@ async function fetchIpLocation(statusEl) {
         const res = await fetch('https://ipapi.co/json/');
         if (!res.ok) throw new Error("IP API 失敗");
         const data = await res.json();
-        
+        // ✅ 顯示 IP 位置
+        const ipLocationDisplay = document.getElementById('ip-location-display');
+        const ipLocationName = document.getElementById('ip-location-name');
+        if (ipLocationDisplay && ipLocationName) {
+            const cityName = data.city || data.region || "未知地區";
+            ipLocationName.innerText = `${data.country || "未知國家"} - ${cityName}`;
+            ipLocationDisplay.classList.remove('hidden');
+        }
         // ✅ 加上這行 - 呼叫 fetchWeather
-        await fetchWeather(data.latitude, data.longitude, "IP 定位成功");
+        await fetchWeather(data.latitude, data.longitude, "定位成功");
         
     } catch (err) {
         console.error("IP Location Error:", err);
-        if (statusEl) statusEl.innerText = "❌ 定位與取得氣象資料均失敗";
-        showWeatherFallback("⚠️ 無法自動定位，請手動選擇地區");
+        if (statusEl) statusEl.innerText = "⚠️ 無法自動定位，請手動選擇地區";
+        // ✅ 失敗時自動展開選擇面板
+        toggleChangeLocation();
+        
+        // 初始化下拉選單
+        if (typeof initDistrictSelector === 'function') {
+            initDistrictSelector();
+        }
+        
         locationReady = false;
     }
 }
@@ -342,129 +356,7 @@ function getLocationAndWeather() {
         { timeout: 8000 }
     );
 }
-/* 9/1 ✅ 修正：補充缺少的 fetchWeather 基礎實作
-async function fetchWeather(lat, lon, statusMessage) {
-    const statusEl = document.getElementById('weather-status');
-    try {
-        currentWeather = { lat, lon, fetched_at: new Date().toISOString() };
-        locationReady = true;
-        if (statusEl) statusEl.innerHTML = `✅ ${statusMessage} (緯度: ${lat.toFixed(2)}, 經度: ${lon.toFixed(2)})`;
-        const wxDisplay = document.getElementById('weather-data-display');
-        if (wxDisplay) wxDisplay.classList.remove('hidden');
-    } catch (err) {
-        if (statusEl) statusEl.innerText = "⚠️ 取得氣象資料失敗";
-        locationReady = false;
-    }
-}
 
-function getLocationAndWeather() {
-    const statusEl = document.getElementById('weather-status');
-    if (!navigator.geolocation) { fetchIpLocation(statusEl); return; }
-    navigator.geolocation.getCurrentPosition(
-        (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude, "GPS 定位成功"),
-        () => fetchIpLocation(statusEl),
-        { timeout: 8000 }
-    );
-}
-
-async function fetchIpLocation(statusEl) {
-    try {
-        if (statusEl) statusEl.innerText = "⏳ 正在透過網路 IP 進行定位...";
-        const res = await fetch('https://ipapi.co/json/');
-        const ipData = await res.json();
-        if (ipData.latitude && ipData.longitude) {
-            fetchWeather(ipData.latitude, ipData.longitude, `IP 定位成功 (${ipData.city || '未知城市'})`);
-        } else { throw new Error(); }
-    } catch (err) {
-        if (statusEl) statusEl.innerText = "⚠️ 無法取得位置資訊";
-        locationReady = false;
-    }
-}
-
-async function fetchWeatherData() {
-    const statusEl = document.getElementById('weather-status');
-    if (statusEl) statusEl.innerHTML = "⏳ 正在取得您的位置與氣象數據...";
-
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                await getLocationNameByCoords(lat, lon);
-                await fetchWeather(lat, lon, "精準定位");
-            },
-            async (error) => {
-                console.warn("GPS 定位失敗，改用 IP 定位：", error);
-                await getLocationByIP();
-            },
-            { timeout: 5000 }
-        );
-    } else {
-        await getLocationByIP();
-    }
-}
-
-async function getLocationByIP() {
-    try {
-        const res = await fetch('https://ipapi.co/json/');
-        const data = await res.json();
-        const cityName = data.city || data.region || "未知地區";
-        
-        const locEl = document.getElementById('wx-location');
-        if (locEl) locEl.innerText = `${cityName} (IP定位)`;
-        
-        const displayEl = document.getElementById('weather-data-display');
-        if (displayEl) displayEl.classList.remove('hidden');
-        
-        const statusEl = document.getElementById('weather-status');
-        if (statusEl) statusEl.innerHTML = `✅ 已透過 IP 自動定位：<b>${cityName}</b>`;
-
-        if (data.latitude && data.longitude) {
-            await fetchWeather(data.latitude, data.longitude, `IP 定位 (${cityName})`);
-        }
-    } catch (err) {
-        console.error("IP 定位失敗:", err);
-        showWeatherFallback("⚠️ 無法透過 IP 取得位置，請手動選擇地區。");
-    }
-}
-
-async function getLocationNameByCoords(lat, lon) {
-    try {
-        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=zh-TW`);
-        const data = await response.json();
-        
-        if (data && data.address) {
-            const city = data.address.city || data.address.county || "";
-            const district = data.address.suburb || data.address.town || data.address.district || "";
-            const fullLocation = `${city} ${district}`.trim() || "精準定位點";
-            
-            const locEl = document.getElementById('wx-location');
-            if (locEl) locEl.innerText = fullLocation;
-            
-            const displayEl = document.getElementById('weather-data-display');
-            if (displayEl) displayEl.classList.remove('hidden');
-            
-            const statusEl = document.getElementById('weather-status');
-            if (statusEl) statusEl.innerHTML = `✅ 自動定位成功：<b>${fullLocation}</b>`;
-        }
-    } catch (e) {
-        console.warn("反查地名失敗，改顯示座標", e);
-        const locEl = document.getElementById('wx-location');
-        if (locEl) locEl.innerText = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
-    }
-}*/
-
-function showWeatherFallback(message) {
-    const statusEl = document.getElementById('weather-status');
-    const manualBox = document.getElementById('manual-location-box');
-
-    if (statusEl) statusEl.innerHTML = `<span style="color: #e74c3c;">${message}</span>`;
-    if (manualBox) manualBox.style.display = 'block';
-    
-    if (typeof initDistrictSelector === 'function') {
-        initDistrictSelector();
-    }
-}
 
 // ✅ 修正：統一保留此單一手動選擇函數
 async function applyTaiwanManualLocation() {
@@ -482,7 +374,13 @@ async function applyTaiwanManualLocation() {
     try {
         // ✅ 呼叫 districts.js 中的函數，取得座標並查詢真實氣象
         await getLatLonForTaiwanDistrict(city, district);
-        
+        // ✅ 更新 IP 位置卡片顯示（改成手動選擇的位置）
+        const ipLocationDisplay = document.getElementById('ip-location-display');
+        const ipLocationName = document.getElementById('ip-location-name');
+        if (ipLocationDisplay && ipLocationName) {
+            ipLocationName.innerText = `${city} - ${district} (手動選擇)`;
+            ipLocationDisplay.classList.remove('hidden');
+        }
         const manualBox = document.getElementById('manual-location-box');
         if (manualBox) manualBox.style.display = 'none';
         
