@@ -118,3 +118,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+// ==================== 初始化下拉選單邏輯 ====================
+function initDistrictSelector() {
+    const citySelect = document.getElementById('select-city');
+    const districtSelect = document.getElementById('select-district');
+
+    if (!citySelect || !districtSelect) return;
+
+    // 1. 動態填充「縣市」選單
+    Object.keys(taiwanDistricts).forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+    });
+
+    // 2. 監聽「縣市」改變事件，動態更新「鄉鎮」選單
+    citySelect.addEventListener('change', (e) => {
+        const selectedCity = e.target.value;
+
+        // 清空鄉鎮選單
+        districtSelect.innerHTML = '<option value="">-- 請選擇鄉鎮市區 --</option>';
+
+        if (selectedCity && taiwanDistricts[selectedCity]) {
+            // 填入對應的鄉鎮選單
+            taiwanDistricts[selectedCity].forEach(district => {
+                const option = document.createElement('option');
+                option.value = district;
+                option.textContent = district;
+                districtSelect.appendChild(option);
+            });
+            districtSelect.disabled = false;
+        } else {
+            districtSelect.disabled = true;
+        }
+    });
+}
+
+
+// ✅ 頁面載入完成後初始化
+document.addEventListener('DOMContentLoaded', initDistrictSelector);
