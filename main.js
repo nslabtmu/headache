@@ -314,10 +314,13 @@ async function fetchIpLocation(statusEl) {
         const data = await res.json();
         
         // 使用 IP 算出的經緯度呼叫氣象 API
-        await fetchWeather(data.latitude, data.longitude, "IP 定位成功");
+       // ✅ IP 成功後也顯示手動選項（可選用）
+        showWeatherFallback("💡 或手動選擇地區更新氣象");
     } catch (err) {
         console.error("IP Location Error:", err);
         if (statusEl) statusEl.innerText = "❌ 定位與取得氣象資料均失敗";
+        // ✅ IP 失敗才顯示手動選項
+        showWeatherFallback("⚠️ 無法自動定位，請手動選擇地區");
         locationReady = false;
     }
 }
