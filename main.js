@@ -239,12 +239,31 @@ async function fetchWeather(lat, lon, statusMessage) {
     const tempEl = document.getElementById('wx-temp');
     const humidityEl = document.getElementById('wx-humidity');
     const pressureEl = document.getElementById('wx-pressure');
-    const locationEl = document.getElementById('wx-location-name');
+    const locationEl = document.getElementById('wx-location');
 
     try {
         if (statusEl) statusEl.innerText = "⏳ 正在載入氣象資料...";
 
-        // 打 Open-Meteo 氣象 API
+        // ✅ 反查地名
+        let country = "未知";
+        let city = "未知";
+        let district = "未知";
+        
+        try {
+            const geoRes = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=zh-TW`
+            );
+            const geoData = await geoRes.json();
+            if (geoData && geoData.address) {
+                country = geoData.address.country || "臺灣";
+                city = geoData.address.city || geoData.address.county || "未知城市";
+                district = geoData.address.suburb || geoData.address.town || geoData.address.district || "未知區域";
+            }
+        } catch (geoErr) {
+            console.warn("地名反查失敗：", geoErr);
+        }
+
+        // 取氣象資料
         const response = await fetch(
             `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,surface_pressure`
         );
@@ -254,14 +273,24 @@ async function fetchWeather(lat, lon, statusMessage) {
         const data = await response.json();
         const current = data.current;
 
-        // 更新 UI 資料
-        if (tempEl) tempEl.innerText = `${current.temperature_2m} ${data.current_units.temperature_2m}`;
-        if (humidityEl) humidityEl.innerText = `${current.relative_humidity_2m} ${data.current_units.relative_humidity_2m}`;
-        if (pressureEl) pressureEl.innerText = `${current.surface_pressure} ${data.current_units.surface_pressure}`;
-        if (locationEl) locationEl.innerText = `緯度 ${lat.toFixed(2)}, 經度 ${lon.toFixed(2)}`;
+        // ✅ 更新 UI
+        if (tempEl) tempEl.innerText = `${current.temperature_2m}`;
+        if (humidityEl) humidityEl.innerText = `${current.relative_humidity_2m}`;
+        if (pressureEl) pressureEl.innerText = `${current.surface_pressure}`;
+        
+        // ✅ 顯示「國家 - 城市 - 區域」格式
+        if (locationEl) locationEl.innerText = `${country} - ${city} - ${district}`;
 
-        // 保存狀態
-        currentWeather = { lat, lon, fetched_at: new Date().toISOString(), data: current };
+        currentWeather = { 
+            lat, 
+            lon, 
+            country,
+            city,
+            district,
+            location: `${country} - ${city} - ${district}`,
+            fetched_at: new Date().toISOString(), 
+            data: current 
+        };
         locationReady = true;
 
         if (statusEl) statusEl.innerHTML = `✅ ${statusMessage}`;
