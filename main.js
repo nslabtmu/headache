@@ -230,8 +230,90 @@ async function saveUserProfile() {
 }
 
 // ==================== 定位與氣象資訊 API ====================
+// 全域變數
+let currentWeather = null;
+let locationReady = false;
 
-// ✅ 修正：補充缺少的 fetchWeather 基礎實作
+// 1. 取得氣象資料 (使用 Open-Meteo API)
+async function fetchWeather(lat, lon, statusMessage) {
+    const statusEl = document.getElementById('weather-status');
+    const tempEl = document.getElementById('temp');
+    const humidityEl = document.getElementById('humidity');
+    const pressureEl = document.getElementById('pressure');
+    const locationEl = document.getElementById('location-name');
+
+    try {
+        if (statusEl) statusEl.innerText = "⏳ 正在載入氣象資料...";
+
+        // 打 Open-Meteo 氣象 API
+        const response = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,surface_pressure`
+        );
+        
+        if (!response.ok) throw new Error("API 請求失敗");
+        
+        const data = await response.json();
+        const current = data.current;
+
+        // 更新 UI 資料
+        if (tempEl) tempEl.innerText = `${current.temperature_2m} ${data.current_units.temperature_2m}`;
+        if (humidityEl) humidityEl.innerText = `${current.relative_humidity_2m} ${data.current_units.relative_humidity_2m}`;
+        if (pressureEl) pressureEl.innerText = `${current.surface_pressure} ${data.current_units.surface_pressure}`;
+        if (locationEl) locationEl.innerText = `緯度 ${lat.toFixed(2)}, 經度 ${lon.toFixed(2)}`;
+
+        // 保存狀態
+        currentWeather = { lat, lon, fetched_at: new Date().toISOString(), data: current };
+        locationReady = true;
+
+        if (statusEl) statusEl.innerHTML = `✅ ${statusMessage}`;
+        
+        const wxDisplay = document.getElementById('weather-data-display');
+        if (wxDisplay) wxDisplay.classList.remove('hidden');
+
+    } catch (err) {
+        console.error("Fetch weather error:", err);
+        if (statusEl) statusEl.innerText = "⚠️ 取得氣象資料失敗";
+        locationReady = false;
+    }
+}
+
+// 2. 當 GPS 失敗時的 IP 定位備案
+async function fetchIpLocation(statusEl) {
+    if (statusEl) statusEl.innerText = "🌐 嘗試透過 IP 取得大致位置...";
+    try {
+        const res = await fetch('https://ipapi.co/json/');
+        if (!res.ok) throw new Error("IP API 失敗");
+        const data = await res.json();
+        
+        // 使用 IP 算出的經緯度呼叫氣象 API
+        await fetchWeather(data.latitude, data.longitude, "IP 定位成功");
+    } catch (err) {
+        console.error("IP Location Error:", err);
+        if (statusEl) statusEl.innerText = "❌ 定位與取得氣象資料均失敗";
+        locationReady = false;
+    }
+}
+
+// 3. 主進入點：請求瀏覽器 GPS
+function getLocationAndWeather() {
+    const statusEl = document.getElementById('weather-status');
+    if (statusEl) statusEl.innerText = "📍 正在請求 GPS 定位權限...";
+
+    if (!navigator.geolocation) {
+        fetchIpLocation(statusEl);
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude, "GPS 定位成功"),
+        (err) => {
+            console.warn("GPS 存取遭拒或失敗，轉用 IP 定位：", err.message);
+            fetchIpLocation(statusEl);
+        },
+        { timeout: 8000 }
+    );
+}
+/* 9/1 ✅ 修正：補充缺少的 fetchWeather 基礎實作
 async function fetchWeather(lat, lon, statusMessage) {
     const statusEl = document.getElementById('weather-status');
     try {
@@ -341,7 +423,7 @@ async function getLocationNameByCoords(lat, lon) {
         const locEl = document.getElementById('wx-location');
         if (locEl) locEl.innerText = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
     }
-}
+}*/
 
 function showWeatherFallback(message) {
     const statusEl = document.getElementById('weather-status');
