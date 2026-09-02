@@ -758,3 +758,105 @@ input[type="range"] {
   font-size: 0.95rem;
   cursor: pointer;
 }
+
+/* 頂部列排版 */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.header-title h1 {
+  font-size: 1.3rem;
+  color: #2b6cb0;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* 主頁籤樣式 */
+.main-tab-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.main-tab-btn {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #cbd5e0;
+  background: #edf2f7;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.main-tab-btn.active {
+  background: #3182ce;
+  color: white;
+  border-color: #3182ce;
+}
+
+/* 氣象卡片樣式 */
+.weather-card {
+  background: #ebf8ff;
+  border: 1px solid #bee3f8;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  color: #2c5282;
+}
+
+.weather-header {
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+/* 次頁籤樣式 */
+.sub-tab-bar {
+  display: flex;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 16px;
+}
+
+.sub-tab-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #718096;
+  cursor: pointer;
+}
+
+.sub-tab-btn.active {
+  color: #3182ce;
+  border-bottom: 3px solid #3182ce;
+  background: #ffffff;
+}
+
+/* 切換顯示控制 */
+.main-tab-content, .sub-tab-content {
+  display: none;
+}
+
+.main-tab-content.active, .sub-tab-content.active {
+  display: block;
+}
+
+/* 下拉選單隱藏 divider */
+.dropdown-divider {
+  margin: 4px 0;
+  border: none;
+  border-top: 1px solid #e2e8f0;
+}
