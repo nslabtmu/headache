@@ -90,62 +90,57 @@
             </div>
         </div>
            
-        <!-- 氣象模組 -->
-        <div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
-            <div id="weather-status" style="font-weight: 500; font-size: 15px; color: #2c3e50;">
-                ⏳ 正在取得氣象數據...
-            </div>
- <!-- ✅ IP 位置顯示區（取得失敗外面） -->
-    <div id="ip-location-display" class="hidden" style="margin-top: 10px; display: flex; gap: 15px; align-items: center; justify-content: space-between; background: #e3f2fd; padding: 12px; border-radius: 6px; border: 1px solid #bbdefb;">
-        <div style="font-weight: bold; color: #1565c0;">
+       <!-- 氣象模組 - 最新版：IP位置 + 氣象 + 統一的變更位置面板 -->
+<div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+    <div id="weather-status" style="font-weight: 500; font-size: 15px; color: #2c3e50;">
+        ⏳ 正在取得氣象數據...
+    </div>
+
+    <!-- ✅ IP 位置顯示區 - 藍色卡片 -->
+    <div id="ip-location-display" class="hidden" style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between; background: #e3f2fd; padding: 12px; border-radius: 6px; border: 1px solid #bbdefb;">
+        <div style="font-weight: 500; color: #1565c0;">
             📍 IP 位置：<span id="ip-location-name" style="color: #0d47a1;">取得中...</span>
         </div>
         <button type="button" class="btn" style="background: #95a5a6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; white-space: nowrap;" onclick="toggleChangeLocation()">
             🔄 變更位置
         </button>
-      </div>
-            <!-- 自動載入成功的氣象資料顯示區 -->
-            <div id="weather-data-display" class="hidden" style="margin-top: 10px; display: flex; gap: 15px; flex-wrap: wrap; background: #fff; padding: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <!-- 左邊：位置和氣象資訊 -->
-            <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
-             <div style="font-weight: bold; color: #2c3e50;">📍 當前位置：<span id="wx-location" style="color: #2980b9;">正在取得地點...</span></div>
-             <div>🌡️ 氣溫：<span id="wx-temp">-</span> °C</div>
-             <div>💧 濕度：<span id="wx-humidity">-</span> %</div>
-             <div>🧭 氣壓：<span id="wx-pressure">-</span> hPa</div>
-            </div>
-    
-            </div>
+    </div>
 
-            <!-- 取得失敗或無法定位時顯示的手動切換選單 -->
-            <div id="manual-location-box" style="display: none; margin-top: 12px; padding: 15px; background: #fff; border: 1px solid #f1c40f; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                <h6 style="margin-top: 0; color: #e67e22; font-size: 14px;">⚠️ 自動定位失敗或被阻擋，請選擇以下備用方式：</h6>
-                
-                <!-- 選項 A：精準 GPS -->
-                <div style="margin-bottom: 12px;">
-                    <button type="button" class="btn" style="background: #3498db; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; width: 100%; text-align: left;" onclick="requestBrowserGPS()">
-                        📍 A. 重新開啟瀏覽器精準定位 (GPS)
-                    </button>
-                </div>
-
-                <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
-
-                <!-- 選項 B：台灣縣市手動選擇 -->
-                <div>
-                    <p style="margin: 0 0 8px 0; font-size: 13px; color: #555; font-weight: bold;">B. 台灣地區手動選擇縣市：</p>
-                    <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-                        <select id="select-city" class="form-control" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-                            <option value="">請選擇縣市...</option>
-                        </select>
-                        <select id="select-district" class="form-control" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-                            <option value="">請先選擇縣市</option>
-                        </select>
-                    </div> 
-                    <button type="button" class="btn" style="background: #2ecc71; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold;" onclick="applyTaiwanManualLocation()">
-                        顯示地區氣象數據
-                    </button>
-                </div>
-            </div>
+    <!-- ✅ 氣象資料顯示區 - 白色卡片 -->
+    <div id="weather-data-display" class="hidden" style="margin-top: 12px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; background: #fff; padding: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div style="font-weight: bold; color: #2c3e50;">
+            🌡️ 氣溫：<span id="wx-temp" style="color: #e74c3c;">-</span> °C
         </div>
+        <div style="font-weight: bold; color: #2c3e50;">
+            💧 濕度：<span id="wx-humidity" style="color: #3498db;">-</span> %
+        </div>
+        <div style="font-weight: bold; color: #2c3e50;">
+            🧭 氣壓：<span id="wx-pressure" style="color: #27ae60;">-</span> hPa
+        </div>
+    </div>
+
+    <!-- ✅ 統一的選擇/變更位置面板 -->
+    <div id="manual-location-box" style="display: none; margin-top: 12px; padding: 15px; background: #fff; border: 1px solid #f1c40f; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <h6 style="margin-top: 0; color: #e67e22; font-size: 14px;">📍 選擇位置</h6>
+        
+        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
+            <select id="select-city" class="form-control" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                <option value="">請選擇縣市...</option>
+            </select>
+            <select id="select-district" class="form-control" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                <option value="">請先選擇縣市</option>
+            </select>
+        </div> 
+        <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn" style="background: #2ecc71; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; flex: 1; font-weight: bold;" onclick="applyTaiwanManualLocation()">
+                ✅ 確認更新
+            </button>
+            <button type="button" class="btn" style="background: #95a5a6; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; flex: 1;" onclick="toggleChangeLocation()">
+                ✖️ 取消
+            </button>
+        </div>
+    </div>
+</div>
         
         <!-- 手機版專用：下拉式選單切換頁簽 -->
         <select class="tabs-select-mobile" onchange="switchTab(this.value)" id="mobile-tab-select">
