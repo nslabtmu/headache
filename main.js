@@ -325,7 +325,15 @@ async function fetchIpLocation(statusEl) {
         
     } catch (err) {
         console.error("IP Location Error:", err);
-        if (statusEl) statusEl.innerText = "⚠️ 無法自動定位，請手動選擇地區";
+        if (statusEl) statusEl.innerText = "❌ 氣象資料取得失敗";
+        
+        // ✅ 改成：失敗也顯示位置卡片
+        const ipLocationDisplay = document.getElementById('ip-location-display');
+        const ipLocationName = document.getElementById('ip-location-name');
+        if (ipLocationDisplay && ipLocationName) {
+            ipLocationName.innerText = "⚠️ 無法取得氣象 - 請變更位置重試";
+            ipLocationDisplay.classList.remove('hidden');
+        } 
         // ✅ 失敗時自動展開選擇面板
         toggleChangeLocation();
         
