@@ -89,7 +89,15 @@
                 <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; height: 32px; line-height: 1;" data-i18n="logout_btn">登出</button>
             </div>
         </div>
-
+            <!-- ✅ IP 位置顯示區（取得失敗外面） -->
+    <div id="ip-location-display" class="hidden" style="margin-top: 10px; display: flex; gap: 15px; align-items: center; justify-content: space-between; background: #e3f2fd; padding: 12px; border-radius: 6px; border: 1px solid #bbdefb;">
+        <div style="font-weight: bold; color: #1565c0;">
+            📍 IP 位置：<span id="ip-location-name" style="color: #0d47a1;">取得中...</span>
+        </div>
+        <button type="button" class="btn" style="background: #95a5a6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; white-space: nowrap;" onclick="toggleChangeLocation()">
+            🔄 變更位置
+        </button>
+      </div>
         <!-- 氣象模組 -->
         <div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
             <div id="weather-status" style="font-weight: 500; font-size: 15px; color: #2c3e50;">
@@ -106,10 +114,6 @@
              <div>🧭 氣壓：<span id="wx-pressure">-</span> hPa</div>
             </div>
     
-            <!-- ✅ 右邊：變更位置按鈕 -->
-        <button type="button" class="btn" style="background: #95a5a6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; white-space: nowrap;" onclick="toggleChangeLocation()">
-            🔄 變更位置
-        </button>
             </div>
 
             <!-- 取得失敗或無法定位時顯示的手動切換選單 -->
