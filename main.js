@@ -313,18 +313,16 @@ async function fetchIpLocation(statusEl) {
         if (!res.ok) throw new Error("IP API 失敗");
         const data = await res.json();
         
-        // 使用 IP 算出的經緯度呼叫氣象 API
-       // ✅ IP 成功後也顯示手動選項（可選用）
-        showWeatherFallback("💡 或手動選擇地區更新氣象");
+        // ✅ 加上這行 - 呼叫 fetchWeather
+        await fetchWeather(data.latitude, data.longitude, "IP 定位成功");
+        
     } catch (err) {
         console.error("IP Location Error:", err);
         if (statusEl) statusEl.innerText = "❌ 定位與取得氣象資料均失敗";
-        // ✅ IP 失敗才顯示手動選項
         showWeatherFallback("⚠️ 無法自動定位，請手動選擇地區");
         locationReady = false;
     }
 }
-
 // 3. 主進入點：請求瀏覽器 GPS
 function getLocationAndWeather() {
     const statusEl = document.getElementById('weather-status');
