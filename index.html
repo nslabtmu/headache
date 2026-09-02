@@ -89,7 +89,13 @@
                 <button onclick="handleLogout()" style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; height: 32px; line-height: 1;" data-i18n="logout_btn">登出</button>
             </div>
         </div>
-            <!-- ✅ IP 位置顯示區（取得失敗外面） -->
+           
+        <!-- 氣象模組 -->
+        <div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+            <div id="weather-status" style="font-weight: 500; font-size: 15px; color: #2c3e50;">
+                ⏳ 正在取得氣象數據...
+            </div>
+ <!-- ✅ IP 位置顯示區（取得失敗外面） -->
     <div id="ip-location-display" class="hidden" style="margin-top: 10px; display: flex; gap: 15px; align-items: center; justify-content: space-between; background: #e3f2fd; padding: 12px; border-radius: 6px; border: 1px solid #bbdefb;">
         <div style="font-weight: bold; color: #1565c0;">
             📍 IP 位置：<span id="ip-location-name" style="color: #0d47a1;">取得中...</span>
@@ -98,12 +104,6 @@
             🔄 變更位置
         </button>
       </div>
-        <!-- 氣象模組 -->
-        <div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
-            <div id="weather-status" style="font-weight: 500; font-size: 15px; color: #2c3e50;">
-                ⏳ 正在取得氣象數據...
-            </div>
-
             <!-- 自動載入成功的氣象資料顯示區 -->
             <div id="weather-data-display" class="hidden" style="margin-top: 10px; display: flex; gap: 15px; flex-wrap: wrap; background: #fff; padding: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
             <!-- 左邊：位置和氣象資訊 -->
