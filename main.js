@@ -1,6 +1,7 @@
 const REQUIRE_LOCATION_FOR_SUBMIT = false;
 
 var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// 全域變數
 
 let currentWeather = null;
 let chartInstance = null;
@@ -230,9 +231,7 @@ async function saveUserProfile() {
 }
 
 // ==================== 定位與氣象資訊 API ====================
-// 全域變數
-let currentWeather = null;
-let locationReady = false;
+
 
 // 1. 取得氣象資料 (使用 Open-Meteo API)
 async function fetchWeather(lat, lon, statusMessage) {
