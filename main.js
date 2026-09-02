@@ -567,3 +567,35 @@ function toggleMedicationSection() {
   const details = document.getElementById('medication-details');
   details.style.display = select.value === 'yes' ? 'block' : 'none';
 }
+// 1. 切換主頁籤 (頭痛資料填寫 vs 趨勢圖)
+function switchMainTab(event, tabId) {
+  document.querySelectorAll('.main-tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.main-tab-btn').forEach(el => el.classList.remove('active'));
+
+  document.getElementById(tabId).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// 2. 切換次頁籤 (頭痛紀錄 vs 相關症狀 vs 健康資料)
+function switchSubTab(event, tabId) {
+  document.querySelectorAll('.sub-tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.sub-tab-btn').forEach(el => el.classList.remove('active'));
+
+  document.getElementById(tabId).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// 3. 切換帳戶選單選單開關
+function toggleAccountMenu() {
+  document.getElementById('account-menu').classList.toggle('show');
+}
+
+// 點擊空白處關閉帳戶選單
+window.onclick = function(event) {
+  if (!event.target.closest('.account-dropdown')) {
+    const menu = document.getElementById('account-menu');
+    if (menu && menu.classList.contains('show')) {
+      menu.classList.remove('show');
+    }
+  }
+}
