@@ -31,28 +31,35 @@ async function getLatLonForTaiwanDistrict(city, district) {
     try {
         if (statusEl) statusEl.innerText = `⏳ 正在查詢 ${city}${district} 座標...`;
 
-        //const query = encodeURIComponent(`${district} ${city}`);
-        // 1. 去掉結尾的「區/鄉/鎮/市」，並把「臺」轉為「台」以增加搜尋命中率
+        // 清除「區/鄉/鎮/市」後綴
         const cleanDistrict = district.replace(/(區|鄉|鎮|市)$/, '');
         const cleanCity = city.replace('臺', '台');
-
-        // 2. 組合成新的搜尋字串
         const query = encodeURIComponent(`${cleanCity} ${cleanDistrict}`);
         
         const url = `https://geocoding-api.open-meteo.com/v1/search?name=${query}&count=1&language=zh&country=TW`;
-
         const res = await fetch(url);
         const data = await res.json();
 
         if (data.results && data.results.length > 0) {
             const { latitude, longitude } = data.results[0];
-            if (typeof fetchWeather === 'function') {
-                fetchWeather(latitude, longitude, `${city}${district}`);
-            } else {
-                console.warn("fetchWeather 尚未載入，無法更新天氣資料。");
+            
+            // ✅ 關鍵：呼叫 fetchWeather 後，強制更新位置顯示
+            await fetchWeather(latitude, longitude, `${city}${district}`);
+            
+            // ✅ 修正：直接用使用者選的「縣市 - 鄉鎮」，不用 API 回傳的地名
+            const locationEl = document.getElementById('wx-location');
+            if (locationEl) {
+                locationEl.innerText = `臺灣 - ${city} - ${district} (手動選擇)`;
+            }
+            
+            // 更新 currentWeather 物件
+            if (currentWeather) {
+                currentWeather.location = `臺灣 - ${city} - ${district} (手動選擇)`;
+                currentWeather.city = city;
+                currentWeather.district = district;
             }
         } else {
-            // 部分偏遠鄉鎮可能查不到，改用「僅縣市」再查一次作為備援
+            // 備援：用僅縣市再查一次
             const fallbackQuery = encodeURIComponent(city);
             const fallbackUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${fallbackQuery}&count=1&language=zh&country=TW`;
             const fallbackRes = await fetch(fallbackUrl);
@@ -60,9 +67,7 @@ async function getLatLonForTaiwanDistrict(city, district) {
 
             if (fallbackData.results && fallbackData.results.length > 0) {
                 const { latitude, longitude } = fallbackData.results[0];
-                if (typeof fetchWeather === 'function') {
-                    fetchWeather(latitude, longitude, `${city}${district}`);
-                }
+                await fetchWeather(latitude, longitude, `${city}${district}`);
             } else {
                 if (statusEl) statusEl.innerText = `⚠️ 查無 ${city}${district} 的座標，請改用 GPS 定位`;
             }
