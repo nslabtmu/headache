@@ -385,13 +385,32 @@
     <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: relative;">
         <canvas id="painChart" style="max-height: 400px;"></canvas>
     </div>
+
+<div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+  <!-- 第一層：症狀類別選單 -->
+  <label for="categorySelect">類別：</label>
+  <select id="categorySelect" onchange="onCategoryChange()">
+    <option value="all">全部症狀</option>
+    <option value="digestive">消化系統</option>
+    <option value="sensory">感官與神經</option>
+    <option value="other">其他感受</option>
+  </select>
+
+  <!-- 第二層：具體症狀選單 -->
+  <label for="symptomSelect">症狀：</label>
+  <select id="symptomSelect" onchange="updateSymptomMetric()">
+    <!-- 由 JS 動態繪製 -->
+  </select>
+</div>
+    
+    
 </div>
         <!-- ==================== 主頁籤 3: 衛教新知 ==================== -->
 <div id="pane-info" class="tab-pane">
             <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">衛教</h3>
     <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
         <p>頭痛相關衛教資訊內容...</p>
-        <a href="https://www.nhi.gov.tw/ch/cp-2782-dfe08-2951-1.html">中央健康保險署</a>
+        <p></p><a href="https://www.nhi.gov.tw/ch/cp-2782-dfe08-2951-1.html">中央健康保險署</a></p>
         <a href="https://shh.tmu.edu.tw/page/HealthDetail.aspx?deptCode=07&seqNo=20230406135539499401">雙和衛教內容</a>
     </div>
     </div>    
