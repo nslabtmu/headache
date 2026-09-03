@@ -622,6 +622,13 @@ function switchTab(tabId) {
   if (mobileSelect) {
     mobileSelect.value = tabId;
   }
+    
+  // ✅ 新增：切到趨勢圖分頁時，才真正畫圖（這時候畫布才是可見的正確尺寸）
+  if (tabId === 'pane-chart') {
+    const { data: { user } } = await supabase.auth.getUser(); // 見下方註記
+    if (user) loadUserHistory(user.id);
+  }
+}
 }
 
 
