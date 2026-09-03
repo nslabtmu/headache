@@ -592,7 +592,7 @@ function switchTab(event, tabId, contentClass = 'tab-pane', buttonClass = 'tab-b
   }
 }*/
 
-function switchTab(tabId) {
+async function switchTab(tabId) {
   const targetPane = document.getElementById(tabId);
   if (!targetPane) return;
 
