@@ -312,7 +312,7 @@
 // ==========================================
 
 // ✅ 全域圖表實例
-let chartInstance = null;
+//let chartInstance = null;
 
 // ✅ 症狀資料庫定義（可自由新增/改名，或新增類別 category 作為城鄉連動使用）
 const SYMPTOM_DEFINITIONS = [
