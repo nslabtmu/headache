@@ -520,13 +520,7 @@ input[type="range"] {
         padding: 24px;
     }
 
-/*    .tabs-select-mobile {
-        display: none !important;
-    }
 
-    .tabs {
-        display: flex !important;
-    }*/
 }
 
 /* ==================== 15. 媒體查詢 - 平板大 (768px+) ==================== */
@@ -634,32 +628,8 @@ input[type="range"] {
         color: var(--color-text-main);
     }
 
-    /* Tab 按鈕 */
-/* ✅ 統一定義 
-.tab-btn {
-    padding: 10px 16px;
-    border: none;
-    background: #ecf0f1;
-    color: #555;
-    cursor: pointer;
-    border-radius: 6px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    font-size: 14px;
-    min-height: 40px;
-}
 
-.tab-btn:hover {
-    background: #bdc3c7;
-}
 
-.tab-btn.active {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    color: white;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-}
-*/
 /* ✅ 深色模式只改顏色
 @media (prefers-color-scheme: dark) {
     .tab-btn {
@@ -770,58 +740,13 @@ input[type="range"] {
 /* ========== 手機版頁籤樣式增強 ========== */
 
 /* 手機下拉選單 */
-.tabs-select-mobile {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: 2px solid #3498db;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    font-size: 16px;
-    font-weight: bold;
-    color: #1565c0;
-    cursor: pointer;
-}
 
 .tabs-select-mobile:focus {
     outline: none;
     box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
 }
 
-/* 桌面版頁籤按鈕 */
-.tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    border-bottom: 3px solid #ecf0f1;
-    padding-bottom: 10px;
-}
 
-.tab-btn {
-    padding: 10px 16px;
-    border: none;
-    background: #ecf0f1;
-    color: #555;
-    cursor: pointer;
-    border-radius: 6px 6px 0 0;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    font-size: 14px;
-}
-
-.tab-btn:hover {
-    background: #bdc3c7;
-    transform: translateY(-2px);
-}
-
-/* ✅ 當前頁籤高亮 */
-.tab-btn.active {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    color: white;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-}
 .sub-field {
   display: flex;
   flex-direction: column;
