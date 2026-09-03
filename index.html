@@ -80,7 +80,7 @@
    -->
 <div id="account-menu" class="dropdown-menu">
   <!-- 1. 切換至個人資料頁籤 -->
-  <a href="javascript:void(0)" class="dropdown-item" onclick="switchTab('profile'); toggleAccountMenu();">👤 個人資料設定</a>
+  <a href="javascript:void(0)" class="dropdown-item" onclick="switchTab(event, 'pane-profile'); toggleAccountMenu();">👤 個人資料設定</a>
   <a href="javascript:void(0)" class="dropdown-item" onclick="openDisclaimerModal(); toggleAccountMenu();">⚠️ 免責聲明</a>
     <!-- 2. 重新開啟同意書頁面 -->
   <a href="javascript:void(0)" class="dropdown-item" onclick="resetConsent(); toggleAccountMenu();">📄 重填同意書</a>
@@ -98,8 +98,8 @@
 </header>
 <!-- [主頁籤 Main Tabs] -->
         <div class="main-tabs" style="display: flex; gap: 10px; margin-bottom: 20px;">
-            <button type="button" class="tab-btn active" id="btn-main-form" onclick="switchMainTab('form')" style="flex: 1; padding: 12px; font-weight: bold;">📝 頭痛資料填寫</button>
-            <button type="button" class="tab-btn" id="btn-main-chart" onclick="switchMainTab('chart')" style="flex: 1; padding: 12px; font-weight: bold;">📊 趨勢圖</button>
+            <button type="button" class="tab-btn active" id="btn-main-form" onclick="switchTab(event, 'pane-headache')" style="flex: 1; padding: 12px; font-weight: bold;">📝 頭痛資料填寫</button>
+            <button type="button" class="tab-btn" id="btn-main-chart" onclick="switchTab(event, 'pane-chart')" style="flex: 1; padding: 12px; font-weight: bold;">📊 趨勢圖</button>
         </div>
         <!-- ==================== 主頁籤 1: 頭痛資料填寫 ==================== -->
         <div id="main-tab-form">
