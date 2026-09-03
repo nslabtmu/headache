@@ -601,7 +601,35 @@ function renderChart() {
 function updateSymptomMetric() {
     renderChart();
 }
+/**
+ * 開啟 Supabase 即時監聽 (Realtime)
+ */
+function setupRealtimeListener(userId) {
+    supabase
+        .channel('user_data_changes')
+        .on(
+            'postgres_changes',
+            {
+                event: 'UPDATE', // 監聽資料更新事件
+                schema: 'public',
+                table: 'user_data',
+                filter: `user_id=eq.${userId}`
+            },
+            (payload) => {
+                console.log('收到 Supabase 資料更新通知 (氣象已補入):', payload.new);
+                
+                // 收到新氣象後，重新載入歷史紀錄並更新 figure.js 的圖表
+                window.loadUserHistory(userId);
+            }
+        )
+        .subscribe();
+}
 
+// 頁面載入時啟動監聽
+document.addEventListener('DOMContentLoaded', () => {
+    const currentUserId = 'YOUR_USER_ID';
+    setupRealtimeListener(currentUserId);
+});
 // 掛載至 window 供外部 HTML 綁定呼叫
 window.loadUserHistory = loadUserHistory;
 window.updateSymptomMetric = updateSymptomMetric;
