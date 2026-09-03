@@ -427,3 +427,84 @@ function getTaiwanDistrictCoord(city, district) {
     if (!coords) return null;
     return { lat: coords[0], lon: coords[1] };
 }
+
+// ==================== 縣市 / 鄉鎮下拉選單清單 ====================
+// 直接沿用 taiwanDistrictCoords 的 key 當選單選項，
+// 只維護一份資料，避免跟座標表脫節。
+function getDistrictListByCity(city) {
+    const normalizedCity = normalizeCountyName(city);
+    const districts = taiwanDistrictCoords[normalizedCity];
+    return districts ? Object.keys(districts) : [];
+}
+
+// ==================== 依縣市/鄉鎮查詢座標並更新天氣 ====================
+// 查詢本地座標表（上面 taiwanDistrictCoords），不打外部地理編碼 API：
+// - 不依賴外部服務穩定性、沒有查詢額度限制
+// - 座標是依官方行政區界線算出的代表點，保證落在正確行政區內
+async function getLatLonForTaiwanDistrict(city, district) {
+    const statusEl = document.getElementById('weather-status');
+    if (statusEl) statusEl.innerText = `⏳ 正在查詢 ${city}${district} 座標...`;
+
+    const coord = getTaiwanDistrictCoord(city, district);
+
+    if (!coord) {
+        if (statusEl) statusEl.innerText = `⚠️ 查無 ${city}${district} 的座標資料，請改用 GPS 定位`;
+        throw new Error(`找不到 ${city}${district} 的座標資料`);
+    }
+
+    await fetchWeather(coord.lat, coord.lon, `${city}${district}`);
+
+    if (currentWeather) {
+        currentWeather.location = `臺灣 - ${city} - ${district} (手動選擇)`;
+        currentWeather.city = city;
+        currentWeather.district = district;
+    }
+}
+
+// ==================== 初始化下拉選單邏輯（單一入口，避免重複註冊） ====================
+function initDistrictSelector() {
+    const citySelect = document.getElementById('select-city');
+    const districtSelect = document.getElementById('select-district');
+    if (!citySelect || !districtSelect) return;
+
+    // ✅ 防止重複初始化：toggleChangeLocation() 每次打開面板都會呼叫這個函式，
+    //    如果不擋，縣市選項就會一直重複疊加。
+    if (citySelect.dataset.initialized === 'true') return;
+    citySelect.dataset.initialized = 'true';
+
+    // 1. 動態填充「縣市」選單
+    Object.keys(taiwanDistrictCoords).forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+    });
+
+    // 2. 監聽「縣市」改變事件，動態更新「鄉鎮」選單
+    citySelect.addEventListener('change', (e) => {
+        const selectedCity = e.target.value;
+        districtSelect.innerHTML = '<option value="">-- 請選擇鄉鎮市區 --</option>';
+
+        const districts = getDistrictListByCity(selectedCity);
+        if (districts.length > 0) {
+            districts.forEach(district => {
+                const option = document.createElement('option');
+                option.value = district;
+                option.textContent = district;
+                districtSelect.appendChild(option);
+            });
+            districtSelect.disabled = false;
+        } else {
+            districtSelect.disabled = true;
+        }
+    });
+
+    // ✅ 鄉鎮下拉選單只負責「選擇」，不在此觸發查詢，
+    //    避免跟「確認更新」按鈕（applyTaiwanManualLocation）重複打兩次。
+    //    實際查詢統一由 applyTaiwanManualLocation() → getLatLonForTaiwanDistrict() 觸發。
+}
+
+// ✅ 頁面載入完成後初始化一次即可
+// （main.js 的 toggleChangeLocation() 之後即使再呼叫 initDistrictSelector()，
+//   也會因為上面的 dataset.initialized 防呆而不會重複執行）
+document.addEventListener('DOMContentLoaded', initDistrictSelector);
