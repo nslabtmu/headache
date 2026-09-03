@@ -527,7 +527,7 @@ function switchTab(event, tabId, contentClass = 'tab-pane', buttonClass = 'tab-b
         event.currentTarget.classList.add('active');
     }
 }*/
-/**
+
  function switchTab(tabId) {
     // 1. 隱藏所有分頁內容
     document.querySelectorAll('.tab-pane').forEach(pane => {
