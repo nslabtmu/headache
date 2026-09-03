@@ -101,6 +101,7 @@
 <div class="main-tabs">
     <button onclick="switchTab(event, 'pane-form')">📝 頭痛資料填寫</button>
     <button onclick="switchTab(event, 'pane-chart')">📊 趨勢圖</button>
+    <button onclick="switchTab(event, 'pane-info')">新知</button>
 </div>
         <!-- ==================== 主頁籤 1: 頭痛資料填寫 ==================== -->
 
@@ -374,7 +375,13 @@
                 <canvas id="painChart"></canvas>
             </div>
         </div>
-
+        <!-- ==================== 主頁籤 3: 衛教新知 ==================== -->
+        <div id="main-tab-chart" class="hidden">
+            <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">衛教</h3>
+            <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <canvas id="??"></canvas>
+            </div>
+        </div>
 </div>
 </form>
 <!-- 免責聲明彈窗 Modal -->
