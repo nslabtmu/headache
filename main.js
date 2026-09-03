@@ -97,7 +97,9 @@ function showMainApp(user) {
     const mainCard = document.getElementById('main-card');
     if (mainCard) mainCard.classList.remove('hidden');
 
-    switchTab('headache');
+    switchTab('pane-form');
+    // ✅ 再顯示次頁籤（頭痛）
+    switchTab('pane-headache');
 
     const userEmailText = document.getElementById('user-email-text');
     const userEmail = document.getElementById('user-email');
