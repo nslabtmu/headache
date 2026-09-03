@@ -102,9 +102,11 @@
             <button type="button" class="tab-btn" id="btn-main-chart" onclick="switchTab(event, 'pane-chart')" style="flex: 1; padding: 12px; font-weight: bold;">📊 趨勢圖</button>
         </div>
         <!-- ==================== 主頁籤 1: 頭痛資料填寫 ==================== -->
+
         <div id="main-tab-form">
   <!-- 氣象模組 - 最新版：IP位置 + 氣象 + 統一的變更位置面板 -->
-<div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+<form id="attack-form" onsubmit="event.preventDefault(); saveFullRecord();">
+    <div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
     <!-- ==================== 1. 地理位置卡片 ==================== -->
     <div id="location-card" style="background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb;">
     <div id="weather-status" style="font-weight: 500; font-size: 15px; color: #2c3e50;">
@@ -235,8 +237,6 @@
 </select>
 
 <!-- 被控制顯示/隱藏的區塊 -->
-<div id="medication-details" style="display: none;">
-</div>
   <!-- 服藥詳細資訊區塊 -->
                         <div id="medication-details" style="display: none; margin-top: 16px;">
                             <div class="sub-field">
