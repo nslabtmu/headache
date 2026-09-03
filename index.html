@@ -108,7 +108,7 @@
         <!-- ==================== 主頁籤 1: 頭痛資料填寫 ==================== -->
 
   <!-- 氣象模組 - 最新版：IP位置 + 氣象 + 統一的變更位置面板 -->
-<form id="pane-form" onsubmit="event.preventDefault(); saveFullRecord();">
+<div id="pane-form" class="tab-pane"> <!--<form id="pane-form" onsubmit="event.preventDefault(); saveFullRecord();"> -->
     <div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
     <!-- ==================== 1. 地理位置卡片 ==================== -->
     <div id="location-card" style="background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb;">
@@ -142,7 +142,7 @@
                 ✖️ 取消
             </button>
         </div>
-    </div>
+      </div>
     </div>    
     <!-- ==================== 2. 氣象資料卡片 ==================== -->
     <div id="weather-card" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
@@ -161,9 +161,10 @@
             🧭 氣壓：<span id="wx-pressure" style="color: #27ae60; font-size: 16px; font-weight: bold;">-</span><span style="color: #7f8c8d;">hPa</span>
         </div>
     </div>
-</div>
-</div>
-
+  </div>
+</div><!-- ✅ 天氣區塊結束 -->
+<!-- 表單內容區域 -->
+    <form id="attack-form" onsubmit="event.preventDefault(); saveFullRecord();">
             <!-- [次頁籤 Sub-Tabs] -->
             <div class="tabs sub-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
                 <button type="button" class="tab-btn active" id="btn-tab-headache" onclick="switchTab(event, 'pane-headache')" data-i18n="tab_headache">🤕 頭痛</button>
@@ -179,8 +180,8 @@
             </select>
     <!-- 次頁籤 1：頭痛紀錄 -->
             <div id="pane-headache" class="tab-pane">
-  <div class="headache-container">
-    <h2 class="section-title">🩹 頭痛記錄與症狀評估</h2>
+              <div class="headache-container">
+                <h2 class="section-title">🩹 頭痛記錄與症狀評估</h2>
     
     <!-- 1. 疼痛程度選擇 -->
     <div class="form-card">
@@ -195,8 +196,8 @@
         max="10" 
         value="5" 
         class="range-slider"
-        oninput="document.getElementById('pain-val-display').innerText = this.value"
-      />
+        oninput="document.getElementById('pain-val-display').innerText = this.value" />
+        
       <div class="slider-labels">
         <span>微痛</span>
         <span>中度</span>
@@ -268,7 +269,7 @@
                                 </select>
                             </div>
                         </div>
-</div>
+                    </div>
     <!-- 4. 補充備註 -->
     <div class="form-card">
       <label for="input-content" class="card-label">詳細備註或特殊狀況</label>
@@ -278,8 +279,8 @@
                 <div class="button-group">
                 <button type="button" class="btn" onclick="navigate(1)">下一頁</button>
                 </div>
-  </div>
-</div>
+              </div>
+            </div>
     <!-- 次頁籤 2：相關症狀 -->
                 <div id="pane-symptom" class="tab-pane hidden">
                     <div class="form-group"><label data-i18n="sym_1">1. 持續性頭痛</label><div class="slider-container"><input type="range" name="sym1" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
@@ -368,7 +369,7 @@
                     <button type="button" class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
                 </div>
          </form>
-            
+        </div> <!-- ✅ 主頁籤 1 結束 -->
             <!-- ==================== 主頁籤 2: 趨勢圖 ==================== -->
         <div id="pane-chart" class="tab-pane hidden">
             <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">📈 頭痛指數與發作頻率趨勢圖</h3>
@@ -384,8 +385,7 @@
         <!-- 可以放文字、圖片或其他內容 -->
     </div>
         
-</div>
-</div>
+
 <!-- 免責聲明彈窗 Modal -->
 <div id="disclaimer-modal" class="modal-overlay hidden" onclick="closeDisclaimerModal(event)">
   <div class="modal-card" onclick="event.stopPropagation()">
