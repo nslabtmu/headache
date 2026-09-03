@@ -99,9 +99,9 @@
 
 <!-- 主頁籤按鈕 -->
 <div class="main-tabs">
-    <button class="tab-btn active" onclick="switchTab(event, 'pane-form')">📝 頭痛資料填寫</button>
+    <button class="tab-btn active" onclick="switchTab(event, 'pane-form')">📝 記錄區</button>
     <button class="tab-btn" onclick="switchTab(event, 'pane-chart')">📊 趨勢圖</button>
-    <button class="tab-btn" onclick="switchTab(event, 'pane-info')">新知</button>
+    <button class="tab-btn" onclick="switchTab(event, 'pane-info')">新知區</button>
 </div>
         <!-- ==================== 主頁籤 1: 頭痛資料填寫 ==================== -->
 
@@ -173,7 +173,7 @@
 
             <!-- 手機版專用切換選單 -->
             <select class="tabs-select-mobile" id="mobile-tab-select" onchange="handleMobileTabChange(this.value)">
-                <option value="headache" data-i18n="tab_headache">🤕 頭痛紀錄</option>
+                <option value="headache" data-i18n="tab_headache">🤕 頭痛</option>
                 <option value="symptom" data-i18n="tab_symptom">📝 相關症狀</option>
                 <option value="band" data-i18n="tab_band">⌚ 健康資料</option>
             </select>
