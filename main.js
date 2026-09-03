@@ -528,68 +528,35 @@ function switchTab(event, tabId, contentClass = 'tab-pane', buttonClass = 'tab-b
     }
 }*/
 /**
- * 統一頁籤切換函式
- * @param {Event|string} target - 可傳入 DOM Event 或 頁籤名稱/ID (例如: 'headache' 或 'pane-headache')
- * @param {string} [explicitTabId] - 可選，若第一個參數為 Event，此參數代表目標 DOM ID
- * @param {string} [contentClass='tab-pane'] - 頁籤內容區塊的 CSS class
- * @param {string} [buttonClass='tab-btn'] - 頁籤按鈕的 CSS class
- */
-function switchTab(target, explicitTabId, contentClass = 'tab-pane', buttonClass = 'tab-btn') {
-    let tabKey = '';
-    let eventObj = null;
-
-    // 1. 解析傳入參數，判斷呼叫型態
-    if (target && typeof target === 'object' && target.preventDefault) {
-        // 型態 A: switchTab(event, 'pane-headache') 或 switchTab(event, 'headache')
-        eventObj = target;
-        tabKey = explicitTabId;
-    } else if (typeof target === 'string') {
-        // 型態 B: switchTab('headache') 或 switchTab('pane-headache')
-        tabKey = target;
-    } else if (explicitTabId && typeof explicitTabId === 'string') {
-        tabKey = explicitTabId;
-    }
-
-    if (!tabKey) return;
-
-    // 2. 格式化識別碼 (確保格式為 'pane-xxx' 與單純的 'xxx' 兩種 Key)
-    const cleanKey = tabKey.replace(/^pane-/, '');
-    const targetPaneId = `pane-${cleanKey}`;
-
-    // 3. 隱藏所有頁籤內容，並顯示目標頁籤
-    document.querySelectorAll(`.${contentClass}`).forEach(el => {
-        el.classList.add('hidden');
-        el.classList.remove('active');
+ function switchTab(tabId) {
+    // 1. 隱藏所有分頁內容
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.classList.remove('active');
     });
 
-    const targetPane = document.getElementById(targetPaneId) || document.getElementById(tabKey);
+    // 2. 取消所有按鈕的 active 狀態
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // 3. 顯示目標分頁內容
+    const targetPane = document.getElementById(tabId);
     if (targetPane) {
-        targetPane.classList.remove('hidden');
         targetPane.classList.add('active');
     }
 
-    // 4. 更新按鈕高亮狀態 (UI 狀態同步)
-    document.querySelectorAll(`.${buttonClass}`).forEach(btn => {
-        btn.classList.remove('active');
-        
-        // 自動判斷點擊事件或比對按鈕的 data/onclick 屬性
-        if (eventObj && eventObj.currentTarget && btn === eventObj.currentTarget) {
-            btn.classList.add('active');
-        } else {
-            const btnOnClick = btn.getAttribute('onclick') || '';
-            const btnDataTab = btn.getAttribute('data-tab') || '';
-            if (btnDataTab === cleanKey || btnOnClick.includes(`'${cleanKey}'`) || btnOnClick.includes(`'${targetPaneId}'`)) {
-                btn.classList.add('active');
-            }
-        }
-    });
+    // 4. 高亮對應按鈕（同步桌機版與手機版）
+    const targetBtn = document.querySelector(`.tab-btn[onclick*="${tabId}"]`);
+    if (targetBtn) {
+        targetBtn.classList.add('active');
+    }
 
-    // 5. 若切換至圖表頁 (pane-chart)，自動觸發圖表載入/繪製
-    if (cleanKey === 'chart' && typeof renderUserChart === 'function') {
-        renderUserChart();
+    // 5. 同步手機版 Select 選項
+    const selectMobile = document.getElementById('mobile-tab-select');
+    if (selectMobile) {
+        selectMobile.value = tabId;
     }
 }
-
 
 // 3. 切換帳戶選單開關
 function toggleAccountMenu() {
