@@ -625,7 +625,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+// 免責聲明
+function openDisclaimerModal() {
+    const modal = document.getElementById('disclaimer-modal');
+    if (modal) modal.classList.remove('hidden');
+}
 
+function closeDisclaimerModal() {
+    const modal = document.getElementById('disclaimer-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+// 記得掛載至 window
+window.openDisclaimerModal = openDisclaimerModal;
+window.closeDisclaimerModal = closeDisclaimerModal;
 // 6. 全域掛載，確保 HTML onclick 可以順利呼叫
 window.switchMainTab = switchMainTab;
 window.switchSubTab = switchSubTab;
