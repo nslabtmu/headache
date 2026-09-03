@@ -431,6 +431,8 @@ async function saveAllResearchData() {
     let painScore = 0;
     let medicationUsed = false;
     let medicationName = '';
+    let medicationCategories = []; // ✅ 提前在最外層宣告
+    let medicationEffect = '';     // ✅ 提前在最外層宣告
     let notes = '';
     
     const headacheIframe = document.querySelector('#pane-headache iframe');
@@ -442,17 +444,21 @@ async function saveAllResearchData() {
         medicationName = document.getElementById('input-medication-name')?.value || '';
         notes = document.getElementById('input-content')?.value || '';
 
-        const medicationCategories = Array.from(
+        medicationCategories = Array.from(
         document.querySelectorAll('input[name="med-category"]:checked')
         ).map(cb => cb.value);
-
-        const medicationEffect = document.getElementById('input-medication-effect')?.value || '';
+         medicationEffect = document.getElementById('input-medication-effect')?.value || '';
     } else {
         painLocations = Array.from(document.querySelectorAll('input[name="pain_location"]:checked')).map(cb => cb.value);
         painScore = Number(document.getElementById('input-pain')?.value || 0);
         medicationUsed = document.getElementById('input-medication')?.value === 'yes';
         medicationName = document.getElementById('input-medication-name')?.value || '';
         notes = document.getElementById('input-content')?.value || '';
+    // ✅ else 區塊也補上取得藥物分類與效果的邏輯
+        medicationCategories = Array.from(
+            document.querySelectorAll('input[name="med-category"]:checked')
+        ).map(cb => cb.value);
+        medicationEffect = document.getElementById('input-medication-effect')?.value || '';
     }
     
     const headacheData = {
