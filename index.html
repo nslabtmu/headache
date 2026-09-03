@@ -105,6 +105,8 @@
         <div id="main-tab-form">
   <!-- 氣象模組 - 最新版：IP位置 + 氣象 + 統一的變更位置面板 -->
 <div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
+    <!-- ==================== 1. 地理位置卡片 ==================== -->
+    <div id="location-card" style="background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb;">
     <div id="weather-status" style="font-weight: 500; font-size: 15px; color: #2c3e50;">
         ⏳ 正在取得地理位置與氣象數據...
     </div>
@@ -118,20 +120,6 @@
             🔄 變更位置
         </button>
     </div>
-
-    <!-- ✅ 氣象資料顯示區 - 白色卡片 -->
-    <div id="weather-data-display" class="hidden" style="margin-top: 12px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; background: #fff; padding: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-       <div style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: #2c3e50; font-size: 14px;">
-            🌡️ 氣溫：<span id="wx-temp" style="color: #e74c3c; font-size: 16px; font-weight: bold;">-</span><span style="color: #7f8c8d;">°C</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: #2c3e50; font-size: 14px;">
-            💧 濕度：<span id="wx-humidity" style="color: #3498db; font-size: 16px; font-weight: bold;">-</span><span style="color: #7f8c8d;">%</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: #2c3e50; font-size: 14px;">
-            🧭 氣壓：<span id="wx-pressure" style="color: #27ae60; font-size: 16px; font-weight: bold;">-</span><span style="color: #7f8c8d;">hPa</span>
-        </div>
-    </div>
-
     <!-- ✅ 統一的選擇/變更位置面板 -->
     <div id="manual-location-box" style="display: none; margin-top: 12px; padding: 15px; background: #fff; border: 1px solid #f1c40f; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
         <h6 style="margin-top: 0; color: #e67e22; font-size: 14px;">📍 選擇位置</h6>
@@ -153,6 +141,24 @@
             </button>
         </div>
     </div>
+        
+    <!-- ==================== 2. 氣象資料卡片 ==================== -->
+    <div id="weather-card" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
+        <div style="font-weight: bold; font-size: 14px; color: #2c3e50; margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
+            🌤️ 即時氣象環境數據
+        </div><!-- ✅ 氣象資料顯示區 - 白色卡片 -->
+    <div id="weather-data-display" class="hidden" style="margin-top: 12px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; background: #fff; padding: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+       <div style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: #2c3e50; font-size: 14px;">
+            🌡️ 氣溫：<span id="wx-temp" style="color: #e74c3c; font-size: 16px; font-weight: bold;">-</span><span style="color: #7f8c8d;">°C</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: #2c3e50; font-size: 14px;">
+            💧 濕度：<span id="wx-humidity" style="color: #3498db; font-size: 16px; font-weight: bold;">-</span><span style="color: #7f8c8d;">%</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: #2c3e50; font-size: 14px;">
+            🧭 氣壓：<span id="wx-pressure" style="color: #27ae60; font-size: 16px; font-weight: bold;">-</span><span style="color: #7f8c8d;">hPa</span>
+        </div>
+    </div>
+</div>
 </div>
             <!-- [次頁籤 Sub-Tabs] -->
             <div class="tabs sub-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
