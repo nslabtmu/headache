@@ -57,7 +57,7 @@
     </div>
 
 <!-- 3. 主系統卡片 -->
-    <div class="card card-left hidden" id="main-card">
+ <div class="card card-left hidden" id="main-card">
         
         <!-- [頂部欄 Header] 乾淨大標 + 右側控制 -->
         <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #eee;">
@@ -97,6 +97,8 @@
   </div>
 </header>
 
+
+     
 <!-- 主頁籤按鈕 -->
 <div class="main-tabs">
     <button class="tab-btn active" onclick="switchTab(event, 'pane-form')">📝 記錄區</button>
@@ -141,7 +143,7 @@
             </button>
         </div>
     </div>
-        
+    </div>    
     <!-- ==================== 2. 氣象資料卡片 ==================== -->
     <div id="weather-card" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
         <div id="weather-status" style="font-weight: 500; font-size: 15px; color: #2c3e50;">
@@ -161,7 +163,7 @@
     </div>
 </div>
 </div>
-    </div>
+
             <!-- [次頁籤 Sub-Tabs] -->
             <div class="tabs sub-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
                 <button type="button" class="tab-btn active" id="btn-tab-headache" onclick="switchTab(event, 'pane-headache')" data-i18n="tab_headache">🤕 頭痛</button>
@@ -365,7 +367,6 @@
                     <button type="button" class="btn" id="saveProfileBtn" onclick="saveUserProfile()" data-i18n="save_profile_btn">儲存</button>
                     <button type="button" class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
                 </div>
-            </div>
          </form>
             
             <!-- ==================== 主頁籤 2: 趨勢圖 ==================== -->
@@ -384,7 +385,7 @@
     </div>
         
 </div>
-
+</div>
 <!-- 免責聲明彈窗 Modal -->
 <div id="disclaimer-modal" class="modal-overlay hidden" onclick="closeDisclaimerModal(event)">
   <div class="modal-card" onclick="event.stopPropagation()">
