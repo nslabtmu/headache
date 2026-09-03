@@ -418,9 +418,15 @@ async function saveAllResearchData() {
         const iframeDoc = headacheIframe.contentDocument;
         painLocations = Array.from(iframeDoc.querySelectorAll('input[name="pain_location"]:checked')).map(cb => cb.value);
         painScore = Number(iframeDoc.getElementById('input-pain')?.value || 0);
-        medicationUsed = iframeDoc.getElementById('input-medication')?.value === 'yes';
-        medicationName = iframeDoc.getElementById('input-medication-name')?.value || '';
-        notes = iframeDoc.getElementById('input-content')?.value || '';
+        medicationUsed = document.getElementById('input-medication')?.value === 'yes';
+        medicationName = document.getElementById('input-medication-name')?.value || '';
+        notes = document.getElementById('input-content')?.value || '';
+
+        const medicationCategories = Array.from(
+        document.querySelectorAll('input[name="med-category"]:checked')
+        ).map(cb => cb.value);
+
+        const medicationEffect = document.getElementById('input-medication-effect')?.value || '';
     } else {
         painLocations = Array.from(document.querySelectorAll('input[name="pain_location"]:checked')).map(cb => cb.value);
         painScore = Number(document.getElementById('input-pain')?.value || 0);
@@ -434,6 +440,8 @@ async function saveAllResearchData() {
         locations: painLocations,
         medication_used: medicationUsed,
         medication_name: medicationName,
+        medication_categories: medicationCategories,   // 新增
+        medication_effect: medicationEffect,
         notes: notes
     };
 
