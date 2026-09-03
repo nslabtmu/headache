@@ -162,9 +162,9 @@
 </div>
             <!-- [次頁籤 Sub-Tabs] -->
             <div class="tabs sub-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
-                <button type="button" class="tab-btn active" id="btn-tab-headache" onclick="switchTab('headache')" data-i18n="tab_headache">🤕 頭痛紀錄</button>
-                <button type="button" class="tab-btn" id="btn-tab-symptom" onclick="switchTab('symptom')" data-i18n="tab_symptom">📝  相關症狀</button>
-                <button type="button" class="tab-btn" id="btn-tab-band" onclick="switchTab('band')" data-i18n="tab_band">⌚ 健康資料</button>
+                <button type="button" class="tab-btn active" id="btn-tab-headache" onclick="switchTab(event, 'pane-headache')" data-i18n="tab_headache">🤕 頭痛紀錄</button>
+                <button type="button" class="tab-btn" id="btn-tab-symptom" onclick="switchTab(event, 'pane-symptom')" data-i18n="tab_symptom">📝  相關症狀</button>
+                <button type="button" class="tab-btn" id="btn-tab-band" onclick="switchTab(event, 'pane-band')" data-i18n="tab_band">⌚ 健康資料</button>
             </div>
 
             <!-- 手機版專用切換選單 -->
@@ -296,8 +296,8 @@
                         <textarea id="triggers" name="triggers" rows="3" placeholder="請描述使您感到不舒服的活動或環境..."></textarea>
                     </div>
                     <div class="button-group" style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button type="button" class="btn" onclick="switchTab('headache')">⬅️ 上一步</button>
-                        <button type="button" class="btn" onclick="switchTab('band')">下一步：健康資料 ➔</button>
+                        <button type="button" class="btn" onclick="switchTab(event, 'pane-headache')">⬅️ 上一步</button>
+                        <button type="button" class="btn" onclick="switchTab(event, 'pane-band')">下一步：健康資料 ➔</button>
                     </div>
                 </div>
 
@@ -320,7 +320,7 @@
                         <input type="number" id="band_avg_steps" placeholder="例如: 7200">
                     </div>
                     <div class="button-group" style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button type="button" class="btn" onclick="switchTab('symptom')">⬅️ 上一步</button>
+                        <button type="button" class="btn" onclick="switchTab(event, 'pane-symptom')">⬅️ 上一步</button>
                         <button type="button" class="btn" style="background:#27ae60; color:white;" onclick="saveFullRecord()">💾 儲存當前紀錄</button>
                     </div>
                 </div>
