@@ -528,36 +528,35 @@ function switchTab(event, tabId, contentClass = 'tab-pane', buttonClass = 'tab-b
     }
 }*/
 
- function switchTab(tabId) {
-    // 1. 隱藏所有分頁內容
-    document.querySelectorAll('.tab-pane').forEach(pane => {
-        pane.classList.remove('active');
-    });
+function switchTab(tabId) {
+  // 1. 隐藏所有分頁 - 移除 active class
+  document.querySelectorAll('.tab-pane').forEach(pane => {
+    pane.classList.remove('active');
+  });
 
-    // 2. 取消所有按鈕的 active 狀態
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
+  // 2. 取消所有按鈕的 active 狀態
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
 
-    // 3. 顯示目標分頁內容
-    const targetPane = document.getElementById(tabId);
-    if (targetPane) {
-        targetPane.classList.add('active');
-    }
+  // 3. 顯示目標分頁 - 新增 active class
+  const targetPane = document.getElementById(tabId);
+  if (targetPane) {
+    targetPane.classList.add('active');
+  }
 
-    // 4. 高亮對應按鈕（同步桌機版與手機版）
-    const targetBtn = document.querySelector(`.tab-btn[onclick*="${tabId}"]`);
-    if (targetBtn) {
-        targetBtn.classList.add('active');
-    }
+  // 4. 高亮對應按鈕 - 用 data-tab 屬性代替複雜選擇器
+  const targetBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  if (targetBtn) {
+    targetBtn.classList.add('active');
+  }
 
-    // 5. 同步手機版 Select 選項
-    const selectMobile = document.getElementById('mobile-tab-select');
-    if (selectMobile) {
-        selectMobile.value = tabId;
-    }
+  // 5. 同步手機版 Select（如果需要）
+  const selectMobile = document.getElementById('mobile-tab-select');
+  if (selectMobile) {
+    selectMobile.value = tabId;
+  }
 }
-
 // 3. 切換帳戶選單開關
 function toggleAccountMenu() {
   const menu = document.getElementById('account-menu');
