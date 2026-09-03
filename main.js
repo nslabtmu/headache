@@ -528,6 +528,16 @@ function switchTab(event, tabId, contentClass = 'tab-pane', buttonClass = 'tab-b
     if (event && event.currentTarget) {
         event.currentTarget.classList.add('active');
     }
+    // 2. 控制天氣區塊 (weather-section) 的顯示與隱藏
+    const weatherSection = document.getElementById('weather-section');
+    if (weatherSection) {
+        // 當目標頁面是「記錄區」或「頭痛頁籤」時才顯示天氣
+        if (targetPaneId === 'pane-form' || targetPaneId === 'pane-headache') {
+            weatherSection.style.display = 'block';
+        } else {
+            weatherSection.style.display = 'none';
+        }
+    }
 }
 // 3. 切換帳戶選單開關
 function toggleAccountMenu() {
