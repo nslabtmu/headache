@@ -659,6 +659,5 @@ function closeDisclaimerModal() {
 window.openDisclaimerModal = openDisclaimerModal;
 window.closeDisclaimerModal = closeDisclaimerModal;
 // 6. 全域掛載，確保 HTML onclick 可以順利呼叫
-window.switchMainTab = switchMainTab;
-window.switchSubTab = switchSubTab;
+window.switchTab = switchTab;
 window.toggleAccountMenu = toggleAccountMenu;
