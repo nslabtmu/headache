@@ -163,7 +163,7 @@ textarea {
     background: #faf8f5;
 }
 
-/* 語言切換按鈕 */
+/* 語言切換按鈕 
 .lang-btn {
     background: transparent;
     border: 1px solid var(--color-border);
@@ -177,7 +177,7 @@ textarea {
 
 .lang-btn:hover {
     background: rgba(139, 154, 139, 0.1);
-}
+}*/
 
 /* ==================== 5. 使用者選單 ==================== */
 .user-menu {
