@@ -628,9 +628,7 @@ function switchTab(tabId) {
     const { data: { user } } = await supabase.auth.getUser(); // 見下方註記
     if (user) loadUserHistory(user.id);
   }
-}
-}
-
+}  // end of switchtab
 
 
 
