@@ -109,8 +109,6 @@
 
   <!-- 氣象模組 - 最新版：IP位置 + 氣象 + 統一的變更位置面板 -->
 <div id="pane-form" class="tab-pane"> <!--<form id="pane-form" onsubmit="event.preventDefault(); saveFullRecord();"> -->
-    <!-- 表單內容區域 -->
-    <form id="attack-form" onsubmit="event.preventDefault(); saveFullRecord();">
     <div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
     <!-- ==================== 1. 地理位置卡片 ==================== -->
     <div id="location-card" style="background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb;">
@@ -165,7 +163,7 @@
     </div>
   </div>
 </div><!-- ✅ 天氣區塊結束 -->
-</form>
+
             <!-- [次頁籤 Sub-Tabs] -->
             <div class="tabs sub-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
                 <button type="button" data-tab="pane-headache" class="tab-btn active" id="btn-tab-headache" onclick="switchTab('pane-headache')" data-i18n="tab_headache">🤕 頭痛</button>
@@ -179,6 +177,10 @@
                 <option value="symptom" data-i18n="tab_symptom">📝 相關症狀</option>
                 <option value="band" data-i18n="tab_band">⌚ 健康資料</option>
             </select>
+
+    <!-- 表單內容區域 -->
+    <form id="attack-form" onsubmit="event.preventDefault(); saveFullRecord();">
+    </form>
         </div> <!-- pane-form 结束 -->
     <!-- 次頁籤 1：頭痛紀錄 -->
  <div id="pane-headache" class="tab-pane active">
