@@ -1029,8 +1029,8 @@ input[type="range"] {
   display: flex;
   align-items: center;
   gap: 8px;
- background: var(--color-card-bg);
-    border: 1px solid var(--color-border);
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
     
     /* 關鍵：設定大圓角變成橢圓形/膠囊形 */
     border-radius: 50px; 
@@ -1044,7 +1044,7 @@ input[type="range"] {
 }
 
 .account-btn:hover {
-  background: #edf2f7;
+  background: var(--color-bg-start);
 }
 
 .account-btn .avatar {
