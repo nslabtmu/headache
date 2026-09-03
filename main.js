@@ -568,7 +568,7 @@ function toggleMedicationSection() {
   details.style.display = select.value === 'yes' ? 'block' : 'none';
 }
 // 1. 切換主頁籤 (頭痛資料填寫 vs 趨勢圖)
-function switchMainTab(event, tabId) {
+/*function switchMainTab(event, tabId) {
   document.querySelectorAll('.main-tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.main-tab-btn').forEach(el => el.classList.remove('active'));
 
@@ -591,8 +591,27 @@ function switchSubTab(event, tabId) {
   if (event && event.currentTarget) {
     event.currentTarget.classList.add('active');
   }
+}*/
+function switchTab(event, tabId, contentClass = 'tab-pane', buttonClass = 'tab-btn') {
+    document.querySelectorAll(`.${contentClass}`).forEach(el => {
+        el.classList.add('hidden');
+        el.classList.remove('active');
+    });
+    
+    document.querySelectorAll(`.${buttonClass}`).forEach(el => {
+        el.classList.remove('active');
+    });
+    
+    const targetEl = document.getElementById(tabId);
+    if (targetEl) {
+        targetEl.classList.remove('hidden');
+        targetEl.classList.add('active');
+    }
+    
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
 }
-
 // 3. 切換帳戶選單開關
 function toggleAccountMenu() {
   const menu = document.getElementById('account-menu');
