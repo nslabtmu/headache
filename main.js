@@ -267,8 +267,8 @@ async function fetchIpLocation(statusEl) {
         const cityName = data.city || data.region || "未知地區";
         updateLocationDisplay(data.country || "未知國家", cityName, "");
         
-        // ✅ 取氣象資料
-        await fetchWeather(data.latitude, data.longitude, "IP 定位成功");
+        //  // ✅ 第2步：背景非同步查詢氣象（不阻塞位置顯示）
+        fetchWeather(data.latitude, data.longitude, "IP 定位成功");
         
     } catch (err) {
         console.error("IP Location Error:", err);
