@@ -168,9 +168,9 @@
 
             <!-- [次頁籤 Sub-Tabs] -->
             <div class="tabs sub-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
-                <button type="button" class="tab-btn active" id="btn-tab-headache" onclick="switchTab('pane-headache')" data-i18n="tab_headache">🤕 頭痛</button>
-                <button type="button" class="tab-btn" id="btn-tab-symptom" onclick="switchTab('pane-symptom')" data-i18n="tab_symptom">📝  相關症狀</button>
-                <button type="button" class="tab-btn" id="btn-tab-band" onclick="switchTab( 'pane-band')" data-i18n="tab_band">⌚ 健康資料</button>
+                <button type="button" data-tab="pane-headache" class="tab-btn active" id="btn-tab-headache" onclick="switchTab('pane-headache')" data-i18n="tab_headache">🤕 頭痛</button>
+                <button type="button" class="tab-btn" id="btn-tab-symptom" data-tab="pane-symptom" onclick="switchTab('pane-symptom')" data-i18n="tab_symptom">📝  相關症狀</button>
+                <button type="button" class="tab-btn" id="btn-tab-band" data-tab="pane-band" onclick="switchTab( 'pane-band')" data-i18n="tab_band">⌚ 健康資料</button>
             </div>
 
             <!-- 手機版專用切換選單 -->
@@ -306,7 +306,7 @@
                 </div>
 
                 <!-- 次頁籤 3：健康資料 -->
-                <div id="pane-band" class="tab-pane hidden">
+                <div id="pane-band" class="tab-pane">
                     <div class="form-group">
                         <label data-i18n="band_hr">❤️ 即時心跳 (bpm)</label>
                         <input type="number" id="band_heart_rate" placeholder="例如: 75">
@@ -330,7 +330,7 @@
                 </div>
 
                 <!-- 次頁籤 4：基本資料 -->
-                <div id="pane-profile" class="tab-pane form-group hidden">
+                <div id="pane-profile" class="tab-pane">
                     <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料</h3>
                     <div class="form-group">
                         <label data-i18n="prof_name">1. 暱稱（非必填）</label>
@@ -372,14 +372,14 @@
          </form>
         </div> <!-- ✅ 主頁籤 1 結束 -->
             <!-- ==================== 主頁籤 2: 趨勢圖 ==================== -->
-        <div id="pane-chart" class="tab-pane hidden">
+        <div id="pane-chart" class="tab-pane">
             <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">📈 頭痛指數與發作頻率趨勢圖</h3>
             <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                 <canvas id="painChart"></canvas>
             </div>
         </div>
         <!-- ==================== 主頁籤 3: 衛教新知 ==================== -->
-       <div id="pane-info" class="tab-pane hidden">
+       <div id="pane-info" class="tab-pane">
             <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">衛教</h3>
     <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
         <p>頭痛相關衛教資訊內容...</p>
