@@ -531,34 +531,39 @@ function switchTab(event, tabId, contentClass = 'tab-pane', buttonClass = 'tab-b
 }*/
 
 function switchTab(tabId) {
-  // 1. 隐藏所有分頁 - 移除 active class
+  // 隐藏所有 tab-pane
   document.querySelectorAll('.tab-pane').forEach(pane => {
     pane.classList.remove('active');
   });
 
-  // 2. 取消所有按鈕的 active 狀態
+  // 取消所有按钮的 active
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.remove('active');
   });
 
-  // 3. 顯示目標分頁 - 新增 active class
+  // 显示目标 tab
   const targetPane = document.getElementById(tabId);
   if (targetPane) {
     targetPane.classList.add('active');
   }
 
-  // 4. 高亮對應按鈕 - 用 data-tab 屬性代替複雜選擇器
-  const targetBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
-  if (targetBtn) {
-    targetBtn.classList.add('active');
+  // 高亮对应按钮
+  const targetButton = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  if (targetButton) {
+    targetButton.classList.add('active');
   }
 
-  // 5. 同步手機版 Select（如果需要）
-  const selectMobile = document.getElementById('mobile-tab-select');
-  if (selectMobile) {
-    selectMobile.value = tabId;
+  // 同步手机版 select
+  const mobileSelect = document.getElementById('mobile-tab-select');
+  if (mobileSelect) {
+    mobileSelect.value = tabId;
   }
 }
+
+
+
+
+
 // 3. 切換帳戶選單開關
 function toggleAccountMenu() {
   const menu = document.getElementById('account-menu');
