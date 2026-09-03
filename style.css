@@ -999,13 +999,12 @@ input[type="range"] {
 .tab-btn {
   /* 正常样式 */
 }
-
+/* 高亮样式 */
 /*.tab-btn.active {
-  /* 高亮样式 */
   background: #3498db;
   color: white;
 }*/
-/* ========== Tab 显示/隐藏核心逻辑 ========== */
+/* ========== Tab 顯示隱藏 ========== */
 .tab-pane {
     display: none !important;
 }
