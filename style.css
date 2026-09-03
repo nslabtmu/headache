@@ -279,7 +279,7 @@ textarea {
 }
 
 /* ------------------- 6.2 主頁籤 (Main Tabs) ------------------- */
-.main-tab-bar,
+
 .tabs {
     display: flex;
    width: 100%; /* 確保容器拉滿 */
@@ -289,7 +289,7 @@ textarea {
     padding-bottom: 8px;
 }
 
-.main-tab-btn,
+
 .tab-btn {
     flex: 1;
     min-height: 44px;
@@ -304,63 +304,20 @@ textarea {
     transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
 }
 
-.main-tab-btn:hover,
+
 .tab-btn:hover {
     background: var(--color-bg-end);
     color: var(--color-text-main);
 }
 
 /* 啟用狀態：使用柔和的薰衣草紫/鼠尾草綠，避免過度刺眼 */
-.main-tab-btn.active,
+
 .tab-btn.active {
     background: var(--color-card-bg);
     color: var(--color-primary-dark);
     font-weight: bold;
     border-color: var(--color-border) var(--color-border) var(--color-card-bg) var(--color-border);
     box-shadow: 0 -2px 8px rgba(74, 70, 64, 0.04);
-}
-
-/* ------------------- 6.3 次頁籤 (Sub Tabs) ------------------- */
-.sub-tab-bar {
-    display: flex;
-    gap: 4px;
-    border-bottom: 1px solid var(--color-border);
-    margin-bottom: 16px;
-}
-
-.sub-tab-btn {
-    flex: 1;
-    padding: 8px 12px;
-    border: none;
-    background: transparent;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--color-text-muted);
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: color 0.2s ease, border-color 0.2s ease;
-}
-
-.sub-tab-btn:hover {
-    color: var(--color-text-main);
-}
-
-.sub-tab-btn.active {
-    color: var(--color-primary-dark);
-    font-weight: bold;
-    border-bottom-color: var(--color-primary);
-    background: transparent;
-}
-
-/* ------------------- 6.4 內容顯示切換 ------------------- */
-.main-tab-content, 
-.sub-tab-content {
-    display: none;
-}
-
-.main-tab-content.active, 
-.sub-tab-content.active {
-    display: block;
 }
 
 /* ------------------- 6.5 RWD 響應式控制 ------------------- */
