@@ -19,20 +19,6 @@
 </head>
 <body>
 
-   
-    <!-- 右上角使用者選單與語言切換容器 
-    <div id="top-toolbar" style="display: flex; align-items: center; gap: 8px;">
-        <div id="user-info-bar" class="hidden">
-            <div class="user-menu" style="display: flex; align-items: center; gap: 8px;">
-                <button id="user-email-btn" class="lang-btn" onclick="toggleUserDropdown()">👤 <span id="user-email-text"></span></button>
-                <div id="user-dropdown" class="hidden">
-                    <div class="dropdown-account">登入帳號：<br><b id="user-email"></b></div>
-                    <button class="dropdown-item" onclick="handleLogout()" data-i18n="logout_btn">🚪 登出系統</button>
-                </div>
-            </div>
-        </div>
-    </div> -->
-
     <!-- 1. 同意書卡片 (最先顯示) -->
     <div class="card card-left" id="consent-card">
         <h2 data-i18n="consent_title" style="margin-top:0;">📄 研究參與同意書</h2>
@@ -43,19 +29,12 @@
         
         <div style="display: flex; gap: 10px; margin-top: 15px;">
             <!-- 不同意按鈕 -->
-            <button type="button" 
-                    class="btn" 
-                    style="background-color: #8b0000; color: #ffffff; flex: 1; border: none; cursor: pointer;" 
-                    onclick="alert('您已拒絕參與研究')">
-                不同意參與
-            </button>
+            <button type="button"    class="btn"      style="background-color: #8b0000; color: #ffffff; flex: 1; border: none; cursor: pointer;" 
+                    onclick="alert('您已拒絕參與研究')">  不同意參與   </button>
             
             <!-- 同意按鈕 -->
-            <button type="button" 
-                    class="btn" 
-                    style="background-color: #a8e6cf; color: #2d572c; flex: 2; border: none; cursor: pointer; font-weight: bold;" 
-                    onclick="agreeConsent()" 
-                    data-i18n="consent_agree_btn">
+            <button type="button"   class="btn"  style="background-color: #a8e6cf; color: #2d572c; flex: 2; border: none; cursor: pointer; font-weight: bold;" 
+                    onclick="agreeConsent()"   data-i18n="consent_agree_btn">
                 我已閱讀並同意參與研究
             </button>
         </div>
@@ -82,12 +61,12 @@
         
         <!-- [頂部欄 Header] 乾淨大標 + 右側控制 -->
         <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #eee;">
-            <h2 data-i18n="form_title" style="margin: 0;">🩺 頭痛與環境日記</h2>
+            <h2 data-i18n="form_title" style="margin: 0;">🩺 頭痛與天氣日記</h2>
             
 <div class="header-actions">
     <!-- 語系切換 -->
     <div class="lang-switch">
-      <button class="lang-btn active">ZH</button>
+      <button class="lang-btn active">中文</button>
       <button class="lang-btn">EN</button>
     </div>
 
@@ -96,13 +75,14 @@
         <button id="user-email-btn" class="lang-btn" onclick="toggleAccountMenu()">👤 <span id="user-email-text"></span>
         <span class="arrow">▾</span>
       </button>
- <!-- 重填同意書按鈕 -->
+ <!-- 重填同意書按鈕 
     <button id="resetConsentBtn" class="lang-btn hidden" onclick="resetConsent()" style="position: fixed; top: 15px; left: 15px; color: #e74c3c;">📄 重填同意書</button>
-
+   -->
 <div id="account-menu" class="dropdown-menu">
   <!-- 1. 切換至個人資料頁籤 -->
   <a href="javascript:void(0)" class="dropdown-item" onclick="switchTab('profile'); toggleAccountMenu();">👤 個人資料設定</a>
-  <!-- 2. 重新開啟同意書頁面 -->
+  <a href="javascript:void(0)" class="dropdown-item" onclick="openDisclaimerModal(); toggleAccountMenu();">⚠️ 免責聲明</a>
+    <!-- 2. 重新開啟同意書頁面 -->
   <a href="javascript:void(0)" class="dropdown-item" onclick="resetConsent(); toggleAccountMenu();">📄 重填同意書</a>
 
   <!-- 3. 匯出紀錄 (如果已經有匯出函式可帶入，沒有可先留空或彈窗提示) -->
@@ -390,7 +370,19 @@
         </div>
 
 </div>
-
+<!-- 免責聲明彈窗 Modal -->
+<div id="disclaimer-modal" class="modal-overlay hidden" onclick="closeDisclaimerModal(event)">
+  <div class="modal-card" onclick="event.stopPropagation()">
+    <h3>⚠️ 免責與醫療聲明</h3>
+    <div class="modal-body">
+      <p>本應用程式（包含頭痛日記與氣象健康數據分析）僅供個人健康紀錄與研究參考，<strong>不具備醫療診斷、處方或治療功能</strong>。</p>
+      <p>若您感到極度不適或出現發燒、劇烈頭痛、言語不清等異常症狀，請儘速前往急診或就近醫療院所就醫。</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeDisclaimerModal()">我已瞭解</button>
+    </div>
+  </div>
+</div>
     <script src="./main.js"></script>
 </body>
 </html>
