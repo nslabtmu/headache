@@ -532,7 +532,7 @@ function switchTab(event, tabId, contentClass = 'tab-pane', buttonClass = 'tab-b
     const weatherSection = document.getElementById('weather-section');
     if (weatherSection) {
         // 當目標頁面是「記錄區」或「頭痛頁籤」時才顯示天氣
-        if (targetPaneId === 'pane-form' || targetPaneId === 'pane-headache') {
+        if (tabId === 'pane-form' || tabId === 'pane-headache') {
             weatherSection.style.display = 'block';
         } else {
             weatherSection.style.display = 'none';
