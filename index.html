@@ -165,7 +165,7 @@
     </div>
   </div>
 </div><!-- ✅ 天氣區塊結束 -->
-
+</form>
             <!-- [次頁籤 Sub-Tabs] -->
             <div class="tabs sub-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
                 <button type="button" data-tab="pane-headache" class="tab-btn active" id="btn-tab-headache" onclick="switchTab('pane-headache')" data-i18n="tab_headache">🤕 頭痛</button>
@@ -181,9 +181,9 @@
             </select>
         </div> <!-- pane-form 结束 -->
     <!-- 次頁籤 1：頭痛紀錄 -->
-            <div id="pane-headache" class="tab-pane active">
-              <div class="headache-container">
-                <h2 class="section-title">🩹 頭痛記錄與症狀評估</h2>
+ <div id="pane-headache" class="tab-pane active">
+    <div class="headache-container">
+    <h2 class="section-title">🩹 頭痛記錄與症狀評估</h2>
     
     <!-- 1. 疼痛程度選擇 -->
     <div class="form-card">
@@ -370,22 +370,23 @@
                     <button type="button" class="btn" id="saveProfileBtn" onclick="saveUserProfile()" data-i18n="save_profile_btn">儲存</button>
                     <button type="button" class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
                 </div>
-         </form>
+         
         
             <!-- ==================== 主頁籤 2: 趨勢圖 ==================== -->
-        <div id="pane-chart" class="tab-pane">
+<div id="pane-chart" class="tab-pane">
             <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">📈 頭痛指數與發作頻率趨勢圖</h3>
             <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                 <canvas id="painChart"></canvas>
             </div>
-        </div>
+</div>
         <!-- ==================== 主頁籤 3: 衛教新知 ==================== -->
-       <div id="pane-info" class="tab-pane">
+<div id="pane-info" class="tab-pane">
             <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">衛教</h3>
     <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
         <p>頭痛相關衛教資訊內容...</p>
         <!-- 可以放文字、圖片或其他內容 -->
     </div>
+</div>
         
 
 <!-- 免責聲明彈窗 Modal -->
