@@ -444,10 +444,10 @@ async function saveAllResearchData() {
         medicationName = document.getElementById('input-medication-name')?.value || '';
         notes = document.getElementById('input-content')?.value || '';
 
-        medicationCategories = Array.from(
-        document.querySelectorAll('input[name="med-category"]:checked')
-        ).map(cb => cb.value);
-         medicationEffect = document.getElementById('input-medication-effect')?.value || '';
+        medicationCategories = Array.from(iframeDoc.querySelectorAll('input[name="med-category"]:checked')).map(cb => cb.value);
+        medicationEffect = iframeDoc.getElementById('input-medication-effect')?.value || '';
+        //medicationCategories = Array.from(document.querySelectorAll('input[name="med-category"]:checked') ).map(cb => cb.value);
+        //medicationEffect = document.getElementById('input-medication-effect')?.value || '';
     } else {
         painLocations = Array.from(document.querySelectorAll('input[name="pain_location"]:checked')).map(cb => cb.value);
         painScore = Number(document.getElementById('input-pain')?.value || 0);
@@ -491,7 +491,10 @@ async function saveAllResearchData() {
         pressure: currentWeather.data?.surface_pressure || null,
         location: currentWeather.location || "未知位置",
         fetched_at: currentWeather.fetched_at
-    } : { note: "未取得" };
+    } : { note: "當下無氣象(防火牆或未抓取)", 
+    // 💡 帶入定位座標，供 Supabase Edge Function 後續補抓氣象
+    latitude: window.userLocation?.lat || null, 
+    longitude: window.userLocation?.lng || null };
  
     const payload = {
         user_id: user.id,
