@@ -1127,3 +1127,20 @@ input[type="range"] {
     text-align: right;
     margin-top: 20px;
 }
+.tab-pane {
+  display: none;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+.tab-btn {
+  /* 正常样式 */
+}
+
+.tab-btn.active {
+  /* 高亮样式 */
+  background: #3498db;
+  color: white;
+}
