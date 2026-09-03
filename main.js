@@ -592,6 +592,10 @@ function switchSubTab(event, tabId) {
     event.currentTarget.classList.add('active');
   }
 }*/
+function handleMobileTabChange(tabName) {
+    const tabId = `pane-${tabName}`;
+    switchTab(null, tabId);
+}
 function switchTab(event, tabId, contentClass = 'tab-pane', buttonClass = 'tab-btn') {
     document.querySelectorAll(`.${contentClass}`).forEach(el => {
         el.classList.add('hidden');
