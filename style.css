@@ -282,9 +282,9 @@ textarea {
 .main-tab-bar,
 .tabs {
     display: flex;
+   width: 100%; /* 確保容器拉滿 */
     gap: 8px;
     margin-bottom: 20px;
-    flex-wrap: wrap;
     border-bottom: 2px solid var(--color-border);
     padding-bottom: 8px;
 }
