@@ -1,3 +1,56 @@
+// 雙層資料結構：類別 -> 症狀清單
+const SYMPTOM_CATEGORIES = {
+    digestive: [
+        { id: 'sym_1', name: '噁心 / 嘔吐' }
+    ],
+    sensory: [
+        { id: 'sym_2', name: '畏光' },
+        { id: 'sym_3', name: '畏聲' },
+        { id: 'sym_4', name: '頭暈' },
+        { id: 'sym_6', name: '視覺先兆' }
+    ],
+    other: [
+        { id: 'sym_5', name: '頸部緊繃' },
+        { id: 'sym_7', name: '情緒波動' },
+        { id: 'sym_8', name: '疲倦感' },
+        { id: 'sym_9', name: '注意力不集中' },
+        { id: 'sym_10', name: '面部麻木' }
+    ]
+};
+
+// 切換第一層「類別」時觸發
+function onCategoryChange() {
+    const categorySelect = document.getElementById('categorySelect');
+    const symptomSelect = document.getElementById('symptomSelect');
+    if (!categorySelect || !symptomSelect) return;
+
+    const selectedCategory = categorySelect.value;
+    let availableSymptoms = [];
+
+    if (selectedCategory === 'all') {
+        // 展平所有類別
+        availableSymptoms = Object.values(SYMPTOM_CATEGORIES).flat();
+    } else {
+        availableSymptoms = SYMPTOM_CATEGORIES[selectedCategory] || [];
+    }
+
+    // 重新填入第二層選單
+    symptomSelect.innerHTML = '';
+    availableSymptoms.forEach(sym => {
+        const option = document.createElement('option');
+        option.value = sym.id;
+        option.textContent = `${sym.id.replace('sym_', '症狀 ')}: ${sym.name}`;
+        symptomSelect.appendChild(option);
+    });
+
+    // 自動更新圖表
+    updateSymptomMetric();
+}
+
+// 頁面初次載入時初始化選項
+document.addEventListener('DOMContentLoaded', () => {
+    onCategoryChange();
+});
 /*async function loadUserHistory(userId) {
     const { data } = await supabase.from('user_data').select('*').eq('user_id', userId).order('created_at', { ascending: true }).limit(30);
     if (!data) return;
