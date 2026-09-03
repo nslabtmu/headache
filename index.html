@@ -80,7 +80,7 @@
    -->
 <div id="account-menu" class="dropdown-menu">
   <!-- 1. 切換至個人資料頁籤 -->
-  <a href="javascript:void(0)" class="dropdown-item" onclick="switchTab(event, 'pane-profile'); toggleAccountMenu();">👤 個人資料設定</a>
+  <a href="javascript:void(0)" class="dropdown-item" onclick="switchTab('pane-profile'); toggleAccountMenu();">👤 個人資料設定</a>
   <a href="javascript:void(0)" class="dropdown-item" onclick="openDisclaimerModal(); toggleAccountMenu();">⚠️ 免責聲明</a>
     <!-- 2. 重新開啟同意書頁面 -->
   <a href="javascript:void(0)" class="dropdown-item" onclick="resetConsent(); toggleAccountMenu();">📄 重填同意書</a>
@@ -108,7 +108,7 @@
         <!-- ==================== 主頁籤 1: 頭痛資料填寫 ==================== -->
 
   <!-- 氣象模組 - 最新版：IP位置 + 氣象 + 統一的變更位置面板 -->
-<div id="pane-form" class="tab-pane"> <!--<form id="pane-form" onsubmit="event.preventDefault(); saveFullRecord();"> -->
+<div id="pane-form" class="tab-pane active"> <!--<form id="pane-form" onsubmit="event.preventDefault(); saveFullRecord();"> -->
     <div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
     <!-- ==================== 1. 地理位置卡片 ==================== -->
     <div id="location-card" style="background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb;">
@@ -173,9 +173,9 @@
 
             <!-- 手機版專用切換選單 -->
             <select class="tabs-select-mobile" id="mobile-tab-select" onchange="switchTab(this.value)">
-                <option value="headache" data-i18n="tab_headache">🤕 頭痛</option>
-                <option value="symptom" data-i18n="tab_symptom">📝 相關症狀</option>
-                <option value="band" data-i18n="tab_band">⌚ 健康資料</option>
+                <option value="pane-headache" data-i18n="tab_headache">🤕 頭痛</option>
+                <option value="pane-symptom" data-i18n="tab_symptom">📝 相關症狀</option>
+                <option value="pane-band" data-i18n="tab_band">⌚ 健康資料</option>
             </select>
 
     <!-- 表單內容區域 -->
@@ -183,7 +183,7 @@
     </form>
         </div> <!-- pane-form 结束 -->
     <!-- 次頁籤 1：頭痛紀錄 -->
- <div id="pane-headache" class="tab-pane active">
+ <div id="pane-headache" class="tab-pane">
     <div class="headache-container">
     <h2 class="section-title">🩹 頭痛記錄與症狀評估</h2>
     
