@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 //========= 頁籤切換與導覽控制 =======
-function switchTab(tabName) {
+/*function switchTab(tabName) {
     // 隱藏所有頁簽內容
     const panes = document.querySelectorAll('.tab-pane');
     panes.forEach(pane => pane.classList.add('hidden'));
@@ -49,7 +49,7 @@ function switchTab(tabName) {
     if (mobileSelect) {
         mobileSelect.value = tabName;
     }
-}
+}*/
 
 function navigate(direction) {
     const currentPane = pageOrder.find(id => {
