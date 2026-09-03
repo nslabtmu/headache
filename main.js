@@ -4,7 +4,7 @@ var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // 全域變數
 
 let currentWeather = null;
-let chartInstance = null;
+chartInstance = null;
 let currentLang = 'zh-TW';
 let locationReady = false;
 
