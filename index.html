@@ -163,6 +163,7 @@
     </div>
 </div>
 </div>
+    </div>
             <!-- [次頁籤 Sub-Tabs] -->
             <div class="tabs sub-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
                 <button type="button" class="tab-btn active" id="btn-tab-headache" onclick="switchTab(event, 'pane-headache')" data-i18n="tab_headache">🤕 頭痛紀錄</button>
@@ -366,7 +367,7 @@
                     <button type="button" class="btn" id="saveProfileBtn" onclick="saveUserProfile()" data-i18n="save_profile_btn">儲存</button>
                     <button type="button" class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
                 </div>
-         
+         </form>
             
             <!-- ==================== 主頁籤 2: 趨勢圖 ==================== -->
         <div id="pane-chart" class="tab-pane hidden">
@@ -382,8 +383,8 @@
                 <canvas id="??"></canvas>
             </div>
         </div>
-</div>
-</form>
+
+
 <!-- 免責聲明彈窗 Modal -->
 <div id="disclaimer-modal" class="modal-overlay hidden" onclick="closeDisclaimerModal(event)">
   <div class="modal-card" onclick="event.stopPropagation()">
