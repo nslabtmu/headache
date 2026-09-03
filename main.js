@@ -22,7 +22,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+let isTaiwanLocation = true; // 預設先當作台灣，等定位結果回來再校正
 
+function setTaiwanLocationMode(isTaiwan) {
+    isTaiwanLocation = isTaiwan;
+
+    // 非台灣地區：隱藏「🔄 變更位置」按鈕，不提供手動選鄉鎮功能
+    const changeLocationBtn = document.querySelector('#ip-location-display button');
+    if (changeLocationBtn) {
+        changeLocationBtn.classList.toggle('hidden', !isTaiwan);
+    }
+
+    // 如果面板剛好開著，且判定變成非台灣，強制收起來
+    if (!isTaiwan) {
+        const manualBox = document.getElementById('manual-location-box');
+        if (manualBox) manualBox.style.display = 'none';
+    }
+}
 function navigate(direction) {
     const currentPane = pageOrder.find(id => {
         const el = document.getElementById(id);
@@ -267,17 +283,19 @@ async function fetchIpLocation(statusEl) {
         const cityName = data.city || data.region || "未知地區";
         updateLocationDisplay(data.country || "未知國家", cityName, "");
         
-        //  // ✅ 第2步：背景非同步查詢氣象（不阻塞位置顯示）
+        //// ✅ 新增：依 IP 判斷的國碼決定是否開放手動選台灣鄉鎮
+        setTaiwanLocationMode(data.country_code === 'TW');  
+        // ✅ 第2步：背景非同步查詢氣象（不阻塞位置顯示）
         fetchWeather(data.latitude, data.longitude, "IP 定位成功");
         
     } catch (err) {
         console.error("IP Location Error:", err);
         if (statusEl) statusEl.innerText = "❌ 無法定位，請手動選擇";
-        
         // ✅ 失敗時也顯示卡片
         updateLocationDisplay("未知", "無法取得", "請變更位置重試");
         
         // 展開選擇面板
+        setTaiwanLocationMode(true);
         toggleChangeLocation();
         if (typeof initDistrictSelector === 'function') {
             initDistrictSelector();
@@ -311,10 +329,12 @@ async function getLocationAndWeather() {
                     const city = geoData.address.city || geoData.address.county || "未知城市";
                     const district = geoData.address.suburb || geoData.address.town || geoData.address.district || "未知區域";
                     updateLocationDisplay(country, city, district);
+                    setTaiwanLocationMode(geoData.address.country_code === 'tw');
                 }
             } catch (e) {
                 console.warn("反查失敗，用座標代替");
                 updateLocationDisplay("未知", `${lat.toFixed(2)}`, `${lon.toFixed(2)}`);
+                setTaiwanLocationMode(true);
             }
             
             // ✅ 取氣象
@@ -494,6 +514,10 @@ function saveFullRecord() {
 
 // ✅ 新增：切換變更位置面板
 function toggleChangeLocation() {
+        if (!isTaiwanLocation) {
+        alert('目前手動選擇位置僅支援台灣地區。');
+        return;
+    }
     const manualBox = document.getElementById('manual-location-box');
     if (manualBox) {
         manualBox.style.display = manualBox.style.display === 'none' ? 'block' : 'none';
