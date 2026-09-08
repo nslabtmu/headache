@@ -751,4 +751,17 @@ function selectPainPart(partName) {
     }
     console.log("目前選中的部位：", selectedParts);
 }
+// 低氣壓等預警?
+function checkBarometricPressureAlert(pressure) {
+    const alertBox = document.getElementById('weather-alert-box');
+    const alertMsg = document.getElementById('alert-message');
+    
+    // 一般標準大氣壓力約在 1013 hPa。若氣壓低於 1005 hPa，通常是低氣壓或天氣轉壞
+    if (pressure && pressure < 1005) {
+        alertBox.style.display = 'block';
+        alertMsg.innerText = `目前氣壓為 ${pressure} hPa（低氣壓狀態），氣壓驟降是常見的偏頭痛誘因，建議隨身攜帶備用藥物與水！`;
+    } else {
+        alertBox.style.display = 'none'; // 氣壓正常則隱藏警報
+    }
+}
 
