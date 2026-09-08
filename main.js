@@ -954,9 +954,16 @@ dateClick: function(info) {
                 }
 
             // 2. 雙層分頁依序打開（關鍵這兩行）
-            if (typeof switchTab === 'function') {
-            switchTab('pane-form');
-            switchTab('pane-headache');
+           const paneForm = document.getElementById('pane-form');
+            if (paneForm) {
+                paneForm.classList.add('active', 'show');
+                paneForm.style.display = 'block';
+            }
+
+            const paneHeadache = document.getElementById('pane-headache');
+            if (paneHeadache) {
+                paneHeadache.classList.add('active', 'show');
+                paneHeadache.style.display = 'block';
             }
 
             // 3. 畫面捲動到最上方
