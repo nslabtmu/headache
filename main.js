@@ -978,17 +978,8 @@ dateClick: function(info) {
                 }
 
             // 2. 雙層分頁依序打開（關鍵這兩行）
-           const paneForm = document.getElementById('pane-form');
-            if (paneForm) {
-                paneForm.classList.add('active', 'show');
-                paneForm.style.display = 'block';
-            }
-
-            const paneHeadache = document.getElementById('pane-headache');
-            if (paneHeadache) {
-                paneHeadache.classList.add('active', 'show');
-                paneHeadache.style.display = 'block';
-            }
+               // 直接跳到 pane-headache
+            switchTab('pane-headache');
 
             // 3. 畫面捲動到最上方
             window.scrollTo({ top: 0, behavior: 'smooth' });
