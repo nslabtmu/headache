@@ -1021,26 +1021,25 @@ dateClick: function(info) {
                 // 📅 狀況 B：這天沒有記錄，詢問是否要補填
             const confirmAdd = confirm(`📅 日期 ${clickedDate}\n這天尚無頭痛紀錄，是否要切換至填寫頁面進行補填？`);
             if (confirmAdd) {
-            // 1. 自動帶入日期
-                const dateInput = document.getElementById('record-date');
-                if (dateInput) {
-                    dateInput.value = clickedDate;
-                 console.log('✅ 日期已設置:', clickedDate);
+    const dateInput = document.getElementById('record-date');
+    if (dateInput) {
+        dateInput.value = clickedDate;
+        console.log('✅ 日期已設置:', clickedDate);
     }
 
-    // ✅ 直接呼叫（不需要 await，因為已經改成同步）
-    switchTab('pane-headache');
-    console.log('✅ 已呼叫 switchTab("pane-headache")');
+    // 🔴 關鍵修復：先激活主頁籤 pane-form
+    console.log('🔴 先激活 pane-form（主頁籤）');
+    switchTab('pane-form');
+    
+    // 延遲 100ms 再激活子頁籤，確保 DOM 更新完成
+    setTimeout(() => {
+        console.log('🔴 再激活 pane-headache（子頁籤）');
+        switchTab('pane-headache');
+        console.log('✅ 已呼叫 switchTab("pane-headache")');
+    }, 100);
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            // 2. 雙層分頁依序打開（關鍵這兩行）
-               // 直接跳到 pane-headache
-            switchTab('pane-headache');
-
-            // 3. 畫面捲動到最上方
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+}
             }
         }
     });
