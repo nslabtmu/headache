@@ -683,6 +683,36 @@ function closeDisclaimerModal() {
     if (modal) modal.classList.add('hidden');
 }
 
+
+//月曆
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('headacheCalendar');
+    
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth', // 顯示整月模式
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth'
+        },
+        locale: 'zh-tw', // 設定繁體中文
+        height: 'auto',
+        // 這裡未來可以改為透過 fetch 從你的 Cloudflare Workers 後端撈取真實資料
+        events: [
+            { title: '重度頭痛', start: '2026-09-02', color: '#dc3545' }, // 紅色代表重度
+            { title: '輕度頭痛', start: '2026-09-05', color: '#ffc107' }, // 黃色代表輕度
+            { title: '無痛', start: '2026-09-06', color: '#28a745' }      // 綠色代表無痛
+        ],
+        // 當使用者點擊月曆某一格時的互動
+        dateClick: function(info) {
+            alert('你點選了日期： ' + info.dateStr + '\n準備帶出當日氣象與頭痛紀錄...');
+            // 這裡可以寫：彈出 Modal 視窗，或是把畫面滾動到上方並帶入該日期的資料
+        }
+    });
+    
+    calendar.render();
+});
+
 // 記得掛載至 window
 window.openDisclaimerModal = openDisclaimerModal;
 window.closeDisclaimerModal = closeDisclaimerModal;
