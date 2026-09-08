@@ -22,6 +22,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('record-date');
+    const timeInput = document.getElementById('record-time');
+    
+    const now = new Date();
+    // 格式化成 YYYY-MM-DD
+    const todayStr = now.toISOString().split('T')[0];
+    // 格式化成 HH:MM
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const timeStr = `${hours}:${minutes}`;
+
+    if (dateInput && !dateInput.value) dateInput.value = todayStr;
+    if (timeInput && !timeInput.value) timeInput.value = timeStr;
+});
+
+
 let isTaiwanLocation = true; // 預設先當作台灣，等定位結果回來再校正
 
 function setTaiwanLocationMode(isTaiwan) {
@@ -457,7 +474,7 @@ async function saveAllResearchData() {
     if (headacheIframe && headacheIframe.contentDocument) {
         const iframeDoc = headacheIframe.contentDocument;
         
-        // 🟢 修改 1：從 iframe 裡的 SVG 隱藏欄位讀取痛點 JSON
+        // 抓取 SVG 隱藏欄位痛點 JSON
         const hiddenLoc = iframeDoc.getElementById('hidden-pain-locations');
         if (hiddenLoc && hiddenLoc.value) {
             try { painLocations = JSON.parse(hiddenLoc.value); } catch(e) { painLocations = []; }
@@ -467,19 +484,18 @@ async function saveAllResearchData() {
         }
 
         painScore = Number(iframeDoc.getElementById('input-pain')?.value || 0);
-        medicationUsed = document.getElementById('input-medication')?.value === 'yes';
-        medicationName = document.getElementById('input-medication-name')?.value || '';
-        notes = document.getElementById('input-content')?.value || '';
+        medicationUsed = iframeDoc.getElementById('input-medication')?.value === 'yes';
+        medicationName = iframeDoc.getElementById('input-medication-name')?.value || '';
+        notes = iframeDoc.getElementById('input-content')?.value || '';
 
         medicationCategories = Array.from(iframeDoc.querySelectorAll('input[name="med-category"]:checked')).map(cb => cb.value);
         medicationEffect = iframeDoc.getElementById('input-medication-effect')?.value || '';
     } else {
-        // 🟢 修改 2：從主頁面的 SVG 隱藏欄位讀取痛點 JSON
+        // 抓取主頁面 SVG 隱藏欄位痛點 JSON
         const hiddenLoc = document.getElementById('hidden-pain-locations');
         if (hiddenLoc && hiddenLoc.value) {
             try { painLocations = JSON.parse(hiddenLoc.value); } catch(e) { painLocations = []; }
         }
-        // 如果隱藏欄位沒東西，才退回傳統 checkbox
         if (painLocations.length === 0) {
             painLocations = Array.from(document.querySelectorAll('input[name="pain_location"]:checked')).map(cb => cb.value);
         }
@@ -519,16 +535,31 @@ async function saveAllResearchData() {
         avg_steps: Number(document.getElementById('band_avg_steps')?.value) || null
     };
 
+    // 🌟 處理日期與時間（支援補填舊日期）
+    const inputDate = document.getElementById('record-date')?.value;
+    const inputTime = document.getElementById('record-time')?.value || '00:00:00';
+    let targetDateTime;
+    
+    if (inputDate) {
+        // 組合使用者選擇的日期與時間，轉成 ISO 格式
+        targetDateTime = new Date(`${inputDate}T${inputTime}`).toISOString();
+    } else {
+        targetDateTime = new Date().toISOString();
+    }
+
+    // 氣象資料處理（如果是補填，會記錄當下抓到的氣象或經緯度備份）
     const weatherData = currentWeather ? {
         temperature: currentWeather.data?.temperature_2m || null,
         humidity: currentWeather.data?.relative_humidity_2m || null,
         pressure: currentWeather.data?.surface_pressure || null,
         location: currentWeather.location || "未知位置",
-        fetched_at: currentWeather.fetched_at
+        fetched_at: currentWeather.fetched_at,
+        is_backfilled: !!inputDate // 標記這是一筆補填資料
     } : { 
         note: "當下無氣象(防火牆或未抓取)",  
         latitude: window.userLocation?.lat || null,  
-        longitude: window.userLocation?.lng || null 
+        longitude: window.userLocation?.lng || null,
+        is_backfilled: true
     };
  
     const payload = {
@@ -538,7 +569,7 @@ async function saveAllResearchData() {
         symptoms_data: symptomsData,
         health_data: healthData,
         weather_data: weatherData, 
-        created_at: new Date().toISOString()
+        created_at: targetDateTime // 🌟 精準寫入你指定的補填日期與時間！
     };
 
     const { error } = await supabase.from('user_data').insert([payload]);
@@ -546,9 +577,7 @@ async function saveAllResearchData() {
     if (error) {
         alert("❌ 儲存失敗：" + error.message);
     } else {
-        alert("✅ 今日研究日誌與數據已成功送出！");
-        
-        // 儲存成功後，重新載入歷史資料並更新月曆顯示
+        alert("✅ 該筆頭痛日誌已成功儲存！");
         if (typeof loadUserHistory === 'function') {
             loadUserHistory(user.id);
         }
@@ -556,10 +585,9 @@ async function saveAllResearchData() {
 }
 
 
-
-/*function saveFullRecord() {
+function saveFullRecord() {
     saveAllResearchData();
-}*/
+}
 /*async function saveAllResearchData() {
     if (REQUIRE_LOCATION_FOR_SUBMIT && !locationReady) {
         alert("⚠️ 尚未取得定位資訊，無法送出！");
@@ -905,8 +933,23 @@ document.addEventListener('DOMContentLoaded', function() {
                       `📍 痛點部位：${(hData.locations || []).join(', ') || '未記錄'}\n` +
                       `💊 服藥狀況：${hData.medication_used ? '有 (' + (hData.medication_name || '未填藥名') + ')' : '無'}\n` +
                       `🌡️ 當時氣壓：${wData.pressure || '無'} hPa`);
-            } else {
-                alert(`📅 日期 ${clickedDate}\n這天尚無頭痛紀錄。`);
+} else {
+                // 這天沒有記錄，詢問是否補填
+                const confirmAdd = confirm(`📅 日期 ${clickedDate}\n這天尚無頭痛紀錄，是否要切換至填寫頁面進行補填？`);
+                if (confirmAdd) {
+                    // 1. 自動把點擊的日期填入表單的日期欄位
+                    const dateInput = document.getElementById('record-date');
+                    if (dateInput) {
+                        dateInput.value = clickedDate;
+                    }
+
+                    // 2. 切換分頁到填寫頁面（請依你的專案函式修改，例如 switchTab 或 showPane）
+                    if (typeof switchTab === 'function') {
+                        switchTab('pane-headache');
+                    } else {
+                        location.hash = '#pane-headache';
+                    }
+                }
             }
         }
     });
