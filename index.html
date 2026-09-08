@@ -193,7 +193,19 @@
  <div id="pane-headache" class="tab-pane active">
     <div class="headache-container">
     <h2 class="section-title">🩹 頭痛記錄與症狀評估</h2>
-    
+    <!-- 📅 記錄日期選擇區（支援即時填寫或歷史補填） -->
+<div class="form-card" style="background: #f8f9fa; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e9ecef;">
+    <label for="record-date" style="font-weight: bold; color: #2c3e50; font-size: 14px; display: block; margin-bottom: 5px;">
+        📅 記錄日期與時間：
+    </label>
+    <div style="display: flex; gap: 10px;">
+        <input type="date" id="record-date" class="form-control" style="flex: 2; padding: 6px; border-radius: 4px; border: 1px solid #ced4da;">
+        <input type="time" id="record-time" class="form-control" style="flex: 1; padding: 6px; border-radius: 4px; border: 1px solid #ced4da;">
+    </div>
+    <small style="color: #6c757d; font-size: 12px; display: block; margin-top: 4px;">
+        💡 若為補填歷史紀錄，系統將自動套用該日期的排程與當時位置座標。
+    </small>
+</div>
     <!-- 1. 疼痛程度選擇 -->
         <div class="form-card">
       <label for="input-pain" class="card-label">
