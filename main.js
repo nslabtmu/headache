@@ -719,3 +719,32 @@ window.closeDisclaimerModal = closeDisclaimerModal;
 // 6. 全域掛載，確保 HTML onclick 可以順利呼叫
 window.switchTab = switchTab;
 window.toggleAccountMenu = toggleAccountMenu;
+
+
+
+// 記錄哪些部位被選中了
+let selectedParts = [];
+
+function selectPainPart(partName) {
+    const svgEl = document.getElementById(`svg-${partName}`);
+    const btnEl = document.getElementById(`btn-${partName}`);
+    
+    // 檢查目前是否已經被選中
+    const index = selectedParts.indexOf(partName);
+    
+    if (index > -1) {
+        // 如果已經選過，就取消選中
+        selectedParts.splice(index, 1);
+        if (svgEl) svgEl.classList.remove('active-part');
+        if (btnEl) btnEl.classList.remove('active-btn');
+    } else {
+        // 如果還沒選，就加入選中狀態
+        selectedParts.push(partName);
+        if (svgEl) svgEl.classList.add('active-part');
+        if (btnEl) btnEl.classList.add('active-btn');
+    }
+    
+    // 將選中的結果更新到隱藏表單中，準備存入資料庫
+    document.getElementById('hidden-pain-locations').value = JSON.stringify(selectedParts);
+    console.log("目前選中的頭痛部位：", selectedParts);
+}
