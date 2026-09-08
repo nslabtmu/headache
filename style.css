@@ -1028,3 +1028,38 @@ input[type="range"] {
         color: var(--color-secondary);
     }
 }
+
+/* SVG 可點擊部位的預設與過場動畫 */
+.svg-clickable-part {
+    cursor: pointer;
+    transition: fill 0.3s ease, filter 0.3s ease;
+}
+.svg-clickable-part:hover {
+    fill: #adb5bd;
+}
+
+/* 下方文字膠囊按鈕的樣式 */
+.head-chip-btn {
+    padding: 8px 16px;
+    border: 1px solid #ced4da;
+    background-color: #ffffff;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #495057;
+    transition: all 0.2s ease;
+}
+
+/* 當被選中時：SVG部位與按鈕同步變成「警示紅」 */
+.active-part {
+    fill: #ff4d4d !important;
+    filter: drop-shadow(0 0 4px rgba(255, 77, 77, 0.6));
+}
+
+.head-chip-btn.active-btn {
+    background-color: #ff4d4d;
+    color: white;
+    border-color: #ff4d4d;
+    box-shadow: 0 3px 8px rgba(255, 77, 77, 0.3);
+}
+
