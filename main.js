@@ -916,15 +916,17 @@ document.addEventListener('DOMContentLoaded', function() {
             successCallback(events);
         },
         // 👆 點擊月曆某一天時彈跳出該日資料
-        dateClick: function(info) {
-            const clickedDate = info.dateStr; // 例如 "2026-09-08"
+dateClick: function(info) {
+            const clickedDate = info.dateStr; // 例如 "2026-09-05"
             
+            // 檢查這一天是否有紀錄
             const matchedRecord = (window.allUserRecords || []).find(r => {
                 const rDate = r.created_at ? r.created_at.split('T')[0] : '';
                 return rDate === clickedDate;
             });
 
             if (matchedRecord) {
+                // 📅 狀況 A：這天有紀錄，彈出視窗顯示詳細內容
                 const hData = matchedRecord.headache_data || {};
                 const wData = matchedRecord.weather_data || {};
                 
@@ -933,22 +935,43 @@ document.addEventListener('DOMContentLoaded', function() {
                       `📍 痛點部位：${(hData.locations || []).join(', ') || '未記錄'}\n` +
                       `💊 服藥狀況：${hData.medication_used ? '有 (' + (hData.medication_name || '未填藥名') + ')' : '無'}\n` +
                       `🌡️ 當時氣壓：${wData.pressure || '無'} hPa`);
-} else {
-                // 這天沒有記錄，詢問是否補填
+            } else {
+                // 📅 狀況 B：這天沒有記錄，詢問是否要補填
                 const confirmAdd = confirm(`📅 日期 ${clickedDate}\n這天尚無頭痛紀錄，是否要切換至填寫頁面進行補填？`);
                 if (confirmAdd) {
-                    // 1. 自動把點擊的日期填入表單的日期欄位
+                    // 1. 將點擊的日期自動填入表單的日期欄位
                     const dateInput = document.getElementById('record-date');
                     if (dateInput) {
                         dateInput.value = clickedDate;
+                        console.log("已自動帶入補填日期：", clickedDate);
+                    } else {
+                        console.warn("找不到 #record-date 欄位");
                     }
 
-                    // 2. 切換分頁到填寫頁面（請依你的專案函式修改，例如 switchTab 或 showPane）
+                    // 2. 強制切換分頁到填寫頁面（支援多種常見的分頁切換寫法）
+                    // 方式甲：如果你是用 Bootstrap 分頁按鈕
+                    const headacheTabBtn = document.querySelector('[data-bs-target="#pane-headache"], [href="#pane-headache"], button[onclick*="pane-headache"]');
+                    if (headacheTabBtn) {
+                        headacheTabBtn.click();
+                    } 
+                    
+                    // 方式乙：直接透過 CSS 顯示 `#pane-headache`，並隱藏其他 tab-pane
+                    const pane = document.getElementById('pane-headache');
+                    if (pane) {
+                        // 移除所有分頁的 active 樣式
+                        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active', 'show'));
+                        // 將頭痛填寫頁加上 active
+                        pane.classList.add('active', 'show');
+                        pane.style.display = 'block'; // 確保它是顯示的
+                    }
+
+                    // 方式丙：如果你有自己寫的 switchTab 函式
                     if (typeof switchTab === 'function') {
                         switchTab('pane-headache');
-                    } else {
-                        location.hash = '#pane-headache';
                     }
+
+                    // 3. 頁面滑動到最上方或填寫區塊，讓使用者有感切換
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
             }
         }
