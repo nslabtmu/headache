@@ -1015,7 +1015,14 @@ dateClick: function(info) {
                 const dateInput = document.getElementById('record-date');
                 if (dateInput) {
                     dateInput.value = clickedDate;
-                }
+                 console.log('✅ 日期已設置:', clickedDate);
+    }
+
+    // ✅ 直接呼叫（不需要 await，因為已經改成同步）
+    switchTab('pane-headache');
+    console.log('✅ 已呼叫 switchTab("pane-headache")');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
             // 2. 雙層分頁依序打開（關鍵這兩行）
                // 直接跳到 pane-headache
