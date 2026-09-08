@@ -1029,37 +1029,51 @@ input[type="range"] {
     }
 }
 
-/* SVG 可點擊部位的預設與過場動畫 */
-.svg-clickable-part {
+
+/* SVG 疼痛區域的預設外觀與平滑過渡 */
+.svg-pain-zone {
+    fill: #e9ecef;
+    stroke: #ced4da;
+    stroke-width: 1px;
     cursor: pointer;
-    transition: fill 0.3s ease, filter 0.3s ease;
-}
-.svg-clickable-part:hover {
-    fill: #adb5bd;
+    transition: all 0.25s ease-in-out;
 }
 
-/* 下方文字膠囊按鈕的樣式 */
+/* 滑鼠懸停時微微發亮與浮起 */
+.svg-pain-zone:hover {
+    fill: #d0ebff;
+    stroke: #74c0fc;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+/* 當被點擊選中時：變成專業的醫療警示紅與發光特效 */
+.svg-pain-zone.active-part {
+    fill: #ff6b6b !important;
+    stroke: #fa5252 !important;
+    stroke-width: 2px;
+    filter: drop-shadow(0 0 6px rgba(255, 107, 107, 0.5));
+}
+
+/* 下方膠囊按鈕優化 */
 .head-chip-btn {
     padding: 8px 16px;
     border: 1px solid #ced4da;
     background-color: #ffffff;
     border-radius: 20px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: 500;
     color: #495057;
     transition: all 0.2s ease;
 }
 
-/* 當被選中時：SVG部位與按鈕同步變成「警示紅」 */
-.active-part {
-    fill: #ff4d4d !important;
-    filter: drop-shadow(0 0 4px rgba(255, 77, 77, 0.6));
+.head-chip-btn:hover {
+    background-color: #f1f3f5;
 }
 
 .head-chip-btn.active-btn {
-    background-color: #ff4d4d;
+    background-color: #ff6b6b;
     color: white;
-    border-color: #ff4d4d;
-    box-shadow: 0 3px 8px rgba(255, 77, 77, 0.3);
+    border-color: #ff6b6b;
+    box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);
 }
-
