@@ -1185,3 +1185,66 @@ document.addEventListener('DOMContentLoaded', function() {
     calendar.render();
     window.myCalendar = calendar; // 方便之後資料更新時呼叫 calendar.refetchEvents()
 });
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. 自動取得使用者所在位置（經緯度）
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                checkWeatherRisk(lat, lon);
+            },
+            error => {
+                console.log("無法取得定位，預設使用台北氣象資料", error);
+                // 如果用戶拒絕定位，預設帶入台北的經緯度 (25.03, 121.56)
+                checkWeatherRisk(25.03, 121.56);
+            }
+        );
+    } else {
+        checkWeatherRisk(25.03, 121.56);
+    }
+});
+async function checkWeatherRisk(lat, lon) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=pressure_msl,temperature_2m`;
+    
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        const pressures = data.hourly.pressure_msl;
+        const currentPressure = pressures[0]; // 當前氣壓
+        const futurePressure = pressures[6];  // 6小時後的氣壓
+        
+        const drop = currentPressure - futurePressure; // 6小時內降幅
+        
+        // 1. 取得你 HTML 中的兩個元素
+        const alertBox = document.getElementById('weather-alert-box');
+        const alertMsg = document.getElementById('alert-message');
+        
+        const riskCard = document.getElementById('weather-risk-card');
+        const riskText = document.getElementById('weather-risk-text');
+        
+        // --- 狀況 A：檢查當前氣壓是否偏低（例如低於標準大氣壓 1013 hPa 太多，或小於 1005 hPa） ---
+        if (currentPressure < 1008) {
+            if (alertBox && alertMsg) {
+                alertMsg.innerHTML = `偵測到目前氣壓偏低（<strong>${currentPressure.toFixed(1)} hPa</strong>），今日低氣壓環境可能增加偏頭痛發作機率，請多加注意！`;
+                alertBox.style.display = 'block'; // 顯示動態提示框
+            }
+        } else {
+            if (alertBox) alertBox.style.display = 'none'; // 氣壓正常就隱藏
+        }
+        
+        // --- 狀況 B：檢查未來幾小時是否有「氣壓驟降」的風險 ---
+        if (drop > 4) {
+            if (riskCard && riskText) {
+                riskText.innerHTML = `當前氣壓 <strong>${currentPressure.toFixed(1)} hPa</strong>，預計未來幾小時內將急遽下降約 <strong>${drop.toFixed(1)} hPa</strong>。<br>氣壓快速變動是引發偏頭痛的高風險因子！`;
+                riskCard.classList.remove('hidden'); // 顯示風險卡片
+            }
+        } else {
+            if (riskCard) riskCard.classList.add('hidden'); // 沒風險就隱藏
+        }
+        
+    } catch (error) {
+        console.error("無法取得氣象預報資料", error);
+    }
+}
