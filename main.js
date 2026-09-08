@@ -937,42 +937,23 @@ dateClick: function(info) {
                       `🌡️ 當時氣壓：${wData.pressure || '無'} hPa`);
             } else {
                 // 📅 狀況 B：這天沒有記錄，詢問是否要補填
-                const confirmAdd = confirm(`📅 日期 ${clickedDate}\n這天尚無頭痛紀錄，是否要切換至填寫頁面進行補填？`);
-                if (confirmAdd) {
-                    // 1. 將點擊的日期自動填入表單的日期欄位
-                    const dateInput = document.getElementById('record-date');
-                    if (dateInput) {
-                        dateInput.value = clickedDate;
-                        console.log("已自動帶入補填日期：", clickedDate);
-                    } else {
-                        console.warn("找不到 #record-date 欄位");
-                    }
-
-                    // 2. 強制切換分頁到填寫頁面（支援多種常見的分頁切換寫法）
-                    // 方式甲：如果你是用 Bootstrap 分頁按鈕
-                    const headacheTabBtn = document.querySelector('[data-bs-target="#pane-headache"], [href="#pane-headache"], button[onclick*="pane-headache"]');
-                    if (headacheTabBtn) {
-                        headacheTabBtn.click();
-                    } 
-                    
-                    // 方式乙：直接透過 CSS 顯示 `#pane-headache`，並隱藏其他 tab-pane
-                    const pane = document.getElementById('pane-headache');
-                    if (pane) {
-                        // 移除所有分頁的 active 樣式
-                        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active', 'show'));
-                        // 將頭痛填寫頁加上 active
-                        pane.classList.add('active', 'show');
-                        pane.style.display = 'block'; // 確保它是顯示的
-                    }
-
-                    // 方式丙：如果你有自己寫的 switchTab 函式
-                    if (typeof switchTab === 'function') {
-                        switchTab('pane-headache');
-                    }
-
-                    // 3. 頁面滑動到最上方或填寫區塊，讓使用者有感切換
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+            const confirmAdd = confirm(`📅 日期 ${clickedDate}\n這天尚無頭痛紀錄，是否要切換至填寫頁面進行補填？`);
+            if (confirmAdd) {
+            // 1. 自動帶入日期
+                const dateInput = document.getElementById('record-date');
+                if (dateInput) {
+                    dateInput.value = clickedDate;
                 }
+
+            // 2. 雙層分頁依序打開（關鍵這兩行）
+            if (typeof switchTab === 'function') {
+            switchTab('pane-form');
+            switchTab('pane-headache');
+            }
+
+            // 3. 畫面捲動到最上方
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
             }
         }
     });
