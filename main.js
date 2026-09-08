@@ -810,20 +810,32 @@ function switchTab(event, tabId, contentClass = 'tab-pane', buttonClass = 'tab-b
   }
 }  */ // end of switchtab
 
-function switchTab(tabId) {
+async function switchTab(tabId) {
+  console.log('🔵 [switchTab] 開始執行，tabId =', tabId);
+  
   const targetPane = document.getElementById(tabId);
-  if (!targetPane) return;
+  console.log('🔵 [switchTab] targetPane 元素:', targetPane);
+  
+  if (!targetPane) {
+    console.error('❌ [switchTab] 找不到元素:', tabId);
+    return;
+  }
 
-  // ✅ 只清除「同一層」（同一個父層底下）的 tab-pane，不影響其他層級
   const paneParent = targetPane.parentElement;
-  Array.from(paneParent.children).forEach(child => {
+  console.log('🔵 [switchTab] paneParent:', paneParent);
+  console.log('🔵 [switchTab] paneParent 子元素數:', paneParent.children.length);
+  
+  Array.from(paneParent.children).forEach((child, index) => {
+    console.log(`  子元素 ${index}:`, child.id || child.className);
     if (child.classList.contains('tab-pane')) {
       child.classList.remove('active');
     }
   });
+  
   targetPane.classList.add('active');
+  console.log('🔵 [switchTab] 已添加 active class 到:', tabId);
+  console.log('   計算後的 display:', window.getComputedStyle(targetPane).display);
 
-  // ✅ 按鈕高亮同樣限制在同一層
   const targetButton = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
   if (targetButton) {
     const btnParent = targetButton.parentElement;
@@ -833,22 +845,20 @@ function switchTab(tabId) {
       }
     });
     targetButton.classList.add('active');
+    console.log('🔵 [switchTab] 已高亮按鈕:', tabId);
   }
 
-  // 同步手機版 select
   const mobileSelect = document.getElementById('mobile-tab-select');
   if (mobileSelect) {
     mobileSelect.value = tabId;
   }
-  
-  // ✅ 只在 pane-chart 時才載入資料（改成同步版本）
+
   if (tabId === 'pane-chart') {
-    // 如果需要，可以在這裡加上 setTimeout 稍微延遲
-    setTimeout(async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) loadUserHistory(user.id);
-    }, 100);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) loadUserHistory(user.id);
   }
+  
+  console.log('✅ [switchTab] 完成！');
 }
 
 // 3. 切換帳戶選單開關
