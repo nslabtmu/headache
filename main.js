@@ -773,7 +773,7 @@ function switchTab(event, tabId, contentClass = 'tab-pane', buttonClass = 'tab-b
   }
 }*/
 
-async function switchTab(tabId) {
+/*async function switchTab(tabId) {
   const targetPane = document.getElementById(tabId);
   if (!targetPane) return;
 
@@ -808,9 +808,48 @@ async function switchTab(tabId) {
     const { data: { user } } = await supabase.auth.getUser(); // 見下方註記
     if (user) loadUserHistory(user.id);
   }
-}  // end of switchtab
+}  */ // end of switchtab
 
+function switchTab(tabId) {
+  const targetPane = document.getElementById(tabId);
+  if (!targetPane) return;
 
+  // ✅ 只清除「同一層」（同一個父層底下）的 tab-pane，不影響其他層級
+  const paneParent = targetPane.parentElement;
+  Array.from(paneParent.children).forEach(child => {
+    if (child.classList.contains('tab-pane')) {
+      child.classList.remove('active');
+    }
+  });
+  targetPane.classList.add('active');
+
+  // ✅ 按鈕高亮同樣限制在同一層
+  const targetButton = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  if (targetButton) {
+    const btnParent = targetButton.parentElement;
+    Array.from(btnParent.children).forEach(btn => {
+      if (btn.classList.contains('tab-btn')) {
+        btn.classList.remove('active');
+      }
+    });
+    targetButton.classList.add('active');
+  }
+
+  // 同步手機版 select
+  const mobileSelect = document.getElementById('mobile-tab-select');
+  if (mobileSelect) {
+    mobileSelect.value = tabId;
+  }
+  
+  // ✅ 只在 pane-chart 時才載入資料（改成同步版本）
+  if (tabId === 'pane-chart') {
+    // 如果需要，可以在這裡加上 setTimeout 稍微延遲
+    setTimeout(async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) loadUserHistory(user.id);
+    }, 100);
+  }
+}
 
 // 3. 切換帳戶選單開關
 function toggleAccountMenu() {
@@ -844,6 +883,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
 // 免責聲明
 function openDisclaimerModal() {
     const modal = document.getElementById('disclaimer-modal');
