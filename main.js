@@ -855,7 +855,31 @@ function closeDisclaimerModal() {
     if (modal) modal.classList.add('hidden');
 }
 
-
+// 範例：使用免費的 Open-Meteo 取得當地氣壓並做簡單預警
+async function checkMigraineWeatherRisk(lat, lon) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=pressure_msl,temperature_2m`;
+    
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        // 取得未來幾小時的氣壓陣列
+        const pressures = data.hourly.pressure_msl;
+        
+        // 簡單計算氣壓變化趨勢（例如比對前後幾小時）
+        // 如果氣壓短時間掉落超過特定數值（如 5-8 hPa），就跳出警示
+        const currentPressure = pressures[0];
+        const futurePressure = pressures[6]; // 6小時後
+        
+        const drop = currentPressure - futurePressure;
+        if (drop > 6) {
+            console.warn("⚠️ 氣壓正在急遽下降，可能是偏頭痛高風險期！");
+            // 可以在你的網頁介面上顯示小提示燈或警告訊息
+        }
+    } catch (error) {
+        console.error("無法取得氣象資料", error);
+    }
+}
 //月曆
 /*document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('headacheCalendar');
