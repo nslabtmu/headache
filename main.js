@@ -1157,7 +1157,7 @@ async function exportMedicalReport() {
 }
 
 // 月曆出現 資料
-document.addEventListener('DOMContentLoaded', function() {
+/*document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('headacheCalendar');
     
     var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -1222,7 +1222,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     calendar.render();
     window.myCalendar = calendar; // 方便之後資料更新時呼叫 calendar.refetchEvents()
-});
+});*/
 document.addEventListener('DOMContentLoaded', function() {
     // 1. 自動取得使用者所在位置（經緯度）
     if (navigator.geolocation) {
