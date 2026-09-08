@@ -918,7 +918,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // 👆 點擊月曆某一天時彈跳出該日資料
 dateClick: function(info) {
             const clickedDate = info.dateStr; // 例如 "2026-09-05"
-            
+            // 🛑 1. 檢查是不是未來的日期（還沒到的日期不能選）
+            const clicked = new Date(clickedDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // 將今天時間歸零，只比對日期年月日
+
+            if (clicked > today) {
+                alert("⚠️ 不能選擇尚未到的日期（未來日期）！");
+                return; // 直接中斷，不執行後續動作
+            }
             // 檢查這一天是否有紀錄
             const matchedRecord = (window.allUserRecords || []).find(r => {
                 const rDate = r.created_at ? r.created_at.split('T')[0] : '';
