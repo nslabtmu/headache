@@ -722,7 +722,7 @@ window.toggleAccountMenu = toggleAccountMenu;
 
 
 
-// 記錄哪些部位被選中了
+// 宣告在全域，確保 HTML 的 onclick 隨時找得到它
 let selectedParts = [];
 
 function selectPainPart(partName) {
@@ -744,7 +744,11 @@ function selectPainPart(partName) {
         if (btnEl) btnEl.classList.add('active-btn');
     }
     
-    // 將選中的結果更新到隱藏表單中，準備存入資料庫
-    document.getElementById('hidden-pain-locations').value = JSON.stringify(selectedParts);
-    console.log("目前選中的頭痛部位：", selectedParts);
+    // 將選中的結果更新到隱藏表單中
+    const hiddenInput = document.getElementById('hidden-pain-locations');
+    if (hiddenInput) {
+        hiddenInput.value = JSON.stringify(selectedParts);
+    }
+    console.log("目前選中的部位：", selectedParts);
 }
+
