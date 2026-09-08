@@ -128,7 +128,25 @@ function showMainApp(user) {
     loadUserProfile(user.id);
     loadUserHistory(user.id);
 }
+async function loadUserHistory(userId) {
+    const { data, error } = await supabase
+        .from('user_data')
+        .select('*')
+        .eq('user_id', userId);
 
+    if (error) {
+        console.error("載入歷史失敗", error);
+        return;
+    }
+
+    // 🌟 關鍵：把撈回來的資料存到全域變數，供 FullCalendar 顯示與點擊使用！
+    window.allUserRecords = data || [];
+
+    // 如果你的月曆已經初始化，呼叫這個讓月曆立刻重新整理點點顏色
+    if (window.myCalendar) {
+        window.myCalendar.refetchEvents();
+    }
+}
 function showAuthFlow() {
     const mainCard = document.getElementById('main-card');
     const userInfoBar = document.getElementById('user-info-bar');
@@ -431,6 +449,130 @@ async function saveAllResearchData() {
     let painScore = 0;
     let medicationUsed = false;
     let medicationName = '';
+    let medicationCategories = []; 
+    let medicationEffect = '';     
+    let notes = '';
+    
+    const headacheIframe = document.querySelector('#pane-headache iframe');
+    if (headacheIframe && headacheIframe.contentDocument) {
+        const iframeDoc = headacheIframe.contentDocument;
+        
+        // 🟢 修改 1：從 iframe 裡的 SVG 隱藏欄位讀取痛點 JSON
+        const hiddenLoc = iframeDoc.getElementById('hidden-pain-locations');
+        if (hiddenLoc && hiddenLoc.value) {
+            try { painLocations = JSON.parse(hiddenLoc.value); } catch(e) { painLocations = []; }
+        }
+        if (painLocations.length === 0) {
+            painLocations = Array.from(iframeDoc.querySelectorAll('input[name="pain_location"]:checked')).map(cb => cb.value);
+        }
+
+        painScore = Number(iframeDoc.getElementById('input-pain')?.value || 0);
+        medicationUsed = document.getElementById('input-medication')?.value === 'yes';
+        medicationName = document.getElementById('input-medication-name')?.value || '';
+        notes = document.getElementById('input-content')?.value || '';
+
+        medicationCategories = Array.from(iframeDoc.querySelectorAll('input[name="med-category"]:checked')).map(cb => cb.value);
+        medicationEffect = iframeDoc.getElementById('input-medication-effect')?.value || '';
+    } else {
+        // 🟢 修改 2：從主頁面的 SVG 隱藏欄位讀取痛點 JSON
+        const hiddenLoc = document.getElementById('hidden-pain-locations');
+        if (hiddenLoc && hiddenLoc.value) {
+            try { painLocations = JSON.parse(hiddenLoc.value); } catch(e) { painLocations = []; }
+        }
+        // 如果隱藏欄位沒東西，才退回傳統 checkbox
+        if (painLocations.length === 0) {
+            painLocations = Array.from(document.querySelectorAll('input[name="pain_location"]:checked')).map(cb => cb.value);
+        }
+
+        painScore = Number(document.getElementById('input-pain')?.value || 0);
+        medicationUsed = document.getElementById('input-medication')?.value === 'yes';
+        medicationName = document.getElementById('input-medication-name')?.value || '';
+        notes = document.getElementById('input-content')?.value || '';
+
+        medicationCategories = Array.from(
+            document.querySelectorAll('input[name="med-category"]:checked')
+        ).map(cb => cb.value);
+        medicationEffect = document.getElementById('input-medication-effect')?.value || '';
+    }
+    
+    const headacheData = {
+        pain_score: painScore,
+        locations: painLocations,
+        medication_used: medicationUsed,
+        medication_name: medicationName,
+        medication_categories: medicationCategories,   
+        medication_effect: medicationEffect,
+        notes: notes
+    };
+
+    const symptomsData = {};
+    for (let i = 1; i <= 10; i++) {
+        const slider = document.querySelector(`input[name="sym${i}"]`);
+        if (slider) symptomsData[`sym_${i}`] = Number(slider.value);
+    }
+    symptomsData.triggers = document.getElementById('triggers')?.value.trim() || "無";
+
+    const healthData = {
+        heart_rate: Number(document.getElementById('band_heart_rate')?.value) || null,
+        spo2: Number(document.getElementById('band_spo2')?.value) || null,
+        steps: Number(document.getElementById('band_steps')?.value) || null,
+        avg_steps: Number(document.getElementById('band_avg_steps')?.value) || null
+    };
+
+    const weatherData = currentWeather ? {
+        temperature: currentWeather.data?.temperature_2m || null,
+        humidity: currentWeather.data?.relative_humidity_2m || null,
+        pressure: currentWeather.data?.surface_pressure || null,
+        location: currentWeather.location || "未知位置",
+        fetched_at: currentWeather.fetched_at
+    } : { 
+        note: "當下無氣象(防火牆或未抓取)",  
+        latitude: window.userLocation?.lat || null,  
+        longitude: window.userLocation?.lng || null 
+    };
+ 
+    const payload = {
+        user_id: user.id,
+        user_email: user.email,
+        headache_data: headacheData,
+        symptoms_data: symptomsData,
+        health_data: healthData,
+        weather_data: weatherData, 
+        created_at: new Date().toISOString()
+    };
+
+    const { error } = await supabase.from('user_data').insert([payload]);
+
+    if (error) {
+        alert("❌ 儲存失敗：" + error.message);
+    } else {
+        alert("✅ 今日研究日誌與數據已成功送出！");
+        
+        // 儲存成功後，重新載入歷史資料並更新月曆顯示
+        if (typeof loadUserHistory === 'function') {
+            loadUserHistory(user.id);
+        }
+    }
+}
+
+
+
+/*function saveFullRecord() {
+    saveAllResearchData();
+}*/
+/*async function saveAllResearchData() {
+    if (REQUIRE_LOCATION_FOR_SUBMIT && !locationReady) {
+        alert("⚠️ 尚未取得定位資訊，無法送出！");
+        return;
+    }
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { alert("請先登入！"); return; }
+    
+    let painLocations = [];
+    let painScore = 0;
+    let medicationUsed = false;
+    let medicationName = '';
     let medicationCategories = []; // ✅ 提前在最外層宣告
     let medicationEffect = '';     // ✅ 提前在最外層宣告
     let notes = '';
@@ -516,10 +658,12 @@ async function saveAllResearchData() {
         loadUserHistory(user.id);
     }
 }
+// 假設這是你從 Supabase 撈回來的資料陣列叫 records
+window.allUserRecords = records; // 把資料暫存到全域變數供月曆使用
 
 function saveFullRecord() {
     saveAllResearchData();
-}
+}*/
 
 // ✅ 新增：切換變更位置面板
 function toggleChangeLocation() {
@@ -685,7 +829,7 @@ function closeDisclaimerModal() {
 
 
 //月曆
-document.addEventListener('DOMContentLoaded', function() {
+/*document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('headacheCalendar');
     
     var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -711,8 +855,65 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     calendar.render();
-});
+});*/
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('headacheCalendar'); // 請確認你的 HTML 容器 ID
+    if (!calendarEl) return;
 
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'zh-tw',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth'
+        },
+        // 渲染月曆上的紀錄標記
+        events: function(fetchInfo, successCallback, failureCallback) {
+            const events = (window.allUserRecords || []).map(record => {
+                let color = '#28a745'; // 綠色（輕微）
+                const score = record.headache_data?.pain_score || 0;
+                if (score >= 7) color = '#ff6b6b';      // 紅色（重度）
+                else if (score >= 4) color = '#ffd43b'; // 黃色（中度）
+
+                const dateStr = record.created_at ? record.created_at.split('T')[0] : '';
+
+                return {
+                    title: `痛: ${score}`,
+                    start: dateStr,
+                    color: color,
+                    extendedProps: record
+                };
+            });
+            successCallback(events);
+        },
+        // 👆 點擊月曆某一天時彈跳出該日資料
+        dateClick: function(info) {
+            const clickedDate = info.dateStr; // 例如 "2026-09-08"
+            
+            const matchedRecord = (window.allUserRecords || []).find(r => {
+                const rDate = r.created_at ? r.created_at.split('T')[0] : '';
+                return rDate === clickedDate;
+            });
+
+            if (matchedRecord) {
+                const hData = matchedRecord.headache_data || {};
+                const wData = matchedRecord.weather_data || {};
+                
+                alert(`📅 記錄日期：${clickedDate}\n` +
+                      `🔥 疼痛指數：${hData.pain_score} / 10\n` +
+                      `📍 痛點部位：${(hData.locations || []).join(', ') || '未記錄'}\n` +
+                      `💊 服藥狀況：${hData.medication_used ? '有 (' + (hData.medication_name || '未填藥名') + ')' : '無'}\n` +
+                      `🌡️ 當時氣壓：${wData.pressure || '無'} hPa`);
+            } else {
+                alert(`📅 日期 ${clickedDate}\n這天尚無頭痛紀錄。`);
+            }
+        }
+    });
+
+    calendar.render();
+    window.myCalendar = calendar; // 掛載到全域變數
+});
 // 記得掛載至 window
 window.openDisclaimerModal = openDisclaimerModal;
 window.closeDisclaimerModal = closeDisclaimerModal;
@@ -830,3 +1031,71 @@ async function exportMedicalReport() {
     // 儲存 PDF 檔案
     doc.save("Headache_Medical_Report.pdf");
 }
+
+// 月曆出現 資料
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('headacheCalendar');
+    
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'zh-tw',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth'
+        },
+        // 動態事件渲染（讓有頭痛紀錄的日子自動變色）
+        events: function(fetchInfo, successCallback, failureCallback) {
+            // 如果全域有資料，就即時轉換成月曆的事件顏色
+            const events = (window.allUserRecords || []).map(record => {
+                let color = '#28a745'; // 綠色（輕微/無）
+                const score = record.headache_data?.pain_score || 0;
+                if (score >= 7) color = '#ff6b6b';      // 重度紅
+                else if (score >= 4) color = '#ffd43b'; // 中度黃
+
+                // 提取記錄的日期（假設你的 created_at 是 "2026-09-08T..." 格式）
+                const dateStr = record.created_at ? record.created_at.split('T')[0] : '';
+
+                return {
+                    title: `痛感: ${score}`,
+                    start: dateStr,
+                    color: color,
+                    extendedProps: record // 把整筆資料藏在事件裡
+                };
+            });
+            successCallback(events);
+        },
+        // 🟢 點擊月曆某一天的核心邏輯
+        dateClick: function(info) {
+            const clickedDate = info.dateStr; // 例如 "2026-09-08"
+            
+            // 從全域資料中找出符合當天的紀錄
+            const matchedRecord = (window.allUserRecords || []).find(r => {
+                const rDate = r.created_at ? r.created_at.split('T')[0] : '';
+                return rDate === clickedDate;
+            });
+
+            if (matchedRecord) {
+                // 📅 狀況 A：這天有紀錄，彈出視窗顯示詳細內容！
+                const hData = matchedRecord.headache_data || {};
+                const wData = matchedRecord.weather_data || {};
+                
+                alert(`📅 記錄日期：${clickedDate}\n` +
+                      `🔥 疼痛指數：${hData.pain_score} / 10\n` +
+                      `📍 痛點部位：${(hData.locations || []).join(', ') || '未記錄'}\n` +
+                      `💊 服藥狀況：${hData.medication_used ? '有 (' + (hData.medication_name || '未填藥名') + ')' : '無'}\n` +
+                      `🌡️ 當時氣壓：${wData.pressure || '無'} hPa`);
+            } else {
+                // 📅 狀況 B：這天沒有記錄，詢問是否要帶入日期補填
+                const confirmAdd = confirm(`📅 日期 ${clickedDate}\n這天尚無頭痛紀錄，是否要切換至填寫頁面進行補填？`);
+                if (confirmAdd) {
+                    // 這裡可以寫切換到填寫分頁的程式碼（例如切換到 pane-headache）
+                    // switchTab('pane-headache');
+                }
+            }
+        }
+    });
+    
+    calendar.render();
+    window.myCalendar = calendar; // 方便之後資料更新時呼叫 calendar.refetchEvents()
+});
