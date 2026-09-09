@@ -196,7 +196,7 @@ class TherapeuticAudioGenerator {
 
 // 建立全域實例
 const therapyAudio = new TherapeuticAudioGenerator();
-let isMusicRunning = false;
+var isMusicRunning = false;
 
 function toggleTherapyMusic(btn) {
     if (!isMusicRunning) {
@@ -205,7 +205,7 @@ function toggleTherapyMusic(btn) {
         btn.style.background = "#f44336";
         isMusicRunning = true;
 
-        // 🌟 這裡可以完美結合你之前寫的全域變數，自動記錄開始時間！
+        // 自動記錄開始時間
         window.lastMusicStartTime = new Date().toISOString();
         window.lastMusicProtocol = "Web Audio Ambient Generator (60-70 BPM)";
     } else {
