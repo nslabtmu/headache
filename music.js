@@ -102,3 +102,98 @@ players.forEach(item => {
         activeStartTime = null;
     });
 });
+
+class TherapeuticAudioGenerator {
+    constructor() {
+        this.ctx = null;
+        this.isPlaying = false;
+        this.timer = null;
+        // 採用舒緩的五聲音階頻率 (Hz)，營造平靜、冥想的氛圍
+        this.frequencies = [130.81, 146.83, 164.81, 196.00, 220.00, 261.63, 293.66, 329.63]; // C大調舒緩頻率
+    }
+
+    // 初始化音訊環境 (必須由使用者的點擊事件觸發，例如按「開始音樂」按鈕)
+    init() {
+        if (!this.ctx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+
+    // 播放單個柔和、帶有長尾音的療癒音符
+    playTone() {
+        if (!this.isPlaying || !this.ctx) return;
+
+        try {
+            // 隨機挑選一個頻率
+            const freq = this.frequencies[Math.floor(Math.random() * this.frequencies.length)];
+            
+            // 建立振盪器 (使用 sine 波，聲音最柔和圓潤)
+            const osc = this.ctx.createOscillator();
+            const gainNode = this.ctx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+
+            // 設定極慢的淡入淡出 (Envelope)，模擬琴音與大量留白
+            const now = this.ctx.currentTime;
+            const attackTime = 1.5;   // 緩慢淡入 (1.5秒)
+            const decayTime = 4.0;    // 極長尾音 (4秒擴散消失)
+
+            gainNode.gain.setValueAtTime(0, now);
+            gainNode.gain.linearRampToValueAtTime(0.15, now + attackTime); // 音量控制得很柔和
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, now + attackTime + decayTime);
+
+            // 連接音訊路徑：振盪器 -> 音量控制器 -> 喇叭
+            osc.connect(gainNode);
+            gainNode.connect(this.ctx.destination);
+
+            // 開始與結束播放
+            osc.start(now);
+            osc.stop(now + attackTime + decayTime);
+
+        } catch (err) {
+            console.error("Audio generation error:", err);
+        }
+    }
+
+    // 開始播放療癒音樂循環 (模擬 60-70 BPM 的緩慢節奏與大量留白)
+    start() {
+        this.init();
+        if (this.isPlaying) return;
+        this.isPlaying = true;
+
+        // 立即彈奏第一聲
+        this.playTone();
+
+        // 每隔 3 到 5 秒隨機彈奏下一個音符 (創造緩慢、放空、充滿留白的氛圍)
+        const scheduleNextNote = () => {
+            if (!this.isPlaying) return;
+            const randomInterval = Math.random() * 2000 + 3500; // 3.5秒 ~ 5.5秒 間隔
+            this.timer = setTimeout(() => {
+                this.playTone();
+                scheduleNextNote();
+            }, randomInterval);
+        };
+
+        scheduleNextNote();
+        console.log("🧘 即時療癒音樂已啟動");
+    }
+
+    // 停止播放
+    stop() {
+        this.isPlaying = false;
+        if (this.timer) {
+            clearTimeout(this.timer);
+            this.timer = null;
+        }
+        console.log("⏹️ 療癒音樂已停止");
+    }
+}
+
+// 建立全域實例
+const therapyAudio = new TherapeuticAudioGenerator();
+
