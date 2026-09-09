@@ -218,3 +218,101 @@ function toggleTherapyMusic(btn) {
         window.lastMusicEndTime = new Date().toISOString();
     }
 }
+var ytPlayer;
+var countdownTimer = null;
+var timeLeft = 20 * 60; // 20 分鐘換算成秒數 (1200秒)
+var isSessionRunning = false;
+
+// 1. 初始化 YouTube API (當 API 載入完成時會自動觸發)
+function onYouTubeIframeAPIReady() {
+    ytPlayer = new YT.Player('youtube-player', {
+        height: '200',
+        width: '300',
+        videoId: 'VhLU3qG1phc', // 🌟 已自動帶入你的 20 分鐘鋼琴音樂 ID
+        events: {
+            'onStateChange': onPlayerStateChange
+        }
+    });
+}
+
+// 2. 點擊開始療程
+function startTherapySession() {
+    if (!ytPlayer) {
+        alert("播放器載入中，請稍候...");
+        return;
+    }
+
+    if (!isSessionRunning) {
+        isSessionRunning = true;
+        timeLeft = 1200; // 重設為 20 分鐘
+        
+        // 播放 YouTube 音樂
+        ytPlayer.playVideo();
+
+        // 🌟 自動記錄研究變數（對應你的 Supabase 格式）
+        window.lastMusicStartTime = new Date().toISOString();
+        window.lastMusicProtocol = "YouTube 20-min Relaxing Piano (VhLU3qG1phc)";
+
+        // 更新按鈕與狀態
+        const btn = document.getElementById('start-btn');
+        btn.innerText = "⏹️ 結束/中斷療程";
+        btn.style.background = "#e74c3c";
+
+        // 啟動 20 分鐘倒數計時器
+        countdownTimer = setInterval(() => {
+            timeLeft--;
+            updateTimerDisplay();
+
+            if (timeLeft <= 0) {
+                completeTherapySession();
+            }
+        }, 1000);
+    } else {
+        // 使用者手動中斷療程
+        completeTherapySession();
+    }
+}
+
+// 3. 更新畫面的倒數時間格式 (MM:SS)
+function updateTimerDisplay() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    document.getElementById('timer-display').innerText = 
+        `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+// 4. 療程結束或中斷時的收尾與數據記錄
+function completeTherapySession() {
+    if (countdownTimer) clearInterval(countdownTimer);
+    if (ytPlayer) ytPlayer.stopVideo();
+
+    isSessionRunning = false;
+    
+    // 🌟 記錄結束時間
+    window.lastMusicEndTime = new Date().toISOString();
+
+    // 重置按鈕
+    const btn = document.getElementById('start-btn');
+    btn.innerText = "▶️ 開始 20 分鐘療程";
+    btn.style.background = "#4CAF50";
+    
+    document.getElementById('timer-display').innerText = "20:00";
+    console.log("✅ 20分鐘音樂治療療程已完成，時間已紀錄。");
+    
+    // 💡 可以在這裡直接串接你的問卷資料儲存函式
+    // saveAllResearchData(); 
+}
+
+// 5. 監聽 YouTube 狀態
+function onPlayerStateChange(event) {
+    // 當音樂自然播畢時，自動觸發完成收尾
+    if (event.data == YT.PlayerState.ENDED && isSessionRunning) {
+        completeTherapySession();
+    }
+}
+
+// 動態載入 YouTube API Script
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
