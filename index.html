@@ -400,8 +400,8 @@
                         <button type="button" class="btn" style="background:#27ae60; color:white;" onclick="saveFullRecord()">💾 儲存當前紀錄</button>
                     </div>
                 </div>
-        </form>
-    </div> <!-- pane-form 结束 -->
+            </form>
+        </div> <!-- pane-form 结束 -->
                 <!--基本資料 -->
                 <div id="pane-profile" class="tab-pane">
                     <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料</h3>
@@ -444,40 +444,57 @@
                 </div>
      
 <!-- ==================== 主頁籤 music ==================== -->
-        <div id="pane-music" class="tab-pane" style="display: none; padding: 15px;">
-    <div class="form-card" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
-        <h2 class="section-title" style="font-size: 18px; color: #2c3e50; margin-bottom: 10px;">🎧 偏頭痛 U 序列音樂治療區</h2>
-        <p style="font-size: 13px; color: #6c757d; margin-bottom: 15px;">
-            科學實證：結合 20 分鐘漸進式放鬆音頻，調節副交感神經與舒緩痛感。
+       <div id="pane-music" class="tab-pane" style="display: none; padding: 15px;">
+    <div style="max-width: 900px; margin: 0 auto;">
+        <h2 class="section-title" style="font-size: 18px; color: #2c3e50; margin-bottom: 5px;">🎧 偏頭痛 U 序列音樂治療專區</h2>
+        <p style="font-size: 13px; color: #6c757d; margin-bottom: 20px;">
+            科學實證：請選擇適合您當下狀態的療癒音樂，進行 20 分鐘副交感神經調節。
         </p>
 
-        <!-- 音樂類型選擇 -->
-        <div style="margin-bottom: 15px;">
-            <label for="musicSelect" style="font-weight: bold; font-size: 14px; color: #2c3e50; display: block; margin-bottom: 5px;">選擇療癒主題：</label>
-            <select id="musicSelect" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ced4da;">
-                <option value="piano">（1）鋼琴 - 緩降內心沉澱</option>
-                <option value="forest">（2）森林 - 大自然頻率共振</option>
-                <option value="ocean">（3）海洋 - 規律浪潮與副交感神經調節</option>
-            </select>
-        </div>
-        
-        <!-- 播放器本體 -->
-        <audio id="therapyAudio" controls style="width: 100%;">
-            <!-- 預設載入純鋼琴網址，之後可隨選單切換 src -->
-            <source src="你的純鋼琴音樂網址.mp3" type="audio/mpeg">
-            您的瀏覽器不支援音訊元素。
-        </audio>
+        <!-- 外層容器：使用 flexbox 讓三個框併排 -->
+        <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between;">
 
-        <!-- 即時狀態提示 -->
-        <div id="therapyStatus" style="margin-top: 12px; font-size: 13px; font-weight: bold; color: #007bff;">
-            狀態：請選擇音樂並點擊播放
+            <!-- 框 1：純鋼琴 -->
+            <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
+                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;">🎹 （1）純鋼琴</h3>
+                <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">拍速緩慢、留白較多，引導大腦放鬆。</p>
+                <audio id="audioPiano" controls style="width: 100%;">
+                    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=gentle-piano-110668.mp3" type="audio/mpeg">
+                    您的瀏覽器不支援音訊元素。
+                </audio>
+                <div id="statusPiano" style="margin-top: 8px; font-size: 12px; font-weight: bold; color: #007bff;">狀態：尚未開始</div>
+            </div>
+
+            <!-- 框 2：森林 -->
+            <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
+                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;">🌲 （2）森林</h3>
+                <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">低頻環境音，微風與輕柔鳥鳴。</p>
+                <audio id="audioForest" controls style="width: 100%;">
+                    <source src="https://cdn.pixabay.com/download/audio/2021/09/06/audio_20623a311d.mp3?filename=forest-lullaby-110624.mp3" type="audio/mpeg">
+                    您的瀏覽器不支援音訊元素。
+                </audio>
+                <div id="statusForest" style="margin-top: 8px; font-size: 12px; font-weight: bold; color: #007bff;">狀態：尚未開始</div>
+            </div>
+
+            <!-- 框 3：海洋 -->
+            <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
+                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;">🌊 （3）海洋</h3>
+                <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">深呼吸頻率的規律浪濤聲。</p>
+                <audio id="audioOcean" controls style="width: 100%;">
+                    <source src="https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=ocean-waves-112906.mp3" type="audio/mpeg">
+                    您的瀏覽器不支援音訊元素。
+                </audio>
+                <div id="statusOcean" style="margin-top: 8px; font-size: 12px; font-weight: bold; color: #007bff;">狀態：尚未開始</div>
+            </div>
+
         </div>
     </div>
 </div>
-            <!-- ==================== 主頁籤 2: 趨勢圖 ==================== -->
-<div id="pane-chart" class="tab-pane">
+     
+<!-- ==================== 主頁籤 2: 趨勢圖 ==================== -->
+    <div id="pane-chart" class="tab-pane">
     <!-- 📅 新增：歷史頭痛月曆檢視區塊 -->
-<div class="card mb-4 shadow-sm">
+    <div class="card mb-4 shadow-sm">
     <div class="card-body">
         <h3 class="card-title">📅 頭痛發作月曆總覽</h3>
         <p class="text-muted small">點擊日期可檢視或補填當天紀錄，顏色代表頭痛嚴重程度。</p>
@@ -485,7 +502,7 @@
         <!-- 月曆渲染容器 -->
         <div id="headacheCalendar" style="min-height: 400px;"></div>
     </div>
-</div>
+    </div>
 
 
 
