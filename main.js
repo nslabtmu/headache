@@ -259,9 +259,75 @@ async function fetchWeather(lat, lon, statusMessage) {
     const tempEl = document.getElementById('wx-temp');
     const humidityEl = document.getElementById('wx-humidity');
     const pressureEl = document.getElementById('wx-pressure');
+    
+    // 💡 如果你前端有對應的空污 UI 顯示元素，也可以在這裡宣告
+    // const pm25El = document.getElementById('wx-pm25');
 
     try {
-        if (statusEl) statusEl.innerText = "⏳ 正在載入氣象資料...";
+        if (statusEl) statusEl.innerText = "⏳ 正在載入氣象與空污資料...";
+
+        // 1. 定義氣象與空污的參數
+        const weatherParams = 'temperature_2m,relative_humidity_2m,surface_pressure';
+        const airParams = ['pm10', 'pm2_5', 'carbon_monoxide', 'nitrogen_dioxide', 'sulphur_dioxide', 'ozone', 'european_aqi', 'us_aqi'].join(',');
+
+        // 2. 同時發送天氣與空氣品質的 API 請求
+        const [weatherRes, airRes] = await Promise.all([
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=${weatherParams}`),
+            fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=${airParams}`)
+        ]);
+        
+        if (!weatherRes.ok) throw new Error("氣象 API 請求失敗");
+        
+        const weatherData = await weatherRes.json();
+        const currentWx = weatherData.current;
+
+        // 解析空污資料（如果 airRes 失敗則給空物件，避免整支程式斷掉）
+        let currentAir = {};
+        if (airRes.ok) {
+            const airData = await airRes.json();
+            currentAir = airData.current || {};
+        }
+
+        // ✅ 更新氣象 UI
+        if (tempEl) tempEl.innerText = `${currentWx.temperature_2m ?? '--'}`;
+        if (humidityEl) humidityEl.innerText = `${currentWx.relative_humidity_2m ?? '--'}`;
+        if (pressureEl) pressureEl.innerText = `${currentWx.surface_pressure ?? '--'}`;
+        
+        // 💡 如果有前端 UI 欄位可以順便更新空污（例如 PM2.5）
+        // if (pm25El) pm25El.innerText = `${currentAir.pm2_5 ?? '--'}`;
+
+        // ✅ 整合天氣與空污資料存入全域變數 (完美對應你資料庫的結構)
+        currentWeather = { 
+            lat, 
+            lon, 
+            fetched_at: new Date().toISOString(), 
+            data: {
+                ...currentWx,    // 包含 temperature_2m, relative_humidity_2m 等
+                ...currentAir    // 包含 pm2_5, pm10, us_aqi 等
+            }
+        };
+        locationReady = true;
+
+        if (statusEl) statusEl.innerHTML = `✅ ${statusMessage}`;
+        
+        const wxDisplay = document.getElementById('weather-data-display');
+        if (wxDisplay) wxDisplay.classList.remove('hidden');
+
+    } catch (err) {
+        console.error("Fetch weather error:", err);
+        if (statusEl) statusEl.innerText = "⚠️ 取得氣象與空污資料失敗";
+        locationReady = false;
+    }
+}
+/* 9/8 async function fetchWeather(lat, lon, statusMessage) {
+    const statusEl = document.getElementById('weather-status');
+    const tempEl = document.getElementById('wx-temp');
+    const humidityEl = document.getElementById('wx-humidity');
+    const pressureEl = document.getElementById('wx-pressure');
+    const pm25El = document.getElementById('wx-pm25');
+
+    try {
+        if (statusEl) statusEl.innerText = "⏳ 正在載入氣象與空污資料資料...";
 
         // 取氣象資料（不反查地名）
         const response = await fetch(
@@ -277,6 +343,7 @@ async function fetchWeather(lat, lon, statusMessage) {
         if (tempEl) tempEl.innerText = `${current.temperature_2m}`;
         if (humidityEl) humidityEl.innerText = `${current.relative_humidity_2m}`;
         if (pressureEl) pressureEl.innerText = `${current.surface_pressure}`;
+        if (pm25El) pm25El.innerText = `${currentAir.pm2_5 ?? '--'}`;
 
         currentWeather = { 
             lat, 
@@ -296,7 +363,7 @@ async function fetchWeather(lat, lon, statusMessage) {
         if (statusEl) statusEl.innerText = "⚠️ 取得氣象資料失敗";
         locationReady = false;
     }
-}
+} 9/8*/
 function updateLocationDisplay(country, city, district, isManual = false) {
     const ipLocationDisplay = document.getElementById('ip-location-display');
     const ipLocationName = document.getElementById('ip-location-name');
