@@ -529,11 +529,14 @@ function saveFullRecord() {
         humidity: currentWeather.data?.relative_humidity_2m || null,
         pressure: currentWeather.data?.surface_pressure || null,
         location: currentWeather.location || "未知位置",
-        fetched_at: currentWeather.fetched_at
-    } : { note: "當下無氣象(防火牆或未抓取)", 
+        //fetched_at: currentWeather.fetched_at
+    //} : { note: "當下無氣象(防火牆或未抓取)", 
     // 💡 帶入定位座標，供 Supabase Edge Function 後續補抓氣象
     latitude: window.userLocation?.lat || null, 
-    longitude: window.userLocation?.lng || null };
+    longitude: window.userLocation?.lng || null 
+    fetched_at: currentWeather?.fetched_at || null,
+    is_backfilled: !!inputDate // 標記這是一筆補填資料
+        };
  
     const payload = {
         user_id: user.id,
