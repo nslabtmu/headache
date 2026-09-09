@@ -107,6 +107,7 @@
 <!-- 主頁籤按鈕 -->
 <div class="main-tabs">
     <button class="tab-btn active" data-tab="pane-form" onclick="switchTab('pane-form')">📝 記錄區</button>
+    <button class="tab-btn" data-tab="pane-music" onclick="switchTab('pane-music')"> 🎵 音樂區</button>
     <button class="tab-btn" data-tab="pane-chart" onclick="switchTab('pane-chart')">📊 趨勢圖</button>
     <button class="tab-btn" data-tab="pane-info"  onclick="switchTab('pane-info')">新知區</button>
 </div>
@@ -441,8 +442,38 @@
                     <button type="button" class="btn" id="saveProfileBtn" onclick="saveUserProfile()" data-i18n="save_profile_btn">儲存</button>
                     <button type="button" class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
                 </div>
-         
+     
+<!-- ==================== 主頁籤 music ==================== -->
+        <div id="pane-music" class="tab-pane" style="display: none; padding: 15px;">
+    <div class="form-card" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
+        <h2 class="section-title" style="font-size: 18px; color: #2c3e50; margin-bottom: 10px;">🎧 偏頭痛 U 序列音樂治療區</h2>
+        <p style="font-size: 13px; color: #6c757d; margin-bottom: 15px;">
+            科學實證：結合 20 分鐘漸進式放鬆音頻，調節副交感神經與舒緩痛感。
+        </p>
+
+        <!-- 音樂類型選擇 -->
+        <div style="margin-bottom: 15px;">
+            <label for="musicSelect" style="font-weight: bold; font-size: 14px; color: #2c3e50; display: block; margin-bottom: 5px;">選擇療癒主題：</label>
+            <select id="musicSelect" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ced4da;">
+                <option value="piano">（1）鋼琴 - 緩降內心沉澱</option>
+                <option value="forest">（2）森林 - 大自然頻率共振</option>
+                <option value="ocean">（3）海洋 - 規律浪潮與副交感神經調節</option>
+            </select>
+        </div>
         
+        <!-- 播放器本體 -->
+        <audio id="therapyAudio" controls style="width: 100%;">
+            <!-- 預設載入純鋼琴網址，之後可隨選單切換 src -->
+            <source src="你的純鋼琴音樂網址.mp3" type="audio/mpeg">
+            您的瀏覽器不支援音訊元素。
+        </audio>
+
+        <!-- 即時狀態提示 -->
+        <div id="therapyStatus" style="margin-top: 12px; font-size: 13px; font-weight: bold; color: #007bff;">
+            狀態：請選擇音樂並點擊播放
+        </div>
+    </div>
+</div>
             <!-- ==================== 主頁籤 2: 趨勢圖 ==================== -->
 <div id="pane-chart" class="tab-pane">
     <!-- 📅 新增：歷史頭痛月曆檢視區塊 -->
