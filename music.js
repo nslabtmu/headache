@@ -4,19 +4,19 @@ const players = [
         audio: document.getElementById('audioPiano'), 
         status: document.getElementById('statusPiano'), 
         name: '純鋼琴',
-        url: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=gentle-piano-110668.mp3'
+        url: 'https://archive.org/download/gentle-piano-relaxation/gentle_piano.mp3'
     },
     { 
         audio: document.getElementById('audioForest'), 
         status: document.getElementById('statusForest'), 
         name: '森林',
-        url: 'https://cdn.pixabay.com/download/audio/2021/09/06/audio_20623a311d.mp3?filename=forest-lullaby-110624.mp3'
+        url: 'https://archive.org/download/forest-ambience/forest_sounds.mp3'
     },
     { 
         audio: document.getElementById('audioOcean'), 
         status: document.getElementById('statusOcean'), 
         name: '海洋',
-        url: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=ocean-waves-112906.mp3'
+        url: 'https://archive.org/download/ocean-waves-relaxation/ocean_waves.mp3'
     }
 ];
 
