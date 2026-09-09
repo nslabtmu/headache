@@ -196,4 +196,25 @@ class TherapeuticAudioGenerator {
 
 // 建立全域實例
 const therapyAudio = new TherapeuticAudioGenerator();
+let isMusicRunning = false;
 
+function toggleTherapyMusic(btn) {
+    if (!isMusicRunning) {
+        therapyAudio.start(); // 啟動瀏覽器即時生成音樂
+        btn.innerText = "⏹️ 停止療癒音樂";
+        btn.style.background = "#f44336";
+        isMusicRunning = true;
+
+        // 🌟 這裡可以完美結合你之前寫的全域變數，自動記錄開始時間！
+        window.lastMusicStartTime = new Date().toISOString();
+        window.lastMusicProtocol = "Web Audio Ambient Generator (60-70 BPM)";
+    } else {
+        therapyAudio.stop(); // 停止音樂
+        btn.innerText = "▶️ 開始聆聽療癒音樂";
+        btn.style.background = "#4CAF50";
+        isMusicRunning = false;
+
+        // 記錄結束時間
+        window.lastMusicEndTime = new Date().toISOString();
+    }
+}
