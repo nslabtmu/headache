@@ -534,7 +534,12 @@ async function saveAllResearchData() {
         steps: Number(document.getElementById('band_steps')?.value) || null,
         avg_steps: Number(document.getElementById('band_avg_steps')?.value) || null
     };
-
+    // 🌟 新增：抓取音樂治療的紀錄與選擇的類型（假設你在全域或變數中有記錄這幾項）
+    const musicTherapyData = {
+        protocol: window.lastMusicProtocol || "未進行音樂治療",
+        start_time: window.lastMusicStartTime || null,
+        end_time: window.lastMusicEndTime || null
+    };
     // 🌟 處理日期與時間（支援補填舊日期）
     const inputDate = document.getElementById('record-date')?.value;
     const inputTime = document.getElementById('record-time')?.value || '00:00:00';
@@ -569,6 +574,7 @@ async function saveAllResearchData() {
         symptoms_data: symptomsData,
         health_data: healthData,
         weather_data: weatherData, 
+        music_therapy_data: musicTherapyData,
         created_at: targetDateTime // 🌟 精準寫入你指定的補填日期與時間！
     };
 
