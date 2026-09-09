@@ -1,4 +1,4 @@
-// 確保三個播放器都綁定好對應的音訊網址
+// music.js // 確保三個播放器都綁定好對應的音訊網址
 const players = [
     { 
         audio: document.getElementById('audioPiano'), 
@@ -40,8 +40,14 @@ players.forEach(item => {
             }
         });
 
-        // 2. 初始化計時
+        // 2. 初始化計時與全域變數
         activeStartTime = new Date().toISOString();
+        
+        // 賦值給全域變數，供 main.js 或其他檔案隨時讀取
+        window.lastMusicProtocol = `U-Sequence: ${item.name}`;
+        window.lastMusicStartTime = activeStartTime;
+        window.lastMusicEndTime = null;
+
         let secondsElapsed = 0;
         
         clearInterval(activeTimer);
@@ -62,6 +68,7 @@ players.forEach(item => {
         if (activeStartTime && !item.audio.ended) {
             clearInterval(activeTimer);
             item.status.innerText = "狀態：已中途暫停";
+            window.lastMusicEndTime = new Date().toISOString();
         }
     });
 
@@ -69,6 +76,7 @@ players.forEach(item => {
     item.audio.addEventListener('ended', async () => {
         clearInterval(activeTimer);
         const endTime = new Date().toISOString();
+        window.lastMusicEndTime = endTime;
         item.status.innerText = "狀態：療程圓滿完成！紀錄已存入資料庫。";
         
         try {
