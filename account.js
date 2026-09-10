@@ -397,7 +397,7 @@ async function openAccountManagement() {
             window.location.href = 'account.html';
         } else {
             // 👤 一般使用者：顯示基本資料區塊（或您想呈現給一般用戶的介面）
-            const userPane = document.getElementById('pane-user-profile');
+            const userPane = document.getElementById('pane-profile');
             if (userPane) {
                 // 如果有分頁區塊，就切換顯示它
                 document.querySelectorAll('.app-pane').forEach(pane => pane.style.display = 'none');
