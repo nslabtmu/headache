@@ -390,16 +390,10 @@ function openAccountManagement() {
     const modal = document.getElementById('account-management-modal');
     if (modal) {
         modal.style.display = 'flex';
-        if (typeof loadAccountManagementData === 'function') {
-            loadAccountManagementData();
         } else {
-            console.log("ℹ️ 尚未定義 loadAccountManagementData，僅開啟視窗");
-        }
-    } else {
-        alert("找不到帳號管理視窗的 HTML 元素！");
+        console.warn('⚠️ 找不到 id 設為 account-management-modal 的元素');
     }
 }
-
 function closeAccountManagement() {
     const modal = document.getElementById('account-management-modal');
     if (modal) {
