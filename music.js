@@ -103,100 +103,6 @@ players.forEach(item => {
     });
 });
 
-class TherapeuticAudioGenerator {
-    constructor() {
-        this.ctx = null;
-        this.isPlaying = false;
-        this.timer = null;
-        // 採用舒緩的五聲音階頻率 (Hz)，營造平靜、冥想的氛圍
-        this.frequencies = [130.81, 146.83, 164.81, 196.00, 220.00, 261.63, 293.66, 329.63]; // C大調舒緩頻率
-    }
-
-    // 初始化音訊環境 (必須由使用者的點擊事件觸發，例如按「開始音樂」按鈕)
-    init() {
-        if (!this.ctx) {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            this.ctx = new AudioContext();
-        }
-        if (this.ctx.state === 'suspended') {
-            this.ctx.resume();
-        }
-    }
-
-    // 播放單個柔和、帶有長尾音的療癒音符
-    playTone() {
-        if (!this.isPlaying || !this.ctx) return;
-
-        try {
-            // 隨機挑選一個頻率
-            const freq = this.frequencies[Math.floor(Math.random() * this.frequencies.length)];
-            
-            // 建立振盪器 (使用 sine 波，聲音最柔和圓潤)
-            const osc = this.ctx.createOscillator();
-            const gainNode = this.ctx.createGain();
-
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-
-            // 設定極慢的淡入淡出 (Envelope)，模擬琴音與大量留白
-            const now = this.ctx.currentTime;
-            const attackTime = 1.5;   // 緩慢淡入 (1.5秒)
-            const decayTime = 4.0;    // 極長尾音 (4秒擴散消失)
-
-            gainNode.gain.setValueAtTime(0, now);
-            gainNode.gain.linearRampToValueAtTime(0.15, now + attackTime); // 音量控制得很柔和
-            gainNode.gain.exponentialRampToValueAtTime(0.0001, now + attackTime + decayTime);
-
-            // 連接音訊路徑：振盪器 -> 音量控制器 -> 喇叭
-            osc.connect(gainNode);
-            gainNode.connect(this.ctx.destination);
-
-            // 開始與結束播放
-            osc.start(now);
-            osc.stop(now + attackTime + decayTime);
-
-        } catch (err) {
-            console.error("Audio generation error:", err);
-        }
-    }
-
-    // 開始播放療癒音樂循環 (模擬 60-70 BPM 的緩慢節奏與大量留白)
-    start() {
-        this.init();
-        if (this.isPlaying) return;
-        this.isPlaying = true;
-
-        // 立即彈奏第一聲
-        this.playTone();
-
-        // 每隔 3 到 5 秒隨機彈奏下一個音符 (創造緩慢、放空、充滿留白的氛圍)
-        const scheduleNextNote = () => {
-            if (!this.isPlaying) return;
-            const randomInterval = Math.random() * 2000 + 3500; // 3.5秒 ~ 5.5秒 間隔
-            this.timer = setTimeout(() => {
-                this.playTone();
-                scheduleNextNote();
-            }, randomInterval);
-        };
-
-        scheduleNextNote();
-        console.log("🧘 即時療癒音樂已啟動");
-    }
-
-    // 停止播放
-    stop() {
-        this.isPlaying = false;
-        if (this.timer) {
-            clearTimeout(this.timer);
-            this.timer = null;
-        }
-        console.log("⏹️ 療癒音樂已停止");
-    }
-}
-
-// 建立全域實例
-const therapyAudio = new TherapeuticAudioGenerator();
-var isMusicRunning = false;
 
 function toggleTherapyMusic(btn) {
     if (!isMusicRunning) {
@@ -223,116 +129,64 @@ var countdownTimer = null;
 var timeLeft = 20 * 60; // 20 分鐘換算成秒數 (1200秒)
 var isSessionRunning = false;
 
-// 1. 初始化 YouTube API (當 API 載入完成時會自動觸發)
+let bgPlayer;
+let isAudioRunning = false;
+
+// 當 YouTube API 準備好時自動初始化
 function onYouTubeIframeAPIReady() {
-    ytPlayer = new YT.Player('youtube-player', {
-        height: '200',
-        width: '300',
-        videoId: 'VhLU3qG1phc', // 🌟 已自動帶入你的 20 分鐘鋼琴音樂 ID
+    bgPlayer = new YT.Player('hidden-audio-player', {
+        height: '1',
+        width: '1',
+        videoId: 'Os47nMrjw_Y', // 你的音樂影片 ID
+        playerVars: {
+            'autoplay': 0,
+            'controls': 0
+        },
         events: {
-            'onStateChange': onPlayerStateChange
+            'onReady': onPlayerReady,
+            'onStateChange': onAudioStateChange
         }
     });
 }
 
-// 2. 點擊開始療程
-function startTherapySession() {
-    if (!ytPlayer) {
-        alert("播放器載入中，請稍候...");
+function onPlayerReady(event) {
+    console.log("✅ 背景音訊播放器已準備就緒");
+}
+
+function toggleAudioOnly() {
+    const btn = document.getElementById('audio-ctrl-btn');
+    if (!bgPlayer || typeof bgPlayer.playVideo !== 'function') {
+        alert("播放器正在載入中，請稍候再試...");
         return;
     }
 
-    if (!isSessionRunning) {
-        isSessionRunning = true;
-        timeLeft = 1200; // 重設為 20 分鐘
-        
-        // 播放 YouTube 音樂
-        ytPlayer.playVideo();
+    if (!isAudioRunning) {
+        bgPlayer.playVideo();
+        isAudioRunning = true;
+        btn.innerText = "⏹️ 停止療癒音樂";
+        btn.style.background = "#f44336"; // 變成紅色代表停止/進行中
 
-        // 🌟 自動記錄研究變數（對應你的 Supabase 格式）
+        // 🔗 完美對接你的研究數據變數
         window.lastMusicStartTime = new Date().toISOString();
-        window.lastMusicProtocol = "YouTube 20-min Relaxing Piano (VhLU3qG1phc)";
-
-        // 更新按鈕與狀態
-        const btn = document.getElementById('start-btn');
-        btn.innerText = "⏹️ 結束/中斷療程";
-        btn.style.background = "#e74c3c";
-
-        // 啟動 20 分鐘倒數計時器
-        countdownTimer = setInterval(() => {
-            timeLeft--;
-            updateTimerDisplay();
-
-            if (timeLeft <= 0) {
-                completeTherapySession();
-            }
-        }, 1000);
+        window.lastMusicProtocol = "YouTube Audio-Only (Os47nMrjw_Y)";
     } else {
-        // 使用者手動中斷療程
-        completeTherapySession();
+        bgPlayer.pauseVideo();
+        isAudioRunning = false;
+        btn.innerText = "▶️ 開始播放療癒音樂";
+        btn.style.background = "#4CAF50"; // 變成綠色代表待命
+
+        // 記錄結束時間
+        window.lastMusicEndTime = new Date().toISOString();
     }
 }
 
-// 3. 更新畫面的倒數時間格式 (MM:SS)
-function updateTimerDisplay() {
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    document.getElementById('timer-display').innerText = 
-        `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-}
-
-// 4. 療程結束或中斷時的收尾與數據記錄
-function completeTherapySession() {
-    if (countdownTimer) clearInterval(countdownTimer);
-    if (ytPlayer) ytPlayer.stopVideo();
-
-    isSessionRunning = false;
-    
-    // 🌟 記錄結束時間
-    window.lastMusicEndTime = new Date().toISOString();
-
-    // 重置按鈕
-    const btn = document.getElementById('start-btn');
-    btn.innerText = "▶️ 開始 20 分鐘療程";
-    btn.style.background = "#4CAF50";
-    
-    document.getElementById('timer-display').innerText = "20:00";
-    console.log("✅ 20分鐘音樂治療療程已完成，時間已紀錄。");
-    
-    // 💡 可以在這裡直接串接你的問卷資料儲存函式
-    // saveAllResearchData(); 
-}
-
-// 5. 監聽 YouTube 狀態
-function onPlayerStateChange(event) {
-    // 當音樂自然播畢時，自動觸發完成收尾
-    if (event.data == YT.PlayerState.ENDED && isSessionRunning) {
-        completeTherapySession();
+function onAudioStateChange(event) {
+    // 當音樂自然播畢時的處理
+    if (event.data == YT.PlayerState.ENDED) {
+        isAudioRunning = false;
+        window.lastMusicEndTime = new Date().toISOString();
+        document.getElementById('audio-ctrl-btn').innerText = "▶️ 開始播放療癒音樂";
+        document.getElementById('audio-ctrl-btn').style.background = "#4CAF50";
+        console.log("🎵 音樂播畢，數據已記錄。");
     }
-}
-
-// 動態載入 YouTube API Script
-var tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-function onYouTubeIframeAPIReady() {
-    samplePlayer = new YT.Player('sample-yt-player', {
-        height: '180',
-        width: '320',
-        videoId: 'VhLU3qG1phc', // 你的 20 分鐘鋼琴曲 ID
-        events: {
-            'onStateChange': onSampleStateChange
-        }
-    });
-}
-function toggleYouTubeSample() {
-    const container = document.getElementById('youtube-sample-container');
-    if (!container) {
-        console.log('YouTube 容器未找到');
-        return;
-    }
-    
-    container.style.display = container.style.display === 'none' ? 'block' : 'none';
 }
