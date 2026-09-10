@@ -19,19 +19,14 @@ async function openAccountManagement() {
     const isAdmin = await checkIfUserIsAdmin();
     
     if (!isAdmin) {
-        // 不是管理者，導向 pane-profile 頁面
-        window.location.href = '/pane-profile';
+        // 🔴 不是管理者：導向 pane-profile 頁面（或對應的分頁）
+        window.location.href = '/pane-profile'; // 根據你的實際路由調整
         return;
     }
     
-    // 是管理者，打開模態框
-    const modal = document.getElementById('account-management-modal');
-    if (modal) {
-        modal.style.display = 'flex';
-        loadAccountManagementData();
-    }
+    // 🟢 是管理者：直接導向管理員專用的 account.html 頁面
+    window.location.href = 'account.html';
 }
-
 function closeAccountManagement() {
     const modal = document.getElementById('account-management-modal');
     if (modal) {
