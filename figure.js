@@ -626,10 +626,10 @@ function setupRealtimeListener(userId) {
 }
 
 // 頁面載入時啟動監聽
-document.addEventListener('DOMContentLoaded', () => {
-    const currentUserId = 'YOUR_USER_ID';
-    setupRealtimeListener(currentUserId);
-});
+//document.addEventListener('DOMContentLoaded', () => {
+//    const currentUserId = 'YOUR_USER_ID';
+//    setupRealtimeListener(currentUserId);
+//});
 // 掛載至 window 供外部 HTML 綁定呼叫
 window.loadUserHistory = loadUserHistory;
 window.updateSymptomMetric = updateSymptomMetric;
