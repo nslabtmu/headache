@@ -69,7 +69,7 @@ function onYouTubeIframeAPIReady() {
                             btn.style.background = '#4CAF50';
                             btn.style.color = 'white';
                             btn.style.cursor = 'pointer';
-                            btn.innerText = `▶️ 播放${config.name}`;
+                            btn.innerText = `▶️ 播放$`;
                         }
                         if (statusEl) {
                             statusEl.innerText = "狀態：準備就緒";
@@ -94,7 +94,7 @@ function renderMusicCards() {
         
         let cardHTML = `
             <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
-                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;">🎵 ${config.name}</h3>
+                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;">${config.name}</h3>
                 <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">${config.description}</p>
                 
                 <!-- YouTube 播放器隱藏容器 -->
