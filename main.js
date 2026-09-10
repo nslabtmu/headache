@@ -144,6 +144,7 @@ function showMainApp(user) {
     getLocationAndWeather();
     loadUserProfile(user.id);
     loadUserHistory(user.id);
+    setupRealtimeListener(user.id);   // ✅ 加這行，用真實 user.id
 }
 async function loadUserHistory(userId) {
     const { data, error } = await supabase
