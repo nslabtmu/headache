@@ -261,24 +261,6 @@ var timeLeft = 20 * 60;
 var isSessionRunning = false;
 
 // 當 YouTube API 準備好時自動初始化
-function onYouTubeIframeAPIReady() {
-    const container = document.getElementById('hidden-audio-player');
-    if (!container) return; // 防呆：若無此容器則不初始化
-
-    bgPlayer = new YT.Player('hidden-audio-player', {
-        height: '1',
-        width: '1',
-        videoId: 'Os47nMrjw_Y', // 音樂影片 ID
-        playerVars: {
-            'autoplay': 0,
-            'controls': 0
-        },
-        events: {
-            'onReady': (event) => console.log("✅ 背景音訊播放器已準備就緒"),
-            'onStateChange': onAudioStateChange
-        }
-    });
-}
 
 function toggleAudioOnly() {
     const btn = document.getElementById('audio-ctrl-btn');
