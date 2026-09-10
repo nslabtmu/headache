@@ -393,29 +393,27 @@ async function openAccountManagement() {
         const isAdmin = await isUserAdmin();
 
         if (isAdmin) {
-            // 👑 管理員：開啟管理員面板 / 建立帳號頁面
-            const adminModal = document.getElementById('admin-management-modal'); // 假設這是你的管理員視窗 ID
-            if (adminModal) {
-                adminModal.style.display = 'flex';
-            } else {
-                alert("管理員面板視窗元素不存在，請檢查 HTML！");
-            }
+            // 👑 管理員：直接導向獨立的 account.html 管理頁面
+            window.location.href = 'account.html';
         } else {
-            // 👤 一般使用者：開啟基本資料 / 帳號管理視窗
-            const userModal = document.getElementById('account-management-modal'); // 假設這是你的用戶基本資料視窗 ID
-            if (userModal) {
-                userModal.style.display = 'flex';
-                // 同步載入該用戶的最新基本資料
+            // 👤 一般使用者：顯示基本資料區塊（或您想呈現給一般用戶的介面）
+            const userPane = document.getElementById('pane-user-profile');
+            if (userPane) {
+                // 如果有分頁區塊，就切換顯示它
+                document.querySelectorAll('.app-pane').forEach(pane => pane.style.display = 'none');
+                userPane.style.display = 'block';
+                
                 if (typeof loadUserProfile === 'function') {
                     loadUserProfile();
                 }
             } else {
-                alert("基本資料視窗元素不存在，請檢查 HTML！");
+                // 如果沒有分頁，也可以直接跳轉到一般使用者的設定頁面（如果有另外開的話）
+                alert('開啟基本資料設定');
             }
         }
     } catch (error) {
-        console.error('❌ 判斷身分失敗:', error);
-        alert('❌ 無法判斷身分，請稍後再試');
+        console.error('❌ 身分驗證失敗:', error);
+        alert('❌ 無法判定身分，請稍後再試');
     }
 }
 
