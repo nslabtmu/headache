@@ -227,7 +227,7 @@ async function toggleYouTubeMusic(key) {
 
     // 更新按鈕樣式
     if (btn) {
-        btn.innerText = `⏹️ 停止${config.name}`;
+        btn.innerText = `⏹️ 停止`;
         btn.style.background = "#A9C0D6";
     }
 
