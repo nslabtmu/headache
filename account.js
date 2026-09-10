@@ -10,21 +10,64 @@ window.addEventListener('load', async () => {
     await updateStats();
 });
 // 修改 2：當管理者點擊打開帳號管理 Modal 時，才去載入資料
+// 初始化 Supabase 客戶端（如果還沒有的話）
+// import { createClient } from '@supabase/supabase-js'
+// const supabase = createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_KEY')
+
 async function openAccountManagement() {
-    const isAdmin = await checkIfUserIsAdmin(); // 假設你用非同步檢查權限
+    // 檢查用戶是否為管理者
+    const isAdmin = await checkIfUserIsAdmin();
     
     if (!isAdmin) {
+        // 不是管理者，導向 pane-profile 頁面
         window.location.href = '/pane-profile';
         return;
     }
     
+    // 是管理者，打開模態框
     const modal = document.getElementById('account-management-modal');
     if (modal) {
         modal.style.display = 'flex';
+        loadAccountManagementData();
+    }
+}
+
+function closeAccountManagement() {
+    const modal = document.getElementById('account-management-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// 從 Supabase 查詢用戶角色
+async function checkIfUserIsAdmin() {
+    try {
+        // 獲取當前登入的用戶
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
         
-        // 👉 關鍵：在這裡確定 Modal 已經打開、DOM 已經渲染出來後，才開始載入用戶列表！
-        await loadUsers(); 
-        await updateStats();
+        if (authError || !user) {
+            console.error('無法獲取用戶信息:', authError);
+            return false;
+        }
+        
+        // 從 profiles table 查詢用戶的 role
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+        
+        if (error) {
+            console.error('查詢 profiles 表失敗:', error);
+            return false;
+        }
+        
+        // 檢查角色是否為 admin
+        return data?.role === 'admin';
+        
+    } catch (error) {
+        console.error('檢查管理員狀態時出錯:', error);
+        return false;
     }
 }
 // ============ 載入所有帳號 ============
