@@ -1,4 +1,165 @@
-// ==================== 1. 多播放器狀態與計時管理 ====================
+// 定義三個音樂的設定與 YouTube Video ID
+const musicConfigs = {
+    piano: {
+        name: '純鋼琴',
+        videoId: 'Os47nMrjw_Y',
+        containerId: 'yt-player-piano',
+        btnId: 'btn-piano',
+        statusId: 'status-piano'
+    },
+    forest: {
+        name: '森林',
+        videoId: '0DvSj6DAKDM', // 從你的網址抽離出來的 ID
+        containerId: 'yt-player-forest',
+        btnId: 'btn-forest',
+        statusId: 'status-forest'
+    },
+    ocean: {
+        name: '療癒音律',
+        videoId: 'fFtHZQi00u0', // 從你的網址抽離出來的 ID
+        containerId: 'yt-player-ocean',
+        btnId: 'btn-ocean',
+        statusId: 'status-ocean'
+    }
+};
+
+let playersMap = {}; // 存放 YouTube 播放器物件
+let activeKey = null; // 目前正在播放哪一個
+let activeTimer = null;
+let activeStartTime = null;
+
+// 當 YouTube API 準備好時，自動初始化這三個播放器
+function onYouTubeIframeAPIReady() {
+    for (let key in musicConfigs) {
+        let config = musicConfigs[key];
+        playersMap[key] = new YT.Player(config.containerId, {
+            height: '1',
+            width: '1',
+            videoId: config.videoId,
+            playerVars: { 'autoplay': 0, 'controls': 0 },
+            events: {
+                'onStateChange': (event) => handlePlayerStateChange(key, event)
+            }
+        });
+    }
+    console.log("✅ 三個 YouTube 療癒音樂播放器已全部準備就緒");
+}
+
+// 點擊按鈕時觸發
+function toggleYouTubeMusic(key) {
+    let config = musicConfigs[key];
+    let player = playersMap[key];
+    let btn = document.getElementById(config.btnId);
+    let statusEl = document.getElementById(config.statusId);
+
+    if (!player || typeof player.playVideo !== 'function') {
+        alert("播放器載入中，請稍候再試...");
+        return;
+    }
+
+    // 如果點擊的是「目前正在播放的」，就將它暫停
+    if (activeKey === key) {
+        player.pauseVideo();
+        stopSession(key, false);
+        activeKey = null;
+        return;
+    }
+
+    // 如果有其他音樂正在播，先把它們全部停掉並重設狀態
+    for (let k in playersMap) {
+        if (k !== key && playersMap[k] && typeof playersMap[k].pauseVideo === 'function') {
+            playersMap[k].pauseVideo();
+            stopSession(k, false);
+        }
+    }
+
+    // 開始播放當前選中的音樂
+    player.playVideo();
+    activeKey = key;
+    activeStartTime = new Date().toISOString();
+
+    // 更新全域變數 (對接你的研究數據)
+    window.lastMusicProtocol = `U-Sequence: ${config.name} (YouTube ${config.videoId})`;
+    window.lastMusicStartTime = activeStartTime;
+    window.lastMusicEndTime = null;
+
+    // 按鈕與狀態變更
+    btn.innerText = `⏹️ 停止${config.name}`;
+    btn.style.background = "#f44336";
+
+    // 啟動 20 分鐘計時器模擬階段提示
+    let secondsElapsed = 0;
+    clearInterval(activeTimer);
+    activeTimer = setInterval(() => {
+        secondsElapsed++;
+        if (secondsElapsed < 300) {
+            statusEl.innerText = `狀態：【進入期】${config.name} 節奏漸緩，引導放鬆...`;
+        } else if (secondsElapsed < 900) {
+            statusEl.innerText = `狀態：【核心放鬆期】低頻沉浸，平穩神經...`;
+        } else {
+            statusEl.innerText = `狀態：【回歸期】能量微升，溫和喚醒...`;
+        }
+    }, 1000);
+}
+
+// 停止或暫停時的清理函式
+function stopSession(key, isCompleted = false) {
+    let config = musicConfigs[key];
+    let btn = document.getElementById(config.btnId);
+    let statusEl = document.getElementById(config.statusId);
+
+    if (activeKey === key) {
+        clearInterval(activeTimer);
+        activeKey = null;
+    }
+
+    if (btn) {
+        btn.innerText = `▶️ 播放${config.name}`;
+        btn.style.background = "#4CAF50";
+    }
+
+    const endTime = new Date().toISOString();
+    window.lastMusicEndTime = endTime;
+
+    if (!isCompleted && statusEl && statusEl.innerText.includes("狀態：【")) {
+        statusEl.innerText = "狀態：已中途暫停";
+    }
+}
+
+// 監聽 YouTube 音樂是否自然播畢
+async function handlePlayerStateChange(key, event) {
+    if (event.data == YT.PlayerState.ENDED) {
+        let config = musicConfigs[key];
+        let statusEl = document.getElementById(config.statusId);
+        
+        stopSession(key, true);
+        if (statusEl) statusEl.innerText = "狀態：療程圓滿完成！紀錄已存入資料庫。";
+
+        // 自動寫入 Supabase 紀錄
+        try {
+            const { data, error } = await supabase
+                .from('music_therapy_logs')
+                .insert([{ 
+                    start_time: activeStartTime, 
+                    end_time: window.lastMusicEndTime,
+                    protocol: `U-Sequence: ${config.name} (YouTube ${config.videoId})`
+                }]);
+
+            if (error) {
+                console.error('Supabase 寫入失敗：', error.message);
+            } else {
+                console.log(`✅ ${config.name} 治療紀錄成功儲存！`, data);
+            }
+        } catch (err) {
+            console.error('發生錯誤：', err);
+        }
+        
+        activeStartTime = null;
+    }
+}
+
+
+// 非youtube 設定 ==================== 1. 多播放器狀態與計時管理 ====================
 const players = [
     { 
         audio: document.getElementById('audioPiano'), 
