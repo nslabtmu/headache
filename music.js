@@ -46,7 +46,7 @@ function onYouTubeIframeAPIReady() {
 }
 
 // 點擊按鈕時觸發
-function toggleYouTubeMusic(key) {
+/*function toggleYouTubeMusic(key) {
     let config = musicConfigs[key];
     let player = playersMap[key];
     let btn = document.getElementById(config.btnId);
@@ -100,7 +100,7 @@ function toggleYouTubeMusic(key) {
             statusEl.innerText = `狀態：【回歸期】能量微升，溫和喚醒...`;
         }
     }, 1000);
-}
+}*/
 
 // 停止或暫停時的清理函式
 function stopSession(key, isCompleted = false) {
