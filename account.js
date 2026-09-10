@@ -400,9 +400,21 @@ async function isUserAdmin() {
     }
 }
 
-// 使用
-if (await isUserAdmin()) {
-    showAdminPanel();
-} else {
-    hideAdminPanel();
+// ✅ 正確：用 async 函式包起來再執行
+async function checkAdminAndTogglePanel() {
+    if (await isUserAdmin()) {
+        showAdminPanel();
+    } else {
+        hideAdminPanel();
+    }
 }
+
+// 頁面載入時執行
+window.addEventListener('load', function() {
+    setTimeout(() => {
+        initializeUserProfile();
+        loadUserProfile();
+        updateLastLogin();
+        checkAdminAndTogglePanel(); // 這裡執行管理員面板判斷
+    }, 500);
+});
