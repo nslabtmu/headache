@@ -6,20 +6,17 @@
 // 1️⃣ 音樂設定檔（內含原本的三個音樂，未來可隨意增減）
 const musicConfigs = {
     piano: {
-        name: '鋼琴',
-        icon: '🎹', // 👈 獨立設定圖標
+        name: '🎹 鋼琴',
         url: 'https://www.youtube.com/watch?v=Os47nMrjw_Y', // 直接貼網址就好！
         description: '拍速緩慢、留白較多，引導大腦放鬆。'
     },
     forest: {
-        name: '森林',
-        icon: '🌲',
+        name: '🌲 森林',
         url: 'https://www.youtube.com/watch?v=0DvSj6DAKDM',
         description: '自然環境音，沉浸大自然頻率。'
     },
     ocean: {
-        name: '海洋',
-        icon: '🌊',
+        name: '🐬 海洋',
         url: 'https://www.youtube.com/watch?v=fFtHZQi00u0',
         description: '平穩音頻，溫和舒緩緊繃神經。'
     }
