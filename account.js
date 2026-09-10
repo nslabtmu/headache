@@ -57,8 +57,9 @@ async function loadUserProfile() {
     try {
         const { data: { user } } = await supabase.auth.getUser();
         
-        if (!user) {
-            console.log('未登入');
+// 🛑 1. 嚴格防呆：確認使用者真的已登入且有合法的 id
+        if (!user || !user.id || user.id === 'undefined') {
+            console.log('⏳ 用戶尚未登入或正在驗證身分...');
             return;
         }
  
@@ -74,22 +75,22 @@ async function loadUserProfile() {
  
         if (error) throw error;
  
-        // 填入基本資料表單
-        document.getElementById('prof_nickname').value = profile.nick_name || '';
-        document.getElementById('prof_birthyear').value = profile.birth_year || '';
-        document.getElementById('prof_gender').value = profile.gender || '';
-        document.getElementById('prof_tbi').value = profile.is_mild_tbi_research || '';
-        document.getElementById('prof_sport').value = profile.exercise_frequency || '';
- 
-        // 顯示帳號相關資訊（可選，用於除錯）
-        console.log('✅ Profile 已載入:', {
-            email: profile.email,
-            phone_account: profile.phone_account,
-            display_name: profile.display_name,
-            role: profile.role,
-            account_type: profile.account_type
-        });
- 
+       // 4. 將資料填入前端表單（如果元素存在才填）
+        if (profile) {
+            const setVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.value = val || '';
+            };
+
+            setVal('prof_nickname', profile.nick_name);
+            setVal('prof_birthyear', profile.birth_year);
+            setVal('prof_gender', profile.gender);
+            setVal('prof_tbi', profile.is_mild_tbi_research);
+            setVal('prof_sport', profile.exercise_frequency);
+            
+            console.log('✅ 新用戶/現有用戶 Profile 載入成功！');
+        }
+
     } catch (error) {
         console.error('❌ 載入 Profile 失敗:', error);
     }
