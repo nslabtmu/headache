@@ -161,3 +161,84 @@ window.addEventListener('load', function() {
         updateLastLogin(); // 更新登入時間
     }, 500);
 });
+//管理員
+
+async function adminCreateUser(userData) {
+    /*
+    userData 包含：
+    {
+      name: '王老先生',          // 姓名
+      account: 'wang-001',        // 帳號
+      password: '12345678',       // 密碼
+      
+      // 基本資料
+      nick_name: '小王',
+      birth_year: 1960,
+      gender: 'male',
+      is_mild_tbi_research: 'yes',
+      exercise_frequency: 'light'
+    }
+    */
+ 
+    try {
+        const email = `${userData.account}@phone.local`;
+ 
+        // 1️⃣ 在 auth 建立帳號
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+            email: email,
+            password: userData.password,
+            options: {
+                data: {
+                    name: userData.name,
+                    role: 'user',
+                    account_type: 'phone'
+                }
+            }
+        });
+ 
+        if (authError) throw authError;
+ 
+        // 2️⃣ 自動確認帳號（不需要驗證信）
+        const { error: confirmError } = await supabase.auth.admin.updateUserById(
+            authData.user.id,
+            { email_confirm: true }
+        );
+ 
+        if (confirmError) throw confirmError;
+ 
+        // 3️⃣ 建立 profile（帳號 + 基本資料）
+        const { error: profileError } = await supabase
+            .from('profiles')
+            .insert([
+                {
+                    id: authData.user.id,
+                    email: email,
+                    display_name: userData.name,
+                    phone_account: userData.account,
+                    role: 'user',
+                    account_type: 'phone',
+                    is_confirmed: true,
+                    
+                    // 基本資料
+                    nick_name: userData.nick_name || null,
+                    birth_year: userData.birth_year || null,
+                    gender: userData.gender || null,
+                    is_mild_tbi_research: userData.is_mild_tbi_research || null,
+                    exercise_frequency: userData.exercise_frequency || null,
+                    
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                }
+            ]);
+ 
+        if (profileError) throw profileError;
+ 
+        alert(`✅ 帳號建立成功！帳號：${userData.account}，密碼：${userData.password}`);
+        return true;
+ 
+    } catch (error) {
+        console.error('❌ 建立失敗:', error);
+        alert('❌ 建立失敗：' + error.message);
+        return false;
+    }
+}
