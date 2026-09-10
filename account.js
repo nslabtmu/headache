@@ -1,5 +1,5 @@
 // ============ 帳號與基本資料完整管理 ============
-         // ============ Supabase 初始化 ============
+ /*        // ============ Supabase 初始化 ============
 //        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentResetingUserId = null;
@@ -239,7 +239,8 @@
             if (event.target === modal) {
                 closeResetModal();
             }
-        }
+        }*/
+
 // 1️⃣ 新用戶登入時自動建立 profile（只執行一次）
 async function initializeUserProfile() {
     try {
