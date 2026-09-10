@@ -12,14 +12,16 @@ let locationReady = false;
 const pageOrder = ['pane-profile', 'pane-headache', 'pane-symptom', 'pane-band', 'pane-chart'];
 
 // 初始化監聽與狀態確認
+// ✅ 正確：增加防禦性檢查
 document.addEventListener('DOMContentLoaded', () => {
-    supabase.auth.onAuthStateChange((event, session) => {
-        if (session && session.user) {
-            showMainApp(session.user);
-        } else {
-            showAuthFlow();
-        }
-    });
+    // 確保 supabase 物件以及 auth 已經成功載入
+    if (window.supabase && window.supabase.auth) {
+        window.supabase.auth.onAuthStateChange((event, session) => {
+            console.log("Auth 狀態改變：", event, session);
+        });
+    } else {
+        console.error("錯誤：Supabase 尚未初始化或載入失敗！");
+    }
 });
 
 document.addEventListener('DOMContentLoaded', function() {
