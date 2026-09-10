@@ -242,3 +242,130 @@ async function adminCreateUser(userData) {
         return false;
     }
 }
+
+function openEditModal(userId, name, email, music_mode, preferred_music) {
+    currentEditingUserId = userId;
+    
+    // 原有的編輯欄位
+    document.getElementById('edit-name').value = name;
+    
+    // 新增：音樂設定欄位
+    document.getElementById('edit-music-mode').value = music_mode || 'free';
+    document.getElementById('edit-preferred-music').value = preferred_music || '純鋼琴';
+    
+    // 根據模式顯示/隱藏音樂選項
+    updateMusicOptionsVisibility();
+    
+    document.getElementById('edit-modal').classList.add('show');
+}
+ 
+// 當 music_mode 改變時，顯示/隱藏音樂選項
+function updateMusicOptionsVisibility() {
+    const mode = document.getElementById('edit-music-mode').value;
+    const musicOptions = document.getElementById('music-options-group');
+    
+    if (mode === 'locked') {
+        musicOptions.style.display = 'block'; // 顯示音樂選項
+    } else {
+        musicOptions.style.display = 'none'; // 隱藏音樂選項
+    }
+}
+ 
+
+ 
+//2️⃣ 保存編輯（包括音樂設定）
+ 
+ 
+async function handleEditUser(event) {
+    event.preventDefault();
+ 
+    const name = document.getElementById('edit-name').value;
+    const password = document.getElementById('edit-password').value;
+    const music_mode = document.getElementById('edit-music-mode').value;
+    const preferred_music = document.getElementById('edit-preferred-music').value;
+    const isDisabled = document.getElementById('edit-status').checked;
+ 
+    try {
+        const updates = {
+            display_name: name,
+            music_mode: music_mode,
+            preferred_music: preferred_music,
+            updated_at: new Date().toISOString()
+        };
+ 
+        // 如果有輸入新密碼才更新
+        if (password) {
+            updates.password = password;
+        }
+ 
+        // 更新 Supabase
+        const { error } = await supabase
+            .from('profiles')
+            .update(updates)
+            .eq('id', currentEditingUserId);
+ 
+        if (error) throw error;
+ 
+        alert('✅ 用戶資訊已更新！');
+        closeEditModal();
+        await loadUsers();
+ 
+    } catch (error) {
+        alert('❌ 更新失敗: ' + error.message);
+    }
+}
+ 
+
+ 
+//3️⃣ 載入用戶列表（包括音樂設定欄位）
+ 
+ 
+async function loadUsers() {
+    try {
+        const { data: profiles, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .order('created_at', { ascending: false });
+ 
+        if (error) throw error;
+ 
+        const tbody = document.getElementById('users-table');
+        tbody.innerHTML = '';
+ 
+        profiles.forEach(profile => {
+            const tr = document.createElement('tr');
+            const createdAt = new Date(profile.created_at).toLocaleDateString('zh-TW');
+            const status = profile.role === 'user' ? '✅ 活躍' : '❌ 停用';
+            
+            // 音樂模式顯示
+            const musicMode = profile.music_mode === 'locked' 
+                ? `🔒 ${profile.preferred_music}` 
+                : '🎵 自由選擇';
+ 
+            tr.innerHTML = `
+                <td>${profile.display_name || '未設定'}</td>
+                <td>${profile.account_type === 'google' ? '🔵 Google' : profile.phone_account}</td>
+                <td>${status}</td>
+                <td>${musicMode}</td>
+                <td>${createdAt}</td>
+                <td>
+                    <button 
+                        class="btn-edit" 
+                        onclick="openEditModal(
+                            '${profile.id}', 
+                            '${profile.display_name}',
+                            '${profile.email}',
+                            '${profile.music_mode || 'free'}',
+                            '${profile.preferred_music || '純鋼琴'}'
+                        )"
+                    >編輯</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+ 
+    } catch (error) {
+        console.error('載入用戶失敗:', error);
+    }
+}
+ 
