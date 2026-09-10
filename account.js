@@ -20,7 +20,7 @@ async function openAccountManagement() {
     
     if (!isAdmin) {
         // 🔴 不是管理者：導向 pane-profile 頁面（或對應的分頁）
-        window.location.href = '/pane-profile'; // 根據你的實際路由調整
+        switchTab('pane-profile'); // 根據你的實際路由調整
         return;
     }
     
