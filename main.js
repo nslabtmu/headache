@@ -1,6 +1,6 @@
 const REQUIRE_LOCATION_FOR_SUBMIT = false;
 
-var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // 全域變數
 
 let currentWeather = null;
