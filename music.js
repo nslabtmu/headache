@@ -63,7 +63,7 @@ function renderMusicCards() {
 
                 <!-- 播放控制按鈕：一開始就可以點，點下去才真正建立該首歌的播放器（懶載入） -->
                 <button id="btn-${key}" onclick="toggleYouTubeMusic('${key}')"
-                    style="width: 100%; padding: 8px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    style="width: 100%; padding: 8px; background: #A5D6A7; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
                     ▶️ 播放${config.name}
                 </button>
 
@@ -190,8 +190,8 @@ async function toggleYouTubeMusic(key) {
             if (statusEl) statusEl.innerText = "狀態：載入失敗，請重新整理再試";
             if (btn) {
                 btn.disabled = false;
-                btn.innerText = `▶️ 播放${config.name}`;
-                btn.style.background = '#4CAF50';
+                btn.innerText = `▶️ 播放$`;
+                btn.style.background = '#A5D6A7';
                 btn.style.cursor = 'pointer';
             }
             return;
@@ -228,7 +228,7 @@ async function toggleYouTubeMusic(key) {
     // 更新按鈕樣式
     if (btn) {
         btn.innerText = `⏹️ 停止${config.name}`;
-        btn.style.background = "#f44336";
+        btn.style.background = "#A9C0D6";
     }
 
     // 啟動計時與階段狀態提示
@@ -260,8 +260,8 @@ function stopSession(key, isCompleted = false) {
     }
 
     if (btn) {
-        btn.innerText = `▶️ 播放${config.name}`;
-        btn.style.background = "#4CAF50";
+        btn.innerText = `▶️ 播放`;
+        btn.style.background = "#A5D6A7";
     }
 
     const endTime = new Date().toISOString();
