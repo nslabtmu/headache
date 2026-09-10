@@ -23,7 +23,7 @@ const pageOrder = ['pane-profile', 'pane-headache', 'pane-symptom', 'pane-band',
         console.error("錯誤：Supabase 尚未初始化或載入失敗！");
     }
 });*/
-document.addEventListener('DOMContentLoaded', () => {
+/*document.addEventListener('DOMContentLoaded', () => {
     // 確保 supabase 物件以及 auth 已經成功載入
     if (window.supabase && window.supabase.auth) {
         window.supabase.auth.onAuthStateChange((event, session) => {
@@ -44,6 +44,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (mainCard) {
                     mainCard.classList.remove('hidden');
                 }
+            }
+        });
+    } else {
+        console.error("錯誤：Supabase 尚未初始化或載入失敗！");
+    }
+});*/
+document.addEventListener('DOMContentLoaded', async () => {
+    // 確保 supabase 物件以及 auth 已經成功載入
+    if (window.supabase && window.supabase.auth) {
+        const authCard = document.getElementById('auth-card');
+        const consentCard = document.getElementById('consent-card');
+        const mainCard = document.getElementById('main-card');
+
+        // 1. 頁面一載入時的「初始狀態檢查」
+        try {
+            const { data: { session }, error } = await window.supabase.auth.getSession();
+            
+            if (session && !error) {
+                // 🟢 如果已經登入過：直接跳過同意書和登入，進入主系統
+                console.log("✅ 已經登入，直接進入主系統");
+                if (consentCard) consentCard.classList.add('hidden');
+                if (authCard) authCard.classList.add('hidden');
+                if (mainCard) mainCard.classList.remove('hidden');
+            } else {
+                // 🔴 如果還沒登入：按照流程，先顯示「同意書」，隱藏登入與主系統
+                console.log("📄 尚未登入，顯示同意書畫面");
+                if (consentCard) consentCard.classList.remove('hidden');
+                if (authCard) authCard.classList.add('hidden');
+                if (mainCard) mainCard.classList.add('hidden');
+            }
+        } catch (err) {
+            console.error("檢查登入狀態失敗：", err);
+        }
+
+        // 2. 監聽後續的登入 / 登出狀態改變
+        window.supabase.auth.onAuthStateChange((event, session) => {
+            console.log("Auth 狀態改變：", event, session);
+            
+            if (event === 'SIGNED_IN' && session) {
+                // 🟢 登入成功時：確保同意書和登入卡片隱藏，顯示主系統
+                if (consentCard) consentCard.classList.add('hidden');
+                if (authCard) authCard.classList.add('hidden');
+                if (mainCard) mainCard.classList.remove('hidden');
+            } else if (event === 'SIGNED_OUT') {
+                // 🔴 登出時：回到同意書畫面或登入畫面（看你們需求，這裡預設回到同意書）
+                if (consentCard) consentCard.classList.remove('hidden');
+                if (authCard) authCard.classList.add('hidden');
+                if (mainCard) mainCard.classList.add('hidden');
             }
         });
     } else {
@@ -115,7 +163,7 @@ function toggleLanguage() {
 }
 
 // ==================== 身份驗證與頁面跳轉 ====================
-function agreeConsent() {
+/*function agreeConsent() {
     // 1. 先暫存在瀏覽器，代表這個人已經點過同意了
     localStorage.setItem('has_agreed', 'true');
 
@@ -126,7 +174,8 @@ function agreeConsent() {
     if (authCard) authCard.classList.remove('hidden');
 
     console.log('✅ 已記錄暫存同意狀態');
-}
+}*/
+
 // 假設這是你登入成功後取得 user 物件的地方
 async function handleLoginSuccess(user) {
     try {
