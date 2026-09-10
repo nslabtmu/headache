@@ -54,17 +54,17 @@ function renderMusicCards() {
         let config = musicConfigs[key];
 
         let cardHTML = `
-            <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
+            <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;" onmouseenter="prefetchPlayer('${key}')">
                 <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;">${config.name}</h3>
                 <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">${config.description}</p>
 
                 <!-- YouTube 播放器隱藏容器 -->
                 <div id="yt-player-${key}" style="display: none;"></div>
 
-                <!-- 播放控制按鈕：初始為停用，等待 YouTube 播放器就緒 -->
-                <button id="btn-${key}" onclick="toggleYouTubeMusic('${key}')" disabled
-                    style="width: 100%; padding: 8px; background: #cccccc; color: #666; border: none; border-radius: 4px; cursor: not-allowed; font-weight: bold;">
-                    ⏳ 載入中...
+                <!-- 播放控制按鈕：一開始就可以點，點下去才真正建立該首歌的播放器（懶載入） -->
+                <button id="btn-${key}" onclick="toggleYouTubeMusic('${key}')"
+                    style="width: 100%; padding: 8px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    ▶️ 播放${config.name}
                 </button>
 
                 <!-- 狀態顯示 -->
@@ -75,71 +75,132 @@ function renderMusicCards() {
     }
 }
 
-// 4️⃣ 初始化 YouTube IFrame API（原本重複定義的兩個版本已合併成這一個）
+// 4️⃣ 初始化 YouTube IFrame API
+// 懶載入策略：這裡不再一次建立 3 個播放器（那是原本很慢的原因），
+// 只記錄 API 是否已經準備好；真正的 YT.Player 會在使用者第一次點擊
+// 該首歌的按鈕時，才由 ensurePlayer() 建立，且僅建立那一個。
+let apiReady = false;
+
 function onYouTubeIframeAPIReady() {
-    for (let key in musicConfigs) {
+    apiReady = true;
+    console.log("✅ YouTube IFrame API 已就緒（播放器將於點擊時才個別建立）");
+}
+
+// 建立中的播放器 Promise 快取：避免「滑鼠移入預載」跟「使用者點擊」同時觸發，
+// 導致同一首歌被重複建立兩個播放器。
+let pendingPlayers = {};
+
+// 確保指定 key 的播放器已經建立；若還沒建立就立刻建立，並回傳 Promise，
+// 在該播放器 onReady 之後才 resolve。重複呼叫同一個 key 會共用同一個 Promise。
+function ensurePlayer(key) {
+    if (playersMap[key]) {
+        return Promise.resolve(playersMap[key]);
+    }
+    if (pendingPlayers[key]) {
+        return pendingPlayers[key]; // 已經有人在建立中（例如滑鼠 hover 時觸發過），直接共用
+    }
+
+    const promise = new Promise((resolve, reject) => {
+        if (!apiReady || typeof YT === 'undefined' || !YT.Player) {
+            reject(new Error('YouTube API 尚未就緒'));
+            return;
+        }
+
         let config = musicConfigs[key];
         let containerId = `yt-player-${key}`;
-        let btnId = `btn-${key}`;
-        let statusId = `status-${key}`;
-
-        // 統一從 url（或舊的 videoId 欄位）解析出真正的 YouTube 影片 ID
         let videoId = extractYouTubeId(config.url || config.videoId);
 
-        if (!videoId) {
-            console.error(`❌ ${config.name} 沒有有效的 YouTube 影片 ID，請檢查 url 設定`);
-            continue;
+        if (!videoId || !document.getElementById(containerId)) {
+            reject(new Error(`${config.name} 缺少有效的影片 ID 或容器`));
+            return;
         }
 
-        if (document.getElementById(containerId)) {
-            playersMap[key] = new YT.Player(containerId, {
-                height: '1',
-                width: '1',
-                videoId: videoId,
-                playerVars: { 'autoplay': 0, 'controls': 0 },
-                events: {
-                    // 🌟 關鍵：當 YouTube 真正準備好時才解鎖按鈕！
-                    'onReady': () => {
-                        let btn = document.getElementById(btnId);
-                        let statusEl = document.getElementById(statusId);
-                        if (btn) {
-                            btn.disabled = false;
-                            btn.style.background = '#4CAF50';
-                            btn.style.color = 'white';
-                            btn.style.cursor = 'pointer';
-                            btn.innerText = `▶️ 播放${config.name}`;
-                        }
-                        if (statusEl) {
-                            statusEl.innerText = "狀態：準備就緒";
-                        }
-                        console.log(`✅ ${config.name} 播放器準備就緒`);
-                    },
-                    'onStateChange': (event) => handlePlayerStateChange(key, event)
-                }
-            });
-        }
-    }
-    console.log("✅ YouTube 播放器初始化完畢");
+        const player = new YT.Player(containerId, {
+            height: '1',
+            width: '1',
+            videoId: videoId,
+            playerVars: { 'autoplay': 0, 'controls': 0 },
+            events: {
+                'onReady': () => {
+                    playersMap[key] = player;
+                    console.log(`✅ ${config.name} 播放器建立完成`);
+                    resolve(player);
+                },
+                'onError': (e) => reject(new Error(`${config.name} 播放器載入失敗（code: ${e.data}）`)),
+                'onStateChange': (event) => handlePlayerStateChange(key, event)
+            }
+        });
+    });
+
+    pendingPlayers[key] = promise;
+    // 不管成功或失敗，處理完後都把 pending 清掉，讓下次呼叫可以重新嘗試
+    promise.finally(() => { delete pendingPlayers[key]; });
+
+    return promise;
+}
+
+// 滑鼠移入卡片時預先偷偷載入播放器，使用者實際點擊播放時就幾乎是秒開。
+// 這裡故意不改動按鈕或狀態文字，避免干擾使用者當下看到的畫面；
+// 失敗也只在 console 記錄，不跳 alert 打擾使用者（真正點擊播放時若還是失敗，toggleYouTubeMusic 會處理）。
+function prefetchPlayer(key) {
+    if (!apiReady) return; // API 都還沒好，先不用預載
+    if (playersMap[key] || pendingPlayers[key]) return; // 已經建好或建立中，不用重複觸發
+
+    console.log(`🔄 預先載入 ${musicConfigs[key].name} 播放器...`);
+    ensurePlayer(key).catch((err) => {
+        console.warn(`⚠️ 預先載入 ${musicConfigs[key].name} 失敗（不影響操作，點擊播放時會重試）：`, err.message);
+    });
 }
 
 // 5️⃣ 點擊播放 / 暫停控制邏輯
-function toggleYouTubeMusic(key) {
+async function toggleYouTubeMusic(key) {
     let config = musicConfigs[key];
-    let player = playersMap[key];
     let btn = document.getElementById(`btn-${key}`);
     let statusEl = document.getElementById(`status-${key}`);
 
-    if (!player || typeof player.playVideo !== 'function') {
-        alert("播放器尚在載入中，請稍候再試...");
-        return;
-    }
-
-    // 如果點擊的是目前正在播放的，則將其暫停
+    // 如果點擊的是目前正在播放的，則將其暫停（這裡播放器一定已經存在，不需要 ensurePlayer）
     if (activeKey === key) {
-        player.pauseVideo();
+        let existing = playersMap[key];
+        if (existing) existing.pauseVideo();
         stopSession(key, false);
         activeKey = null;
         return;
+    }
+
+    let player = playersMap[key];
+
+    // 尚未建立過這首歌的播放器 → 第一次點擊，現在才懶載入建立
+    if (!player) {
+        if (!apiReady) {
+            alert("YouTube 播放器元件尚未載入完成，請稍候再試...");
+            return;
+        }
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = `⏳ 載入${config.name}中...`;
+            btn.style.background = '#cccccc';
+            btn.style.cursor = 'wait';
+        }
+        if (statusEl) statusEl.innerText = "狀態：首次載入播放器中...";
+
+        try {
+            player = await ensurePlayer(key);
+        } catch (err) {
+            console.error(err);
+            if (statusEl) statusEl.innerText = "狀態：載入失敗，請重新整理再試";
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = `▶️ 播放${config.name}`;
+                btn.style.background = '#4CAF50';
+                btn.style.cursor = 'pointer';
+            }
+            return;
+        }
+
+        if (btn) {
+            btn.disabled = false;
+            btn.style.cursor = 'pointer';
+        }
     }
 
     // 互斥機制：如果有其他音樂正在播，先全部停掉
@@ -248,3 +309,4 @@ window.addEventListener('DOMContentLoaded', () => {
 // 🎵 9. 掛載至全域 Window (確保 HTML 點擊按鈕呼叫得到)
 // ==========================================
 window.toggleYouTubeMusic = toggleYouTubeMusic;
+window.prefetchPlayer = prefetchPlayer;
