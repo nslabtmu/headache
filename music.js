@@ -452,3 +452,5 @@ async function handlePlayerStateChange(key, event) {
         }
     }
 }
+// 在音樂程式碼的最下方加上這行：
+window.toggleYouTubeMusic = toggleYouTubeMusic;
