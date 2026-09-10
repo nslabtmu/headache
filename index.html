@@ -493,15 +493,15 @@
         </div>
 
 <div style="text-align: center; padding: 20px;">
-    <h3>🎧 20分鐘 U 序列鋼琴治療 (YouTube 串流)</h3>
+    <h3>🎧 頭痛舒緩療程 (背景純音樂)</h3>
     
-    <!-- 點擊後展開或控制播放 -->
-    <button onclick="toggleYouTubeSample()" id="yt-btn" style="padding: 12px 24px; font-size: 16px; background: #2196F3; color: white; border: none; border-radius: 6px; cursor: pointer;">
-        ▶️ 播放 20 分鐘鋼琴療程
+    <!-- 播放 / 暫停 控制按鈕 -->
+    <button onclick="toggleAudioOnly()" id="audio-ctrl-btn" style="padding: 14px 28px; font-size: 16px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        ▶️ 開始播放療癒音樂
     </button>
 
-    <!-- 嵌入 YouTube 播放器 (可依需求設定隱藏或顯示寬高) -->
-    <div id="sample-yt-player" style="margin-top: 15px;"></div>
+    <!-- 🌟 關鍵：將 YouTube 播放器藏在看不見的地方，只留聲音輸出 -->
+    <div id="hidden-audio-player" style="width: 0; height: 0; overflow: hidden; position: absolute; opacity: 0; pointer-events: none;"></div>
 </div>
     
     </div>
