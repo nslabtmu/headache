@@ -64,31 +64,32 @@
             </svg>
             <span data-i18n="google_login_btn">使用 Google 帳號快速登入</span>
         </button>
-        <button onclick="showAlternativeLogin()" style="flex: 1;">    🔐 其他方式  </button>
+        <button class="btn" onclick="showAlternativeLogin()" style="margin-top: 10px; width: 100%; background-color: #f1f3f5; color: #333; border: 1px solid #ced4da; cursor: pointer; padding: 10px; border-radius: 4px;">🔐 其他方式</button>
 
-        <!-- 其他登入方式 -->
-<div id="alternative-login" style="display: none; margin-top: 16px;">
-  <div class="tab-buttons">
-    <button onclick="switchTab('email')">📧 Email</button>
-    <button onclick="switchTab('account')">🔑 帳號密碼</button>
-  </div>
+<!-- 其他登入方式 -->
+        <div id="alternative-login" style="display: none; margin-top: 16px;">
+          <div class="tab-buttons" style="display: flex; gap: 5px; margin-bottom: 10px;">
+            <button type="button" class="btn" onclick="switchLoginTab('email')" style="flex:1;">📧 Email</button>
+            <button type="button" class="btn" onclick="switchLoginTab('account')" style="flex:1;">🔑 帳號密碼</button>
+          </div>
 
-  <!-- Email 登入 -->
-  <form id="email-tab" style="display: none;">
-    <input type="email" placeholder="Email">
-    <input type="password" placeholder="密碼">
-    <button>登入</button>
-  </form>
+          <!-- Email 登入 -->
+          <form id="email-tab" style="display: none;" onsubmit="event.preventDefault(); handleEmailLogin();">
+            <input type="email" placeholder="Email" class="form-control" style="margin-bottom: 8px; width: 100%; padding: 8px;">
+            <input type="password" placeholder="密碼" class="form-control" style="margin-bottom: 8px; width: 100%; padding: 8px;">
+            <button type="submit" class="btn" style="width: 100%; background: #27ae60; color: white;">登入</button>
+          </form>
 
-  <!-- 帳號密碼登入 -->
-  <form id="account-tab" style="display: none;">
-    <input type="text" placeholder="帳號 (例: 0912345678)">
-    <input type="password" placeholder="密碼">
-    <button>登入</button>
-  </form>
-</div>
+          <!-- 帳號密碼登入 -->
+          <form id="account-tab" style="display: none;" onsubmit="event.preventDefault(); handleAccountLogin();">
+            <input type="text" placeholder="帳號 (例: 0912345678)" class="form-control" style="margin-bottom: 8px; width: 100%; padding: 8px;">
+            <input type="password" placeholder="密碼" class="form-control" style="margin-bottom: 8px; width: 100%; padding: 8px;">
+            <button type="submit" class="btn" style="width: 100%; background: #27ae60; color: white;">登入</button>
+          </form>
+        </div>
     </div>
 
+    
 <!-- 3. 主系統卡片 -->
  <div class="card card-left hidden" id="main-card">
         
