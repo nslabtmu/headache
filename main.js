@@ -89,12 +89,43 @@ function toggleLanguage() {
 
 // ==================== 身份驗證與頁面跳轉 ====================
 function agreeConsent() {
+    // 1. 先暫存在瀏覽器，代表這個人已經點過同意了
+    localStorage.setItem('has_agreed', 'true');
+
+    // 2. 切換畫面：隱藏同意書，顯示登入卡片
     const consentCard = document.getElementById('consent-card');
     const authCard = document.getElementById('auth-card');
     if (consentCard) consentCard.classList.add('hidden');
     if (authCard) authCard.classList.remove('hidden');
-}
 
+    console.log('✅ 已記錄暫存同意狀態');
+}
+// 假設這是你登入成功後取得 user 物件的地方
+async function handleLoginSuccess(user) {
+    try {
+        // 檢查瀏覽器有沒有剛剛暫存的同意狀態
+        const hasAgreedLocal = localStorage.getItem('has_agreed');
+
+        if (hasAgreedLocal === 'true') {
+            // 將同意紀錄正式寫入 Supabase 的同意書 Table
+            const { error } = await supabase
+                .from('consents') // ⬅️ 換成你的同意書 Table 名稱
+                .upsert({
+                    user_id: user.id,          // 帶入登入後的真實 user.id
+                    agreed: true,
+                    agreed_at: new Date()
+                });
+
+            if (error) throw error;
+
+            // 寫入 Supabase 成功後，就可以把瀏覽器的暫存清掉了
+            localStorage.removeItem('has_agreed');
+            console.log('✅ 同意書已成功連動並寫入 Supabase！');
+        }
+    } catch (error) {
+        console.error('❌ 同步同意書到資料庫失敗：', error);
+    }
+}
 async function handleGoogleLogin() {
     const redirectUrl = window.location.origin + window.location.pathname;
     const { error } = await supabase.auth.signInWithOAuth({
