@@ -396,24 +396,17 @@ async function openAccountManagement() {
             // 👑 管理員：直接導向獨立的 account.html 管理頁面
             window.location.href = 'account.html';
         } else {
-            // 👤 一般使用者：顯示基本資料區塊（或您想呈現給一般用戶的介面）
-            const userPane = document.getElementById('pane-profile');
-            if (userPane) {
-                // 如果有分頁區塊，就切換顯示它
-                document.querySelectorAll('.app-pane').forEach(pane => pane.style.display = 'none');
-                userPane.style.display = 'block';
-                
-                if (typeof loadUserProfile === 'function') {
-                    loadUserProfile();
-                }
-            } else {
-                // 如果沒有分頁，也可以直接跳轉到一般使用者的設定頁面（如果有另外開的話）
-                alert('開啟基本資料設定');
+            // 👤 一般使用者：直接呼叫你寫好的 switchTab 切換到 'pane-profile'
+            await switchTab('pane-profile');
+            
+            // 同步載入該用戶的基本資料
+            if (typeof loadUserProfile === 'function') {
+                loadUserProfile();
             }
         }
     } catch (error) {
-        console.error('❌ 身分驗證失敗:', error);
-        alert('❌ 無法判定身分，請稍後再試');
+        console.error('❌ 身份驗證失敗:', error);
+        alert('❌ 無法判定身份，請稍後再試');
     }
 }
 
