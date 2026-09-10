@@ -9,7 +9,24 @@ window.addEventListener('load', async () => {
    // await loadUsers();
     await updateStats();
 });
-
+// 修改 2：當管理者點擊打開帳號管理 Modal 時，才去載入資料
+async function openAccountManagement() {
+    const isAdmin = await checkIfUserIsAdmin(); // 假設你用非同步檢查權限
+    
+    if (!isAdmin) {
+        window.location.href = '/pane-profile';
+        return;
+    }
+    
+    const modal = document.getElementById('account-management-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        
+        // 👉 關鍵：在這裡確定 Modal 已經打開、DOM 已經渲染出來後，才開始載入用戶列表！
+        await loadUsers(); 
+        await updateStats();
+    }
+}
 // ============ 載入所有帳號 ============
 async function loadUsers() {
     try {
