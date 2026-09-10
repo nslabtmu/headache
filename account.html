@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>帳號管理面板 - HeadacheV12</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>   <!-- 加這行，順序要在下面你的自訂 script 之前 -->
     <style>
         * {
             margin: 0;
@@ -514,10 +515,7 @@
  
     <script>
         // ============ Supabase 初始化 ============
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+//        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentResetingUserId = null;
         let currentResetingAccount = null;
