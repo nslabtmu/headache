@@ -445,6 +445,73 @@
         </div>
     </div>
 
+<!-- 編輯用戶 Modal -->
+<div id="edit-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">編輯用戶</div>
+        
+        <form onsubmit="handleEditUser(event)">
+            <div class="modal-body">
+                <!-- 原有的欄位 -->
+                <div class="form-group">
+                    <label for="edit-name">姓名</label>
+                    <input type="text" id="edit-name">
+                </div>
+ 
+                <div class="form-group">
+                    <label for="edit-password">新密碼（留空不變更）</label>
+                    <input type="password" id="edit-password">
+                </div>
+ 
+                <!-- 新增：音樂療法設定 -->
+                <div style="border-top: 1px solid #ecf0f1; margin: 16px 0; padding: 16px 0;">
+                    <h4 style="font-size: 14px; color: #2c3e50; margin-bottom: 12px;">
+                        🎵 音樂療法設定
+                    </h4>
+ 
+                    <div class="form-group">
+                        <label for="edit-music-mode">模式</label>
+                        <select 
+                            id="edit-music-mode" 
+                            onchange="updateMusicOptionsVisibility()"
+                            style="width: 100%; padding: 8px; border: 1px solid #bdc3c7;"
+                        >
+                            <option value="free">自由選擇（用戶可自由選擇音樂）</option>
+                            <option value="locked">鎖定指定（用戶只能聽指定音樂）</option>
+                        </select>
+                    </div>
+ 
+                    <!-- 只在 locked 模式時顯示 -->
+                    <div id="music-options-group" style="display: none;">
+                        <label>鎖定的音樂</label>
+                        <select 
+                            id="edit-preferred-music"
+                            style="width: 100%; padding: 8px; border: 1px solid #bdc3c7;"
+                        >
+                            <option value="純鋼琴">🎹 純鋼琴</option>
+                            <option value="森林">🌲 森林</option>
+                            <option value="海洋">🌊 海洋</option>
+                        </select>
+                    </div>
+                </div>
+ 
+                <!-- 原有的欄位 -->
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="edit-status">
+                        停用此帳號
+                    </label>
+                </div>
+            </div>
+ 
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeEditModal()">取消</button>
+                <button type="submit" class="btn-save">儲存</button>
+            </div>
+        </form>
+    </div>
+</div>
+ 
     <script>
         // ============ Supabase 初始化 ============
         const SUPABASE_URL = 'YOUR_SUPABASE_URL';
