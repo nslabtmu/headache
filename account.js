@@ -383,3 +383,26 @@ function closeAccountManagement() {
         modal.style.display = 'none';
     }
 }
+async function isUserAdmin() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return false;
+
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+
+        return profile?.role === 'admin';
+    } catch (error) {
+        return false;
+    }
+}
+
+// 使用
+if (await isUserAdmin()) {
+    showAdminPanel();
+} else {
+    hideAdminPanel();
+}
