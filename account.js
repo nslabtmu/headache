@@ -31,7 +31,7 @@ async function loadUsers() {
         tbody.innerHTML = '';
 
         if (!profiles || profiles.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #95a5a6;">還沒有帳號</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #95a5a6;">還沒有帳號</td></tr>';
             return;
         }
 
