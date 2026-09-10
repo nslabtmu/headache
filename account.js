@@ -369,3 +369,17 @@ async function loadUsers() {
     }
 }
  
+function openAccountManagement() {
+    const modal = document.getElementById('account-management-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        loadAccountManagementData();
+    }
+}
+
+function closeAccountManagement() {
+    const modal = document.getElementById('account-management-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
