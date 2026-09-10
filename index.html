@@ -493,6 +493,50 @@
             </div>
         </div>
 
+
+    <!-- youtube 框 1：純鋼琴 -->
+            <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
+                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;">🎹 （1）純鋼琴</h3>
+                <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">拍速緩慢、留白較多，引導大腦放鬆。</p>
+                
+                <button onclick="toggleYouTubeMusic('piano')" id="btn-piano" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                    ▶️ 播放純鋼琴
+                </button>
+                <div id="status-piano" style="margin-top: 8px; font-size: 12px; font-weight: bold; color: #007bff;">狀態：尚未開始</div>
+                
+                <!-- 隱藏的 YouTube 播放器 -->
+                <div id="yt-player-piano" style="width: 0; height: 0; overflow: hidden; position: absolute; opacity: 0; pointer-events: none;"></div>
+            </div>
+
+    <!-- youtube 框 2：森林 -->
+            <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
+                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;">🌲 （2）森林</h3>
+                <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">低頻環境音，微風與輕柔鳥鳴。</p>
+                
+                <button onclick="toggleYouTubeMusic('forest')" id="btn-forest" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                    ▶️ 播放森林
+                </button>
+                <div id="status-forest" style="margin-top: 8px; font-size: 12px; font-weight: bold; color: #007bff;">狀態：尚未開始</div>
+                
+                <!-- 隱藏的 YouTube 播放器 -->
+                <div id="yt-player-forest" style="width: 0; height: 0; overflow: hidden; position: absolute; opacity: 0; pointer-events: none;"></div>
+            </div>
+
+     <!-- youtube 框 3：第三個音樂 -->
+            <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
+                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;">🌊 （3）療癒音律</h3>
+                <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">深呼吸頻率的規律放鬆音波。</p>
+                
+                <button onclick="toggleYouTubeMusic('ocean')" id="btn-ocean" style="width: 100%; padding: 10px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                    ▶️ 播放療癒音律
+                </button>
+                <div id="status-ocean" style="margin-top: 8px; font-size: 12px; font-weight: bold; color: #007bff;">狀態：尚未開始</div>
+                
+                <!-- 隱藏的 YouTube 播放器 -->
+                <div id="yt-player-ocean" style="width: 0; height: 0; overflow: hidden; position: absolute; opacity: 0; pointer-events: none;"></div>
+            </div>
+
+    
 <div style="text-align: center; padding: 20px;">
     <h3>🎧 頭痛舒緩療程 (背景純音樂)</h3>
     
