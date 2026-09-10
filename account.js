@@ -418,3 +418,18 @@ window.addEventListener('load', function() {
         checkAdminAndTogglePanel(); // 這裡執行管理員面板判斷
     }, 500);
 });
+// 顯示管理員面板
+function showAdminPanel() {
+    const adminPanel = document.getElementById('admin-panel'); // 你的管理員面板元素 ID
+    if (adminPanel) {
+        adminPanel.style.display = 'block';
+    }
+}
+
+// 隱藏管理員面板
+function hideAdminPanel() {
+    const adminPanel = document.getElementById('admin-panel'); // 你的管理員面板元素 ID
+    if (adminPanel) {
+        adminPanel.style.display = 'none';
+    }
+}
