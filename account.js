@@ -1,0 +1,163 @@
+// ============ 帳號與基本資料完整管理 ============
+ 
+// 1️⃣ 新用戶登入時自動建立 profile（只執行一次）
+async function initializeUserProfile() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+            console.log('未登入');
+            return;
+        }
+ 
+        // 檢查是否已有 profile
+        const { data: existingProfile, error: checkError } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('id', user.id)
+            .single();
+ 
+        // 如果已有 profile，直接返回
+        if (existingProfile) {
+            console.log('✅ Profile 已存在');
+            return;
+        }
+ 
+        // 取得帳號類型（Google 或其他）
+        const accountType = user.user_metadata?.provider || 'google';
+ 
+        // 如果沒有 profile，建立新的
+        const { error: insertError } = await supabase
+            .from('profiles')
+            .insert([
+                {
+                    id: user.id,
+                    email: user.email,
+                    display_name: user.user_metadata?.name || user.email.split('@')[0],
+                    role: 'user', // 新用戶預設為 user
+                    account_type: accountType,
+                    is_confirmed: true,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                }
+            ]);
+ 
+        if (insertError) throw insertError;
+ 
+        console.log('✅ 新 Profile 已建立');
+        return true;
+ 
+    } catch (error) {
+        console.error('❌ 初始化 Profile 失敗:', error);
+    }
+}
+ 
+// 2️⃣ 讀取用戶的基本資料（填入表單）
+async function loadUserProfile() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+            console.log('未登入');
+            return;
+        }
+ 
+        // 先初始化 profile
+        await initializeUserProfile();
+ 
+        // 讀取完整 profile
+        const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+ 
+        if (error) throw error;
+ 
+        // 填入基本資料表單
+        document.getElementById('prof_nickname').value = profile.nick_name || '';
+        document.getElementById('prof_birthyear').value = profile.birth_year || '';
+        document.getElementById('prof_gender').value = profile.gender || '';
+        document.getElementById('prof_tbi').value = profile.is_mild_tbi_research || '';
+        document.getElementById('prof_sport').value = profile.exercise_frequency || '';
+ 
+        // 顯示帳號相關資訊（可選，用於除錯）
+        console.log('✅ Profile 已載入:', {
+            email: profile.email,
+            phone_account: profile.phone_account,
+            display_name: profile.display_name,
+            role: profile.role,
+            account_type: profile.account_type
+        });
+ 
+    } catch (error) {
+        console.error('❌ 載入 Profile 失敗:', error);
+    }
+}
+ 
+// 3️⃣ 保存基本資料（當用戶按儲存按鈕時）
+async function saveUserProfile() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+            alert('❌ 請先登入');
+            return;
+        }
+ 
+        // 讀取表單中的基本資料
+        const profileData = {
+            nick_name: document.getElementById('prof_nickname').value.trim() || null,
+            birth_year: document.getElementById('prof_birthyear').value 
+                ? parseInt(document.getElementById('prof_birthyear').value) 
+                : null,
+            gender: document.getElementById('prof_gender').value || null,
+            is_mild_tbi_research: document.getElementById('prof_tbi').value || null,
+            exercise_frequency: document.getElementById('prof_sport').value || null,
+            updated_at: new Date().toISOString()
+        };
+ 
+        // 保存到 profiles table
+        const { error } = await supabase
+            .from('profiles')
+            .update(profileData)
+            .eq('id', user.id);
+ 
+        if (error) throw error;
+ 
+        alert('✅ 基本資料已保存！');
+        console.log('✅ 保存成功:', profileData);
+ 
+    } catch (error) {
+        console.error('❌ 保存失敗:', error);
+        alert('❌ 保存失敗：' + error.message);
+    }
+}
+ 
+// 4️⃣ 更新最後登入時間
+async function updateLastLogin() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) return;
+ 
+        await supabase
+            .from('profiles')
+            .update({ last_login: new Date().toISOString() })
+            .eq('id', user.id);
+ 
+        console.log('✅ 最後登入時間已更新');
+ 
+    } catch (error) {
+        console.error('❌ 更新登入時間失敗:', error);
+    }
+}
+ 
+// 5️⃣ 頁面載入時執行
+window.addEventListener('load', function() {
+    setTimeout(() => {
+        initializeUserProfile(); // 建立或驗證 profile
+        loadUserProfile(); // 載入資料
+        updateLastLogin(); // 更新登入時間
+    }, 500);
+});
