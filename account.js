@@ -79,6 +79,17 @@ async function loadUsers() {
 }
 
 // ============ 新增帳號 ============
+function showAlternativeLogin() {
+            const box = document.getElementById('alternative-login');
+            box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function switchLoginTab(tabType) {
+            document.getElementById('email-tab').style.display = tabType === 'email' ? 'block' : 'none';
+            document.getElementById('account-tab').style.display = tabType === 'account' ? 'block' : 'none';
+        }
+
+
 async function handleAddUser(event) {
     event.preventDefault();
 
