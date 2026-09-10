@@ -386,14 +386,39 @@ async function loadUsers() {
     }
 }
  
-function openAccountManagement() {
-    const modal = document.getElementById('account-management-modal');
-    if (modal) {
-        modal.style.display = 'flex';
+// 🔐 智慧切換：根據身分決定開啟「基本資料」還是「管理員帳號建立」
+async function openAccountManagement() {
+    try {
+        // 1. 檢查當前用戶是否為管理員
+        const isAdmin = await isUserAdmin();
+
+        if (isAdmin) {
+            // 👑 管理員：開啟管理員面板 / 建立帳號頁面
+            const adminModal = document.getElementById('admin-management-modal'); // 假設這是你的管理員視窗 ID
+            if (adminModal) {
+                adminModal.style.display = 'flex';
+            } else {
+                alert("管理員面板視窗元素不存在，請檢查 HTML！");
+            }
         } else {
-        console.warn('⚠️ 找不到 id 設為 account-management-modal 的元素');
+            // 👤 一般使用者：開啟基本資料 / 帳號管理視窗
+            const userModal = document.getElementById('account-management-modal'); // 假設這是你的用戶基本資料視窗 ID
+            if (userModal) {
+                userModal.style.display = 'flex';
+                // 同步載入該用戶的最新基本資料
+                if (typeof loadUserProfile === 'function') {
+                    loadUserProfile();
+                }
+            } else {
+                alert("基本資料視窗元素不存在，請檢查 HTML！");
+            }
+        }
+    } catch (error) {
+        console.error('❌ 判斷身分失敗:', error);
+        alert('❌ 無法判斷身分，請稍後再試');
     }
 }
+
 function closeAccountManagement() {
     const modal = document.getElementById('account-management-modal');
     if (modal) {
