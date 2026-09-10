@@ -7,16 +7,19 @@
 const musicConfigs = {
     piano: {
         name: '鋼琴',
+        icon: '🎹', // 👈 獨立設定圖標
         url: 'https://www.youtube.com/watch?v=Os47nMrjw_Y', // 直接貼網址就好！
         description: '拍速緩慢、留白較多，引導大腦放鬆。'
     },
     forest: {
         name: '森林',
+        icon: '🌲',
         url: 'https://www.youtube.com/watch?v=0DvSj6DAKDM',
         description: '自然環境音，沉浸大自然頻率。'
     },
     ocean: {
         name: '海洋',
+        icon: '🌊',
         url: 'https://www.youtube.com/watch?v=fFtHZQi00u0',
         description: '平穩音頻，溫和舒緩緊繃神經。'
     }
@@ -37,36 +40,50 @@ let activeStartTime = null;
 let currentMusicItem = null;
 
 
-// 🛠️ 自動從 YouTube 網址擷取 Video ID 的小工具
 function extractYouTubeId(url) {
     if (!url) return '';
-    // 支援標準網址 (watch?v=...) 與短網址 (youtu.be/...)
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : url; // 如果剛好直接填了 ID 也能相容
+    return (match && match[2].length === 11) ? match[2] : url;
 }
 
-// 🎵 自動初始化所有 YouTube 播放器
 function onYouTubeIframeAPIReady() {
     for (let key in musicConfigs) {
         let config = musicConfigs[key];
+        let containerId = `yt-player-${key}`;
+        let btnId = `btn-${key}`;
+        let statusId = `status-${key}`;
         
-        // 🌟 自動把網址轉成 Video ID
         let videoId = extractYouTubeId(config.url || config.videoId);
         
-        if (document.getElementById(config.containerId)) {
-            playersMap[key] = new YT.Player(config.containerId, {
+        if (document.getElementById(containerId)) {
+            playersMap[key] = new YT.Player(containerId, {
                 height: '1',
                 width: '1',
-                videoId: videoId, // 帶入自動解析出來的 ID
+                videoId: videoId,
                 playerVars: { 'autoplay': 0, 'controls': 0 },
                 events: {
+                    // 🌟 關鍵：當 YouTube 真正準備好時才解鎖按鈕！
+                    'onReady': (event) => {
+                        let btn = document.getElementById(btnId);
+                        let statusEl = document.getElementById(statusId);
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.style.background = '#4CAF50';
+                            btn.style.color = 'white';
+                            btn.style.cursor = 'pointer';
+                            btn.innerText = `▶️ 播放${config.name}`;
+                        }
+                        if (statusEl) {
+                            statusEl.innerText = "狀態：準備就緒";
+                        }
+                        console.log(`✅ ${config.name} 播放器準備就緒`);
+                    },
                     'onStateChange': (event) => handlePlayerStateChange(key, event)
                 }
             });
         }
     }
-    console.log("✅ YouTube 播放器初始化完畢（支援網址自動解析）！");
 }
 // 3️⃣ 自動在網頁上生成音樂卡片
 function renderMusicCards() {
