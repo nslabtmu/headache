@@ -163,7 +163,7 @@ function toggleLanguage() {
 }
 
 // ==================== 身份驗證與頁面跳轉 ====================
-/*function agreeConsent() {
+function agreeConsent() {
     // 1. 先暫存在瀏覽器，代表這個人已經點過同意了
     localStorage.setItem('has_agreed', 'true');
 
@@ -174,7 +174,7 @@ function toggleLanguage() {
     if (authCard) authCard.classList.remove('hidden');
 
     console.log('✅ 已記錄暫存同意狀態');
-}*/
+}
 
 // 假設這是你登入成功後取得 user 物件的地方
 async function handleLoginSuccess(user) {
