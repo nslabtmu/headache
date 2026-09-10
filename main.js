@@ -187,7 +187,7 @@ function resetConsent() {
 }
 
 // ==================== 個人資料設定面板 ====================
-async function loadUserProfile(userId) {
+/*async function loadUserProfile(userId) {
     const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
     if (error) { console.error("讀取個人資料失敗：", error.message); return; }
     
@@ -201,7 +201,7 @@ async function loadUserProfile(userId) {
     } else {
         enterProfileEditMode();
     }
-}
+}*/
 
 function setProfileFieldsDisabled(disabled) {
     ['prof_nickname', 'prof_birthyear', 'prof_gender', 'prof_tbi', 'prof_sport'].forEach(id => {
