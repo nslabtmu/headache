@@ -316,3 +316,14 @@ var tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+
+function toggleYouTubeSample() {
+    const container = document.getElementById('youtube-sample-container');
+    if (!container) {
+        console.log('YouTube 容器未找到');
+        return;
+    }
+    
+    container.style.display = container.style.display === 'none' ? 'block' : 'none';
+}
