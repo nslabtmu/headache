@@ -317,7 +317,16 @@ tag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-
+function onYouTubeIframeAPIReady() {
+    samplePlayer = new YT.Player('sample-yt-player', {
+        height: '180',
+        width: '320',
+        videoId: 'VhLU3qG1phc', // 你的 20 分鐘鋼琴曲 ID
+        events: {
+            'onStateChange': onSampleStateChange
+        }
+    });
+}
 function toggleYouTubeSample() {
     const container = document.getElementById('youtube-sample-container');
     if (!container) {
