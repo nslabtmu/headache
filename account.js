@@ -6,7 +6,7 @@ let currentEditingUserId = null;
 // ============ 頁面載入 ============
 window.addEventListener('load', async () => {
     console.log('account.js 頁面載入...');
-    await loadUsers();
+   // await loadUsers();
     await updateStats();
 });
 
