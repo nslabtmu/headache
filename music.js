@@ -1,29 +1,4 @@
-// ==========================================
-// 🎵 1. 定義三個音樂的設定與 YouTube Video ID
-// ==========================================
-const musicConfigs = {
-    piano: {
-        name: '純鋼琴',
-        videoId: 'Os47nMrjw_Y',
-        containerId: 'yt-player-piano',
-        btnId: 'btn-piano',
-        statusId: 'status-piano'
-    },
-    forest: {
-        name: '森林',
-        videoId: '0DvSj6DAKDM',
-        containerId: 'yt-player-forest',
-        btnId: 'btn-forest',
-        statusId: 'status-forest'
-    },
-    ocean: {
-        name: '療癒音律',
-        videoId: 'fFtHZQi00u0',
-        containerId: 'yt-player-ocean',
-        btnId: 'btn-ocean',
-        statusId: 'status-ocean'
-    }
-};
+
 // ==========================================
 // 🎵 彈性 YouTube 音樂治療管理模組 (music.js)
 // ==========================================
@@ -32,19 +7,25 @@ const musicConfigs = {
 const musicConfigs = {
     piano: {
         name: '純鋼琴',
-        description: '拍速緩慢、留白較多，引導大腦放鬆。',
-        videoId: '請填入純鋼琴YouTube影片ID'
+        url: 'https://www.youtube.com/watch?v=Os47nMrjw_Y', // 直接貼網址就好！
+        description: '拍速緩慢、留白較多，引導大腦放鬆。'
     },
     forest: {
         name: '森林',
-        description: '自然環境音，沉浸大自然頻率。',
-        videoId: '請填入森林YouTube影片ID'
+        url: 'https://www.youtube.com/watch?v=0DvSj6DAKDM',
+        description: '自然環境音，沉浸大自然頻率。'
     },
     ocean: {
         name: '療癒音律',
-        description: '平穩音頻，溫和舒緩緊繃神經。',
-        videoId: '請填入療癒音律YouTube影片ID'
+        url: 'https://www.youtube.com/watch?v=fFtHZQi00u0',
+        description: '平穩音頻，溫和舒緩緊繃神經。'
     }
+   /*增加新參數 
+   rain: {
+        name: '雨聲白噪音',
+        description: '持續性柔和頻率，幫助深度安眠。',
+        videoId: '你的YouTube影片ID_4'
+    }*/
 };
 
 // 2️⃣ 全域變數與多次播放累積陣列
@@ -55,6 +36,38 @@ let activeTimer = null;
 let activeStartTime = null; 
 let currentMusicItem = null;
 
+
+// 🛠️ 自動從 YouTube 網址擷取 Video ID 的小工具
+function extractYouTubeId(url) {
+    if (!url) return '';
+    // 支援標準網址 (watch?v=...) 與短網址 (youtu.be/...)
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : url; // 如果剛好直接填了 ID 也能相容
+}
+
+// 🎵 自動初始化所有 YouTube 播放器
+function onYouTubeIframeAPIReady() {
+    for (let key in musicConfigs) {
+        let config = musicConfigs[key];
+        
+        // 🌟 自動把網址轉成 Video ID
+        let videoId = extractYouTubeId(config.url || config.videoId);
+        
+        if (document.getElementById(config.containerId)) {
+            playersMap[key] = new YT.Player(config.containerId, {
+                height: '1',
+                width: '1',
+                videoId: videoId, // 帶入自動解析出來的 ID
+                playerVars: { 'autoplay': 0, 'controls': 0 },
+                events: {
+                    'onStateChange': (event) => handlePlayerStateChange(key, event)
+                }
+            });
+        }
+    }
+    console.log("✅ YouTube 播放器初始化完畢（支援網址自動解析）！");
+}
 // 3️⃣ 自動在網頁上生成音樂卡片
 function renderMusicCards() {
     const container = document.getElementById('music-cards-container');
