@@ -64,6 +64,29 @@
             </svg>
             <span data-i18n="google_login_btn">使用 Google 帳號快速登入</span>
         </button>
+        <button onclick="showAlternativeLogin()" style="flex: 1;">    🔐 其他方式  </button>
+
+        <!-- 其他登入方式 -->
+<div id="alternative-login" style="display: none; margin-top: 16px;">
+  <div class="tab-buttons">
+    <button onclick="switchTab('email')">📧 Email</button>
+    <button onclick="switchTab('account')">🔑 帳號密碼</button>
+  </div>
+
+  <!-- Email 登入 -->
+  <form id="email-tab" style="display: none;">
+    <input type="email" placeholder="Email">
+    <input type="password" placeholder="密碼">
+    <button>登入</button>
+  </form>
+
+  <!-- 帳號密碼登入 -->
+  <form id="account-tab" style="display: none;">
+    <input type="text" placeholder="帳號 (例: 0912345678)">
+    <input type="password" placeholder="密碼">
+    <button>登入</button>
+  </form>
+</div>
     </div>
 
 <!-- 3. 主系統卡片 -->
