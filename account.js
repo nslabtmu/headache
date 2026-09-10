@@ -1,6 +1,6 @@
 // ============ 帳號與基本資料完整管理 ============
   // ============ Supabase 初始化 ============
-       // const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
  /*      
 
         let currentResetingUserId = null;
