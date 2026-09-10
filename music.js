@@ -1,4 +1,3 @@
-
 // ==========================================
 // 🎵 彈性 YouTube 音樂治療管理模組 (music.js)
 // ==========================================
@@ -44,65 +43,30 @@ function extractYouTubeId(url) {
     return (match && match[2].length === 11) ? match[2] : url;
 }
 
-function onYouTubeIframeAPIReady() {
-    for (let key in musicConfigs) {
-        let config = musicConfigs[key];
-        let containerId = `yt-player-${key}`;
-        let btnId = `btn-${key}`;
-        let statusId = `status-${key}`;
-        
-        let videoId = extractYouTubeId(config.url || config.videoId);
-        
-        if (document.getElementById(containerId)) {
-            playersMap[key] = new YT.Player(containerId, {
-                height: '1',
-                width: '1',
-                videoId: videoId,
-                playerVars: { 'autoplay': 0, 'controls': 0 },
-                events: {
-                    // 🌟 關鍵：當 YouTube 真正準備好時才解鎖按鈕！
-                    'onReady': (event) => {
-                        let btn = document.getElementById(btnId);
-                        let statusEl = document.getElementById(statusId);
-                        if (btn) {
-                            btn.disabled = false;
-                            btn.style.background = '#4CAF50';
-                            btn.style.color = 'white';
-                            btn.style.cursor = 'pointer';
-                            btn.innerText = `▶️ 播放$`;
-                        }
-                        if (statusEl) {
-                            statusEl.innerText = "狀態：準備就緒";
-                        }
-                        console.log(`✅ ${config.name} 播放器準備就緒`);
-                    },
-                    'onStateChange': (event) => handlePlayerStateChange(key, event)
-                }
-            });
-        }
-    }
-}
 // 3️⃣ 自動在網頁上生成音樂卡片
 function renderMusicCards() {
     const container = document.getElementById('music-cards-container');
     if (!container) return;
-    
+
     container.innerHTML = ''; // 清空重新渲染
 
     for (let key in musicConfigs) {
         let config = musicConfigs[key];
-        
+
         let cardHTML = `
             <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
                 <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;">${config.name}</h3>
                 <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">${config.description}</p>
-                
+
                 <!-- YouTube 播放器隱藏容器 -->
                 <div id="yt-player-${key}" style="display: none;"></div>
-                
-                <!-- 播放控制按鈕 -->
-                <button id="btn-${key}" onclick="toggleYouTubeMusic('${key}')" style="width: 100%; padding: 8px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">▶️ 播放${config.name}</button>
-                
+
+                <!-- 播放控制按鈕：初始為停用，等待 YouTube 播放器就緒 -->
+                <button id="btn-${key}" onclick="toggleYouTubeMusic('${key}')" disabled
+                    style="width: 100%; padding: 8px; background: #cccccc; color: #666; border: none; border-radius: 4px; cursor: not-allowed; font-weight: bold;">
+                    ⏳ 載入中...
+                </button>
+
                 <!-- 狀態顯示 -->
                 <div id="status-${key}" style="margin-top: 8px; font-size: 12px; font-weight: bold; color: #007bff;">狀態：尚未開始</div>
             </div>
@@ -111,19 +75,45 @@ function renderMusicCards() {
     }
 }
 
-// 4️⃣ 初始化 YouTube IFrame API
+// 4️⃣ 初始化 YouTube IFrame API（原本重複定義的兩個版本已合併成這一個）
 function onYouTubeIframeAPIReady() {
     for (let key in musicConfigs) {
         let config = musicConfigs[key];
         let containerId = `yt-player-${key}`;
-        
+        let btnId = `btn-${key}`;
+        let statusId = `status-${key}`;
+
+        // 統一從 url（或舊的 videoId 欄位）解析出真正的 YouTube 影片 ID
+        let videoId = extractYouTubeId(config.url || config.videoId);
+
+        if (!videoId) {
+            console.error(`❌ ${config.name} 沒有有效的 YouTube 影片 ID，請檢查 url 設定`);
+            continue;
+        }
+
         if (document.getElementById(containerId)) {
             playersMap[key] = new YT.Player(containerId, {
                 height: '1',
                 width: '1',
-                videoId: config.videoId,
+                videoId: videoId,
                 playerVars: { 'autoplay': 0, 'controls': 0 },
                 events: {
+                    // 🌟 關鍵：當 YouTube 真正準備好時才解鎖按鈕！
+                    'onReady': () => {
+                        let btn = document.getElementById(btnId);
+                        let statusEl = document.getElementById(statusId);
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.style.background = '#4CAF50';
+                            btn.style.color = 'white';
+                            btn.style.cursor = 'pointer';
+                            btn.innerText = `▶️ 播放${config.name}`;
+                        }
+                        if (statusEl) {
+                            statusEl.innerText = "狀態：準備就緒";
+                        }
+                        console.log(`✅ ${config.name} 播放器準備就緒`);
+                    },
                     'onStateChange': (event) => handlePlayerStateChange(key, event)
                 }
             });
@@ -167,7 +157,7 @@ function toggleYouTubeMusic(key) {
 
     // 建立本次播放紀錄，並推入累積陣列
     currentMusicItem = {
-        protocol: `U-Sequence: ${config.name} (YouTube ${config.videoId})`,
+        protocol: `U-Sequence: ${config.name}`,
         start_time: activeStartTime,
         end_time: null,
         completed: false
@@ -180,7 +170,7 @@ function toggleYouTubeMusic(key) {
         btn.style.background = "#f44336";
     }
 
-    // 啟動 20 分鐘計時與階段狀態提示
+    // 啟動計時與階段狀態提示
     let secondsElapsed = 0;
     clearInterval(activeTimer);
     activeTimer = setInterval(() => {
@@ -214,7 +204,7 @@ function stopSession(key, isCompleted = false) {
     }
 
     const endTime = new Date().toISOString();
-    
+
     if (currentMusicItem) {
         currentMusicItem.end_time = endTime;
         currentMusicItem.completed = isCompleted;
@@ -230,17 +220,17 @@ async function handlePlayerStateChange(key, event) {
     if (event.data == YT.PlayerState.ENDED) {
         let config = musicConfigs[key];
         let statusEl = document.getElementById(`status-${key}`);
-        
+
         stopSession(key, true);
         if (statusEl) statusEl.innerText = "狀態：療程圓滿完成！";
 
         // 同步寫入獨立音樂日誌表（選擇性功能）
         try {
             if (typeof supabase !== 'undefined') {
-                await supabase.from('music_therapy_logs').insert([{ 
-                    start_time: activeStartTime, 
+                await supabase.from('music_therapy_logs').insert([{
+                    start_time: activeStartTime,
                     end_time: currentMusicItem ? currentMusicItem.end_time : new Date().toISOString(),
-                    protocol: `U-Sequence: ${config.name} (YouTube ${config.videoId})`
+                    protocol: `U-Sequence: ${config.name}`
                 }]);
             }
         } catch (err) {
@@ -255,6 +245,6 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// 🎵 7. 掛載至全域 Window (確保 HTML 點擊按鈕呼叫得到)
+// 🎵 9. 掛載至全域 Window (確保 HTML 點擊按鈕呼叫得到)
 // ==========================================
 window.toggleYouTubeMusic = toggleYouTubeMusic;
