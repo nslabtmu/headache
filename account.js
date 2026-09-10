@@ -53,42 +53,58 @@ async function initializeUserProfile() {
 }
  
 // 2️⃣ 讀取用戶的基本資料（填入表單）
-async function loadUserProfile() {
+// 整合版：支援自動取得當前登入者，並對應正確的資料庫欄位與介面切換
+async function loadUserProfile(targetUserId = null) {
     try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-// 🛑 1. 嚴格防呆：確認使用者真的已登入且有合法的 id
-        if (!user || !user.id || user.id === 'undefined') {
-            console.log('⏳ 用戶尚未登入或正在驗證身分...');
-            return;
+        let userId = targetUserId;
+
+        // 如果沒有手動傳入 ID，就自動抓取當前登入的使用者
+        if (!userId) {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user || !user.id || user.id === 'undefined') {
+                console.log('⏳ 用戶尚未登入或正在驗證身分...');
+                return;
+            }
+            userId = user.id;
         }
- 
-        // 先初始化 profile
+
+        // 1️⃣ 先確保新用戶在 profiles 表格中有資料
         await initializeUserProfile();
- 
-        // 讀取完整 profile
+
+        // 2️⃣ 讀取完整 profile（改用 maybeSingle 避免找不到資料時直接丟出例外錯誤）
         const { data: profile, error } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', user.id)
-            .single();
- 
-        if (error) throw error;
- 
-       // 4. 將資料填入前端表單（如果元素存在才填）
-        if (profile) {
-            const setVal = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) el.value = val || '';
-            };
+            .eq('id', userId)
+            .maybeSingle();
 
+        if (error) throw error;
+
+        // 安全填入表單的小工具
+        const setVal = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.value = val || '';
+        };
+
+        if (profile) {
+            // 🌟 統一使用正確的資料庫欄位名稱 (nick_name, is_mild_tbi_research, exercise_frequency)
             setVal('prof_nickname', profile.nick_name);
             setVal('prof_birthyear', profile.birth_year);
             setVal('prof_gender', profile.gender);
             setVal('prof_tbi', profile.is_mild_tbi_research);
             setVal('prof_sport', profile.exercise_frequency);
             
-            console.log('✅ 新用戶/現有用戶 Profile 載入成功！');
+            console.log('✅ Profile 載入成功！');
+
+            // 如果你的專案有設計檢視模式切換，可以在這裡呼叫
+            if (typeof enterProfileViewMode === 'function') {
+                enterProfileViewMode();
+            }
+        } else {
+            console.log('⚠️ 找不到對應的 Profile，切換至編輯模式');
+            if (typeof enterProfileEditMode === 'function') {
+                enterProfileEditMode();
+            }
         }
 
     } catch (error) {
