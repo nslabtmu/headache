@@ -24,26 +24,74 @@ const musicConfigs = {
         statusId: 'status-ocean'
     }
 };
+// ==========================================
+// 🎵 彈性 YouTube 音樂治療管理模組 (music.js)
+// ==========================================
 
-// ==========================================
-// 🎵 2. 全域狀態與多次累積管理 (陣列模式)
-// ==========================================
+// 1️⃣ 音樂設定檔（內含原本的三個音樂，未來可隨意增減）
+const musicConfigs = {
+    piano: {
+        name: '純鋼琴',
+        description: '拍速緩慢、留白較多，引導大腦放鬆。',
+        videoId: '請填入純鋼琴YouTube影片ID'
+    },
+    forest: {
+        name: '森林',
+        description: '自然環境音，沉浸大自然頻率。',
+        videoId: '請填入森林YouTube影片ID'
+    },
+    ocean: {
+        name: '療癒音律',
+        description: '平穩音頻，溫和舒緩緊繃神經。',
+        videoId: '請填入療癒音律YouTube影片ID'
+    }
+};
+
+// 2️⃣ 全域變數與多次播放累積陣列
 window.sessionMusicLogs = window.sessionMusicLogs || [];
-
 let playersMap = {};     
 let activeKey = null;    
 let activeTimer = null;  
 let activeStartTime = null; 
-let currentMusicItem = null; // 當前正在聽的音樂物件參考
+let currentMusicItem = null;
 
-// ==========================================
-// 🎵 3. 初始化 YouTube API
-// ==========================================
+// 3️⃣ 自動在網頁上生成音樂卡片
+function renderMusicCards() {
+    const container = document.getElementById('music-cards-container');
+    if (!container) return;
+    
+    container.innerHTML = ''; // 清空重新渲染
+
+    for (let key in musicConfigs) {
+        let config = musicConfigs[key];
+        
+        let cardHTML = `
+            <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
+                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;">🎵 ${config.name}</h3>
+                <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">${config.description}</p>
+                
+                <!-- YouTube 播放器隱藏容器 -->
+                <div id="yt-player-${key}" style="display: none;"></div>
+                
+                <!-- 播放控制按鈕 -->
+                <button id="btn-${key}" onclick="toggleYouTubeMusic('${key}')" style="width: 100%; padding: 8px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">▶️ 播放${config.name}</button>
+                
+                <!-- 狀態顯示 -->
+                <div id="status-${key}" style="margin-top: 8px; font-size: 12px; font-weight: bold; color: #007bff;">狀態：尚未開始</div>
+            </div>
+        `;
+        container.innerHTML += cardHTML;
+    }
+}
+
+// 4️⃣ 初始化 YouTube IFrame API
 function onYouTubeIframeAPIReady() {
     for (let key in musicConfigs) {
         let config = musicConfigs[key];
-        if (document.getElementById(config.containerId)) {
-            playersMap[key] = new YT.Player(config.containerId, {
+        let containerId = `yt-player-${key}`;
+        
+        if (document.getElementById(containerId)) {
+            playersMap[key] = new YT.Player(containerId, {
                 height: '1',
                 width: '1',
                 videoId: config.videoId,
@@ -54,24 +102,22 @@ function onYouTubeIframeAPIReady() {
             });
         }
     }
-    console.log("✅ YouTube 播放器初始化完畢（多次累積模式）");
+    console.log("✅ YouTube 播放器初始化完畢");
 }
 
-// ==========================================
-// 🎵 4. 點擊按鈕播放 / 暫停切換
-// ==========================================
+// 5️⃣ 點擊播放 / 暫停控制邏輯
 function toggleYouTubeMusic(key) {
     let config = musicConfigs[key];
     let player = playersMap[key];
-    let btn = document.getElementById(config.btnId);
-    let statusEl = document.getElementById(config.statusId);
+    let btn = document.getElementById(`btn-${key}`);
+    let statusEl = document.getElementById(`status-${key}`);
 
     if (!player || typeof player.playVideo !== 'function') {
         alert("播放器尚在載入中，請稍候再試...");
         return;
     }
 
-    // 如果點擊的是「目前正在播放的」，就將它暫停
+    // 如果點擊的是目前正在播放的，則將其暫停
     if (activeKey === key) {
         player.pauseVideo();
         stopSession(key, false);
@@ -79,7 +125,7 @@ function toggleYouTubeMusic(key) {
         return;
     }
 
-    // 如果有其他音樂正在播，先停掉
+    // 互斥機制：如果有其他音樂正在播，先全部停掉
     for (let k in playersMap) {
         if (k !== key && playersMap[k] && typeof playersMap[k].pauseVideo === 'function') {
             playersMap[k].pauseVideo();
@@ -92,7 +138,7 @@ function toggleYouTubeMusic(key) {
     activeKey = key;
     activeStartTime = new Date().toISOString();
 
-    // 建立這一次播放的物件，並放入累積陣列中
+    // 建立本次播放紀錄，並推入累積陣列
     currentMusicItem = {
         protocol: `U-Sequence: ${config.name} (YouTube ${config.videoId})`,
         start_time: activeStartTime,
@@ -101,18 +147,13 @@ function toggleYouTubeMusic(key) {
     };
     window.sessionMusicLogs.push(currentMusicItem);
 
-    // 同步更新舊版相容變數（以防其他主表送出邏輯還在讀取它）
-    window.lastMusicProtocol = currentMusicItem.protocol;
-    window.lastMusicStartTime = activeStartTime;
-    window.lastMusicEndTime = null;
-
     // 更新按鈕樣式
     if (btn) {
         btn.innerText = `⏹️ 停止${config.name}`;
         btn.style.background = "#f44336";
     }
 
-    // 啟動 20 分鐘計時器
+    // 啟動 20 分鐘計時與階段狀態提示
     let secondsElapsed = 0;
     clearInterval(activeTimer);
     activeTimer = setInterval(() => {
@@ -129,13 +170,11 @@ function toggleYouTubeMusic(key) {
     }, 1000);
 }
 
-// ==========================================
-// 🎵 5. 停止或暫停清理函式
-// ==========================================
+// 6️⃣ 停止或暫停療程
 function stopSession(key, isCompleted = false) {
     let config = musicConfigs[key];
-    let btn = document.getElementById(config.btnId);
-    let statusEl = document.getElementById(config.statusId);
+    let btn = document.getElementById(`btn-${key}`);
+    let statusEl = document.getElementById(`status-${key}`);
 
     if (activeKey === key) {
         clearInterval(activeTimer);
@@ -148,9 +187,7 @@ function stopSession(key, isCompleted = false) {
     }
 
     const endTime = new Date().toISOString();
-    window.lastMusicEndTime = endTime;
     
-    // 更新當前音樂物件的結束時間
     if (currentMusicItem) {
         currentMusicItem.end_time = endTime;
         currentMusicItem.completed = isCompleted;
@@ -161,37 +198,34 @@ function stopSession(key, isCompleted = false) {
     }
 }
 
-// ==========================================
-// 🎵 6. 監聽 YouTube 播放完畢事件
-// ==========================================
+// 7️⃣ 監聽 YouTube 播放結束事件
 async function handlePlayerStateChange(key, event) {
     if (event.data == YT.PlayerState.ENDED) {
         let config = musicConfigs[key];
-        let statusEl = document.getElementById(config.statusId);
+        let statusEl = document.getElementById(`status-${key}`);
         
         stopSession(key, true);
-        if (statusEl) statusEl.innerText = "狀態：療程圓滿完成！紀錄已存入資料庫。";
+        if (statusEl) statusEl.innerText = "狀態：療程圓滿完成！";
 
-        // 自動寫入獨立的音樂日誌表
+        // 同步寫入獨立音樂日誌表（選擇性功能）
         try {
-            const { error } = await supabase.from('music_therapy_logs').insert([{ 
-                start_time: activeStartTime, 
-                end_time: currentMusicItem ? currentMusicItem.end_time : new Date().toISOString(),
-                protocol: `U-Sequence: ${config.name} (YouTube ${config.videoId})`
-            }]);
-
-            if (error) {
-                console.error('音樂獨立日誌寫入錯誤：', error.message);
-            } else {
-                console.log(`✅ ${config.name} 獨立音樂日誌儲存成功！`);
+            if (typeof supabase !== 'undefined') {
+                await supabase.from('music_therapy_logs').insert([{ 
+                    start_time: activeStartTime, 
+                    end_time: currentMusicItem ? currentMusicItem.end_time : new Date().toISOString(),
+                    protocol: `U-Sequence: ${config.name} (YouTube ${config.videoId})`
+                }]);
             }
         } catch (err) {
-            console.error('發生錯誤：', err);
+            console.error('音樂獨立日誌寫入錯誤：', err);
         }
-        
-        activeStartTime = null;
     }
 }
+
+// 8️⃣ 頁面載入時自動執行卡片生成
+window.addEventListener('DOMContentLoaded', () => {
+    renderMusicCards();
+});
 
 // ==========================================
 // 🎵 7. 掛載至全域 Window (確保 HTML 點擊按鈕呼叫得到)
