@@ -16,7 +16,7 @@ const musicConfigs = {
     },
     ocean: {
         name: '🐬 海洋',
-        url: 'https://youtube.com/shorts/qms1xrOqMO4',
+        url: 'https://youtube.com/shorts/1A-pOucGHwU',
         description: '平穩音頻，溫和舒緩緊繃神經。'
     }
    /*增加新參數 
