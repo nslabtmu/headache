@@ -6,7 +6,7 @@
 const musicConfigs = {
     piano: {
         name: '🎹 鋼琴',
-        url: 'https://www.youtube.com/watch?v=Os47nMrjw_Y', // 直接貼網址就好！
+        url: 'https://youtu.be/7ex3DkT-tog', // 直接貼網址就好！
         description: '拍速緩慢、留白較多，引導大腦放鬆。'
     },
     forest: {
