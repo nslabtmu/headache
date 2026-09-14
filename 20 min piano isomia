@@ -1,0 +1,419 @@
+html_sleep_code = """<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>20分鐘 U-Shape 助眠鋼琴聲景模擬器</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background: linear-gradient(135deg, #0B0F19 0%, #111827 50%, #1E1B4B 100%);
+      color: #E0E7FF;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 35px 30px;
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 24px;
+      color: #C7D2FE;
+      letter-spacing: 1px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #94A3B8;
+      margin-bottom: 25px;
+      line-height: 1.6;
+    }
+    .phase-badge {
+      display: inline-block;
+      background: rgba(99, 102, 241, 0.15);
+      color: #A5B4FC;
+      border: 1px solid #6366F1;
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      transition: all 0.5s ease;
+    }
+    .timer {
+      font-size: 52px;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      color: #818CF8;
+      margin: 15px 0;
+      text-shadow: 0 0 20px rgba(129, 140, 248, 0.4);
+      letter-spacing: 3px;
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+    button {
+      background: linear-gradient(135deg, #4338CA, #6366F1);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(67, 56, 202, 0.4);
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+      background: linear-gradient(135deg, #3730A3, #4F46E5);
+    }
+    button:disabled {
+      background: #334155;
+      box-shadow: none;
+      transform: none;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+    button.stop {
+      background: linear-gradient(135deg, #991B1B, #DC2626);
+      box-shadow: 0 4px 15px rgba(153, 27, 27, 0.4);
+    }
+    button.stop:hover {
+      background: linear-gradient(135deg, #7F1D1D, #B91C1C);
+    }
+    .log {
+      margin-top: 25px;
+      font-size: 13px;
+      color: #CBD5E1;
+      height: 130px;
+      overflow-y: auto;
+      text-align: left;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+      font-family: Consolas, Monaco, monospace;
+      line-height: 1.6;
+    }
+    .log div { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🌙 20分鐘 深度助眠 U-Shape 鋼琴模擬器 🎹</h2>
+  <div class="subtitle">平穩引導 (0-6分) ➔ 暖心撫慰 (6-14分) ➔ 沉睡降速 (14-20分)</div>
+  
+  <div class="phase-badge" id="phaseBadge">準備中...</div>
+  <div class="timer" id="timer">20:00</div>
+
+  <div class="controls">
+    <button id="startBtn">▶ 啟動助眠鋼琴並錄音</button>
+    <button id="stopBtn" class="stop" disabled>■ 結束並下載音訊</button>
+  </div>
+
+  <div class="log" id="logBox">點擊「啟動助眠鋼琴並錄音」產生專屬失眠修復聲景...</div>
+</div>
+
+<script>
+let audioCtx;
+let masterGain;
+let reverbNode;
+let mediaStreamDest;
+let mediaRecorder;
+let recordedChunks = [];
+let timerInterval;
+let totalSeconds = 20 * 60; // 20 分鐘
+let isRunning = false;
+let musicScheduleTimeout;
+
+function log(text) {
+  const box = document.getElementById('logBox');
+  box.innerHTML += `<div>> ${text}</div>`;
+  box.scrollTop = box.scrollHeight;
+}
+
+function updateTimerDisplay(sec) {
+  const m = Math.floor(sec / 60).toString().padStart(2, '0');
+  const s = (sec % 60).toString().padStart(2, '0');
+  document.getElementById('timer').innerText = `${m}:${s}`;
+}
+
+function m2f(note) {
+  return 440 * Math.pow(2, (note - 69) / 12);
+}
+
+// 超柔和助眠長混響 (Sleep Space Impulse Response)
+function createReverbBuffer() {
+  const length = audioCtx.sampleRate * 4.0; // 4.0秒長尾韻
+  const buffer = audioCtx.createBuffer(2, length, audioCtx.sampleRate);
+  for (let c = 0; c < 2; c++) {
+    const data = buffer.getChannelData(c);
+    for (let i = 0; i < length; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 3.0);
+    }
+  }
+  return buffer;
+}
+
+// ---------------- 柔和純鋼琴音色合成器 ----------------
+function playSleepPianoNote(noteNumber, duration = 5.0, velocity = 0.3, pan = 0) {
+  if (!isRunning) return;
+
+  const now = audioCtx.currentTime;
+  const freq = m2f(noteNumber);
+
+  // 雙振盪器（基音 + 微暖和聲，避開尖銳高頻）
+  const osc1 = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
+
+  osc1.type = 'sine';
+  osc2.type = 'triangle';
+
+  osc1.frequency.value = freq;
+  osc2.frequency.value = freq * 2; // 微弱第二倍音
+
+  const noteGain = audioCtx.createGain();
+  const peakVolume = velocity * 0.2; // 降低整體音量，更適合睡眠
+
+  noteGain.gain.setValueAtTime(0, now);
+  noteGain.gain.linearRampToValueAtTime(peakVolume, now + 0.04); // 極柔和的觸鍵 (Attack)
+  noteGain.gain.exponentialRampToValueAtTime(peakVolume * 0.5, now + 0.8);
+  noteGain.gain.exponentialRampToValueAtTime(0.00001, now + duration);
+
+  // 睡眠專用深層低通濾波 (Damped Warm Filter)
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(Math.min(freq * 2.5, 3500), now); // 濾除高頻雜音
+  filter.frequency.exponentialRampToValueAtTime(Math.max(freq * 1.1, 150), now + duration);
+
+  const panner = audioCtx.createStereoPanner();
+  panner.pan.value = pan;
+
+  osc1.connect(noteGain);
+  osc2.connect(noteGain);
+  noteGain.connect(filter);
+  filter.connect(panner);
+
+  const dryGain = audioCtx.createGain();
+  dryGain.gain.value = 0.5;
+  panner.connect(dryGain);
+  dryGain.connect(masterGain);
+
+  if (reverbNode) {
+    const wetGain = audioCtx.createGain();
+    wetGain.gain.value = 0.5; // 大比例混響营造夜間深邃感
+    panner.connect(wetGain);
+    wetGain.connect(reverbNode);
+  }
+
+  osc1.start(now);
+  osc2.start(now);
+
+  osc1.stop(now + duration + 0.1);
+  osc2.stop(now + duration + 0.1);
+}
+
+// ---------------- 助眠專用 U-Shape 和弦與旋律庫 ----------------
+const SLEEP_CHORDS_PHASE1 = [
+  [36, 48, 55, 60, 64], // C maj9 (深沉安定)
+  [45, 52, 57, 60, 64], // Am7
+  [41, 48, 53, 57, 60]  // F maj7
+];
+
+const SLEEP_CHORDS_PHASE2 = [
+  [43, 50, 55, 59, 62, 67], // G add9 (溫暖撫慰)
+  [45, 52, 57, 62, 65],     // Am9
+  [41, 48, 55, 60, 64]      // F maj9 (心靈共鳴)
+];
+
+const SLEEP_CHORDS_PHASE3 = [
+  [36, 43, 48, 55], // C5 Deep (極低頻安定)
+  [41, 48, 53, 57], // F maj7 Low
+  [33, 40, 45, 52]  // A low
+];
+
+const MELODY_SLEEP = [55, 57, 60, 62, 64, 67, 69, 72]; // 柔和不刺耳的音符
+
+function playSleepUShapeMusic() {
+  if (!isRunning) return;
+
+  const elapsedTime = totalSeconds - Math.floor((timerInterval ? remainingTimeSec : 1200));
+  let currentTempo = 4500; // 節拍時間 (ms)
+  let currentChordList = SLEEP_CHORDS_PHASE1;
+  let phaseName = "";
+  let masterVolFactor = 1.0;
+
+  // U-Shape 助眠三階段控制
+  if (elapsedTime < 360) {
+    // 0 ~ 6 min：平緩引導 (Wind Down) - 約 55 BPM 節奏
+    phaseName = "🌌 階段 1：平緩引導 ( 呼吸同步與卸下焦慮 )";
+    document.getElementById('phaseBadge').innerText = phaseName;
+    document.getElementById('phaseBadge').style.borderColor = "#818CF8";
+    document.getElementById('phaseBadge').style.color = "#C7D2FE";
+    currentTempo = 3800 + (elapsedTime / 360) * 800;
+    currentChordList = SLEEP_CHORDS_PHASE1;
+    masterVolFactor = 0.9;
+  } else if (elapsedTime >= 360 && elapsedTime < 840) {
+    // 6 ~ 14 min：暖心撫慰 (Warm Comfort) - U型底部：和聲轉趨溫暖豐富，撫平潛意識
+    phaseName = "🌙 階段 2：暖心撫慰 ( 深層和聲與心靈共鳴 )";
+    document.getElementById('phaseBadge').innerText = phaseName;
+    document.getElementById('phaseBadge').style.borderColor = "#A7F3D0";
+    document.getElementById('phaseBadge').style.color = "#6EE7B7";
+    currentTempo = 4600 + Math.sin((elapsedTime - 360) / 480 * Math.PI) * 600; 
+    currentChordList = SLEEP_CHORDS_PHASE2;
+    masterVolFactor = 1.0; // 稍微增加和聲豐滿度，但不增加音量刺激
+  } else {
+    // 14 ~ 20 min：沉睡降速 (Deep Delta Drift) - 節奏極緩，引導腦波進入慢波睡眠
+    phaseName = "💤 階段 3：沉睡降速 ( 進入 Δ 腦波慢波睡眠 )";
+    document.getElementById('phaseBadge').innerText = phaseName;
+    document.getElementById('phaseBadge').style.borderColor = "#C084FC";
+    document.getElementById('phaseBadge').style.color = "#E9D5FF";
+    currentTempo = 5200 + ((elapsedTime - 840) / 360) * 3500; // 速度驟降至極慢 (約 30~40 BPM)
+    currentChordList = SLEEP_CHORDS_PHASE3;
+    masterVolFactor = Math.max(0.3, 1.0 - ((elapsedTime - 840) / 360) * 0.7); // 漸隱衰減
+  }
+
+  // 選取低頻和弦
+  const chord = currentChordList[Math.floor(Math.random() * currentChordList.length)];
+  
+  // 彈奏伴奏和弦 (低音慢琶音)
+  chord.forEach((note, idx) => {
+    const delay = idx * 0.45; 
+    const pan = (Math.random() * 0.6) - 0.3;
+    const vel = (0.2 + (idx === 0 ? 0.1 : 0)) * masterVolFactor;
+    setTimeout(() => {
+      playSleepPianoNote(note, 6.0, vel, pan);
+    }, delay * 1000);
+  });
+
+  // 偶爾加入極柔和的單聲部高音旋律
+  if (Math.random() > 0.4 && elapsedTime < 1000) {
+    const melodyNote = MELODY_SLEEP[Math.floor(Math.random() * MELODY_SLEEP.length)];
+    const melodyDelay = 2.0 + Math.random() * 1.5;
+    const pan = (Math.random() * 0.8) - 0.4;
+    setTimeout(() => {
+      playSleepPianoNote(melodyNote, 5.0, 0.18 * masterVolFactor, pan);
+    }, melodyDelay * 1000);
+  }
+
+  musicScheduleTimeout = setTimeout(playSleepUShapeMusic, currentTempo);
+}
+
+let remainingTimeSec = totalSeconds;
+
+function downloadAudio() {
+  const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = url;
+  a.download = `piano_insomnia_ushape_20min_${Date.now()}.webm`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }, 100);
+}
+
+function stopProcess() {
+  if (!isRunning) return;
+  isRunning = false;
+  clearInterval(timerInterval);
+  clearTimeout(musicScheduleTimeout);
+  
+  log("🛑 20分鐘助眠聲景結束，鋼琴聲漸隱至極靜...");
+  
+  masterGain.gain.linearRampToValueAtTime(0.00001, audioCtx.currentTime + 5.0);
+  
+  setTimeout(() => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+    }
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = true;
+    document.getElementById('phaseBadge').innerText = "睡眠引導完畢";
+    log("💾 助眠音訊檔已自動下載 (piano_insomnia_ushape_20min.webm)。");
+  }, 5000);
+}
+
+document.getElementById('startBtn').addEventListener('click', () => {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  
+  masterGain = audioCtx.createGain();
+  masterGain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+  masterGain.connect(audioCtx.destination);
+
+  reverbNode = audioCtx.createConvolver();
+  reverbNode.buffer = createReverbBuffer();
+  reverbNode.connect(masterGain);
+
+  mediaStreamDest = audioCtx.createMediaStreamDestination();
+  masterGain.connect(mediaStreamDest);
+
+  recordedChunks = [];
+  mediaRecorder = new MediaRecorder(mediaStreamDest.stream);
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) recordedChunks.push(e.data);
+  };
+  mediaRecorder.onstop = downloadAudio;
+  mediaRecorder.start();
+
+  isRunning = true;
+  remainingTimeSec = totalSeconds;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+
+  log("🎙️ 助眠純鋼琴合成與錄音已啟動...");
+  log("🌙 第一階段 (0 ~ 6 分鐘)：平緩引導，穩定呼吸節奏...");
+  
+  playSleepUShapeMusic();
+  updateTimerDisplay(remainingTimeSec);
+  
+  timerInterval = setInterval(() => {
+    remainingTimeSec--;
+    updateTimerDisplay(remainingTimeSec);
+
+    if (remainingTimeSec === 840) {
+      log("🌙 第二階段 (6 ~ 14 分鐘)：進入暖心撫慰和聲，放鬆深層神經...");
+    } else if (remainingTimeSec === 360) {
+      log("💤 第三階段 (14 ~ 20 分鐘)：進入極緩降速段，引導腦波進入深度 Delta 睡眠...");
+    }
+
+    if (remainingTimeSec <= 0) {
+      stopProcess();
+    }
+  }, 1000);
+});
+
+document.getElementById('stopBtn').addEventListener('click', stopProcess);
+</script>
+
+</body>
+</html>
+"""
+
+with open("piano_insomnia_ushape_20min.html", "w", encoding="utf-8") as f:
+    f.write(html_sleep_code)
+
+print("Sleep Piano HTML generated.")
