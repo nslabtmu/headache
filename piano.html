@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>20分鐘 U-Shape 鋼琴療癒聲景模擬器</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background: linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F3460 100%);
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 35px 30px;
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 24px;
+      color: #E2E8F0;
+      letter-spacing: 1px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #CBD5E1;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .phase-badge {
+      display: inline-block;
+      background: rgba(129, 140, 248, 0.2);
+      color: #C7D2FE;
+      border: 1px solid #818CF8;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      transition: all 0.5s ease;
+    }
+    .timer {
+      font-size: 48px;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      color: #A5B4FC;
+      margin: 15px 0;
+      text-shadow: 0 0 15px rgba(165, 180, 252, 0.3);
+      letter-spacing: 3px;
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    button {
+      background: linear-gradient(135deg, #4F46E5, #6366F1);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+      background: linear-gradient(135deg, #4338CA, #4F46E5);
+    }
+    button:disabled {
+      background: #475569;
+      box-shadow: none;
+      transform: none;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    button.stop {
+      background: linear-gradient(135deg, #DC2626, #EF4444);
+      box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+    }
+    button.stop:hover {
+      background: linear-gradient(135deg, #B91C1C, #DC2626);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
+    }
+    .log {
+      margin-top: 25px;
+      font-size: 13px;
+      color: #E2E8F0;
+      height: 130px;
+      overflow-y: auto;
+      text-align: left;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      font-family: Consolas, Monaco, monospace;
+      line-height: 1.6;
+    }
+    .log div {
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🎹 20分鐘 U-Shape 鋼琴療癒聲景 🌙</h2>
+  <div class="subtitle">放鬆沈靜 (0-6分) ➔ 輕快愉悅 (6-14分) ➔ 寧靜歸途 (14-20分)</div>
+  
+  <div class="phase-badge" id="phaseBadge">準備中...</div>
+  <div class="timer" id="timer">20:00</div>
+
+  <div class="controls">
+    <button id="startBtn">▶ 啟動播放並開始錄音</button>
+    <button id="stopBtn" class="stop" disabled>■ 結束並下載音訊</button>
+  </div>
+
+  <div class="log" id="logBox">點擊「啟動播放並開始錄音」開始產生鋼琴聲景...</div>
+</div>
+
+<script>
+let audioCtx;
+let masterGain;
+let reverbNode;
+let mediaStreamDest;
+let mediaRecorder;
+let recordedChunks = [];
+let timerInterval;
+let totalSeconds = 20 * 60; // 20 分鐘
+let isRunning = false;
+let musicScheduleTimeout;
+
+function log(text) {
+  const box = document.getElementById('logBox');
+  box.innerHTML += `<div>> ${text}</div>`;
+  box.scrollTop = box.scrollHeight;
+}
+
+function updateTimerDisplay(sec) {
+  const m = Math.floor(sec / 60).toString().padStart(2, '0');
+  const s = (sec % 60).toString().padStart(2, '0');
+  document.getElementById('timer').innerText = `${m}:${s}`;
+}
+
+// 音高轉頻率 (MIDI note to frequency)
+function m2f(note) {
+  return 440 * Math.pow(2, (note - 69) / 12);
+}
+
+// 簡單的虛擬混響 (Reverb Impulse Response Generator)
+function createReverbBuffer() {
+  const length = audioCtx.sampleRate * 2.5; // 2.5秒衰減
+  const buffer = audioCtx.createBuffer(2, length, audioCtx.sampleRate);
+  for (let c = 0; c < 2; c++) {
+    const data = buffer.getChannelData(c);
+    for (let i = 0; i < length; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.0);
+    }
+  }
+  return buffer;
+}
+
+// ---------------- 鋼琴單音合成器 ----------------
+function playPianoNote(noteNumber, duration = 3.0, velocity = 0.5, pan = 0) {
+  if (!isRunning) return;
+
+  const now = audioCtx.currentTime;
+  const freq = m2f(noteNumber);
+
+  // 主振盪器 + 倍音 (Fundamental + Harmonics for realistic sound)
+  const osc1 = audioCtx.createOscillator();
+  const osc2 = audioCtx.createOscillator();
+  const osc3 = audioCtx.createOscillator();
+
+  osc1.type = 'sine';
+  osc2.type = 'triangle';
+  osc3.type = 'sine';
+
+  osc1.frequency.value = freq;
+  osc2.frequency.value = freq * 2; // 第二倍音
+  osc3.frequency.value = freq * 3; // 第三倍音
+
+  // 音量包絡 (Piano Gain Envelope)
+  const noteGain = audioCtx.createGain();
+  const peakVolume = velocity * 0.25;
+
+  noteGain.gain.setValueAtTime(0, now);
+  noteGain.gain.linearRampToValueAtTime(peakVolume, now + 0.015); // 快速 Attack
+  noteGain.gain.exponentialRampToValueAtTime(peakVolume * 0.4, now + 0.3); // Decay
+  noteGain.gain.exponentialRampToValueAtTime(0.0001, now + duration); // Sustain / Release
+
+  // 鋼琴低通聲學濾波
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'lowpass';
+  // 力道越大、音高越高，聲音越亮
+  filter.frequency.setValueAtTime(Math.min(freq * 4, 12000), now);
+  filter.frequency.exponentialRampToValueAtTime(Math.max(freq * 1.5, 300), now + duration);
+
+  // 立體聲聲場
+  const panner = audioCtx.createStereoPanner();
+  panner.pan.value = pan;
+
+  // 鏈接
+  osc1.connect(noteGain);
+  osc2.connect(noteGain);
+  osc3.connect(noteGain);
+  noteGain.connect(filter);
+  filter.connect(panner);
+
+  // 一部分直接輸出 (Dry)，一部分進入混響 (Wet)
+  const dryGain = audioCtx.createGain();
+  dryGain.gain.value = 0.7;
+  panner.connect(dryGain);
+  dryGain.connect(masterGain);
+
+  if (reverbNode) {
+    const wetGain = audioCtx.createGain();
+    wetGain.gain.value = 0.3;
+    panner.connect(wetGain);
+    wetGain.connect(reverbNode);
+  }
+
+  osc1.start(now);
+  osc2.start(now);
+  osc3.start(now);
+
+  osc1.stop(now + duration + 0.1);
+  osc2.stop(now + duration + 0.1);
+  osc3.stop(now + duration + 0.1);
+}
+
+// ---------------- U-Shape 樂理曲線音樂生成器 ----------------
+// 和弦庫 (MIDI Note Number)
+const CHORDS_RELAX = [
+  [48, 55, 60, 64, 67], // C maj9
+  [45, 52, 57, 60, 64], // Am7
+  [41, 48, 53, 57, 60], // F maj7
+  [43, 50, 55, 59, 62]  // G add9
+];
+
+const CHORDS_UPLIFTING = [
+  [60, 64, 67, 72, 76], // C maj (High Bright)
+  [62, 65, 69, 74],     // Dm7
+  [64, 67, 71, 76],     // Em7
+  [65, 69, 72, 77],     // F maj7 (Bright)
+  [67, 71, 74, 79]      // G7
+];
+
+const MELODY_RELAX = [60, 62, 64, 67, 69, 72, 74, 76]; // 溫柔五聲音階
+const MELODY_UPLIFTING = [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79]; // 明亮自然大調
+
+function playUShapeMusic() {
+  if (!isRunning) return;
+
+  const elapsedTime = totalSeconds - Math.floor((timerInterval ? remainingTimeSec : 1200));
+  let currentTempo = 3000; // 節拍間隔 (毫秒)
+  let currentChordList = CHORDS_RELAX;
+  let currentMelodyList = MELODY_RELAX;
+  let phaseName = "";
+  let baseOctave = 0;
+
+  // 1. 判斷 U-Shape 三階段
+  if (elapsedTime < 360) {
+    // 階段一：0 ~ 6 分鐘 (舒緩放鬆 Deep Relaxation)
+    phaseName = "🌙 階段 1：舒緩沈靜 ( Deep Relaxation )";
+    document.getElementById('phaseBadge').innerText = phaseName;
+    document.getElementById('phaseBadge').style.borderColor = "#818CF8";
+    document.getElementById('phaseBadge').style.color = "#C7D2FE";
+    currentTempo = 3200 - (elapsedTime / 360) * 1000; // 逐漸由極慢轉為中慢
+    currentChordList = CHORDS_RELAX;
+    currentMelodyList = MELODY_RELAX;
+    baseOctave = 0;
+  } else if (elapsedTime >= 360 && elapsedTime < 840) {
+    // 階段二：6 ~ 14 分鐘 (輕快愉悅 Joyful & Uplifting)
+    phaseName = "☀️ 階段 2：輕快愉悅 ( Uplifting & Joyful )";
+    document.getElementById('phaseBadge').innerText = phaseName;
+    document.getElementById('phaseBadge').style.borderColor = "#FBBF24";
+    document.getElementById('phaseBadge').style.color = "#FDE68A";
+    currentTempo = 1400 - Math.sin((elapsedTime - 360) / 480 * Math.PI) * 400; // 明亮輕快 (約 80~95 BPM)
+    currentChordList = CHORDS_UPLIFTING;
+    currentMelodyList = MELODY_UPLIFTING;
+    baseOctave = 12; // 移高八度呈現清亮感
+  } else {
+    // 階段三：14 ~ 20 分鐘 (回復寧靜 Return to Calm)
+    phaseName = "🌌 階段 3：寧靜歸途 ( Return to Calm )";
+    document.getElementById('phaseBadge').innerText = phaseName;
+    document.getElementById('phaseBadge').style.borderColor = "#34D399";
+    document.getElementById('phaseBadge').style.color = "#A7F3D0";
+    currentTempo = 1800 + ((elapsedTime - 840) / 360) * 1600; // 逐漸放慢步調回到冥想狀態
+    currentChordList = CHORDS_RELAX;
+    currentMelodyList = MELODY_RELAX;
+    baseOctave = 0;
+  }
+
+  // 2. 隨機選取和弦與分解琶音 (Arpeggio & Chords)
+  const chord = currentChordList[Math.floor(Math.random() * currentChordList.length)];
+  
+  // 彈奏左手伴奏和弦 (Bass & Middle)
+  chord.forEach((note, idx) => {
+    const delay = idx * (elapsedTime >= 360 && elapsedTime < 840 ? 0.15 : 0.3); // 輕快階段琶音較緊湊
+    const pan = (Math.random() * 0.8) - 0.4;
+    const vel = 0.35 + (idx === 0 ? 0.15 : 0); // 低音略重
+    setTimeout(() => {
+      playPianoNote(note + baseOctave, 4.5, vel, pan);
+    }, delay * 1000);
+  });
+
+  // 彈奏主旋律單音 (Melody Notes)
+  const melodyCount = elapsedTime >= 360 && elapsedTime < 840 ? Math.floor(Math.random() * 3) + 2 : Math.floor(Math.random() * 2) + 1;
+  for (let m = 0; m < melodyCount; m++) {
+    const melodyNote = currentMelodyList[Math.floor(Math.random() * currentMelodyList.length)] + baseOctave;
+    const melodyDelay = (Math.random() * 0.8 + 0.5) * (currentTempo / 1000);
+    const pan = (Math.random() * 1.2) - 0.6;
+    setTimeout(() => {
+      playPianoNote(melodyNote + 12, 3.5, 0.45, pan); // 主旋律再偏高音
+    }, melodyDelay * 1000);
+  }
+
+  // 預約下一組小節
+  musicScheduleTimeout = setTimeout(playUShapeMusic, currentTempo);
+}
+
+let remainingTimeSec = totalSeconds;
+
+// ---------------- 下載與流程控制 ----------------
+function downloadAudio() {
+  const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = url;
+  a.download = `piano_ushape_20min_${Date.now()}.webm`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }, 100);
+}
+
+function stopProcess() {
+  if (!isRunning) return;
+  isRunning = false;
+  clearInterval(timerInterval);
+  clearTimeout(musicScheduleTimeout);
+  
+  log("🛑 20分鐘時長結束 (或手動結束)，鋼琴樂音漸隱關閉中...");
+  
+  // 4 秒淡出
+  masterGain.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 4.0);
+  
+  setTimeout(() => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+    }
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = true;
+    document.getElementById('phaseBadge').innerText = "演奏完畢";
+    log("💾 鋼琴聲景錄製完畢！已自動下載音訊檔 (piano_ushape_20min.webm)。");
+  }, 4000);
+}
+
+document.getElementById('startBtn').addEventListener('click', () => {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  
+  masterGain = audioCtx.createGain();
+  masterGain.gain.setValueAtTime(1, audioCtx.currentTime);
+  masterGain.connect(audioCtx.destination);
+
+  // 設置混響
+  reverbNode = audioCtx.createConvolver();
+  reverbNode.buffer = createReverbBuffer();
+  reverbNode.connect(masterGain);
+
+  // 錄音串流
+  mediaStreamDest = audioCtx.createMediaStreamDestination();
+  masterGain.connect(mediaStreamDest);
+
+  recordedChunks = [];
+  mediaRecorder = new MediaRecorder(mediaStreamDest.stream);
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) recordedChunks.push(e.data);
+  };
+  mediaRecorder.onstop = downloadAudio;
+  mediaRecorder.start();
+
+  isRunning = true;
+  remainingTimeSec = totalSeconds;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+
+  log("🎙️ 鋼琴即時聲音合成與背景錄音已啟動...");
+  log("🎼 開始執行 U-Shape 音樂演算法 (0 ~ 6 分鐘：放鬆沈靜)...");
+  
+  playUShapeMusic();
+
+  // 20 分鐘計時器
+  updateTimerDisplay(remainingTimeSec);
+  
+  timerInterval = setInterval(() => {
+    remainingTimeSec--;
+    updateTimerDisplay(remainingTimeSec);
+
+    // 每 2 分鐘在日誌提示進度
+    if (remainingTimeSec === 840) {
+      log("☀️ 轉入 U-Shape 高峰 (6 ~ 14 分鐘：輕快愉悅旋律)...");
+    } else if (remainingTimeSec === 360) {
+      log("🌌 轉入 U-Shape 後段 (14 ~ 20 分鐘：漸緩歸於平靜)...");
+    }
+
+    if (remainingTimeSec <= 0) {
+      stopProcess();
+    }
+  }, 1000);
+});
+
+document.getElementById('stopBtn').addEventListener('click', stopProcess);
+</script>
+
+</body>
+</html>
