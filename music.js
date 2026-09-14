@@ -11,7 +11,7 @@ const musicConfigs = {
     },
     forest: {
         name: '🌲 森林',
-        url: 'https://youtube.com/shorts/osCiPCRMfdw',
+        url: 'https://youtube.com/shorts/2EcSAtmqPDQ',
         description: '自然環境音，沉浸大自然頻率。'
     },
     ocean: {
