@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>森林破曉聲景模擬器 (20分鐘錄音版)</title>
+  <style>
+    body {
+      background: linear-gradient(to bottom, #091319, #122530, #1c3b47);
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      text-align: center;
+      max-width: 550px;
+      width: 90%;
+    }
+    .timer {
+      font-size: 42px;
+      font-family: monospace;
+      color: #81c784;
+      margin: 15px 0;
+      letter-spacing: 2px;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+    button {
+      background-color: #2e7d32;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover { background-color: #388e3c; }
+    button:disabled { background-color: #444; cursor: not-allowed; }
+    button.stop { background-color: #c62828; }
+    button.stop:hover { background-color: #d32f2f; }
+    .log {
+      margin-top: 20px;
+      font-size: 13px;
+      color: #ddd;
+      height: 120px;
+      overflow-y: auto;
+      text-align: left;
+      background: rgba(0,0,0,0.3);
+      padding: 10px;
+      border-radius: 8px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🌲 森林破曉聲景 (20分鐘版) 🌅</h2>
+  <p>風聲 🍃 ➔ 晨蟲 🦗 ➔ 微光鳥類依序登場 🐦</p>
+  
+  <div class="timer" id="timer">20:00</div>
+
+  <div class="controls">
+    <button id="startBtn">▶ 啟動播放並開始錄音</button>
+    <button id="stopBtn" class="stop" disabled>■ 結束並下載音訊</button>
+  </div>
+
+  <div class="log" id="logBox">點擊「啟動播放並開始錄音」開啟聲景...</div>
+</div>
+
+<script>
+let audioCtx;
+let masterGain;
+let mediaStreamDest;
+let mediaRecorder;
+let recordedChunks = [];
+let timerInterval;
+let totalSeconds = 20 * 60; // 20 分鐘
+let isRunning = false;
+
+// 鳥類習性設定
+const BIRD_HABITS = [
+  { name: "紅尾鴝 (晨曦先鋒)", timeOffset: 0, minFreq: 2200, maxFreq: 3200, chirpDuration: 0.12, pattern: "trill", interval: [2000, 4500] },
+  { name: "烏鶇 (悠揚長音)", timeOffset: 5000, minFreq: 1500, maxFreq: 2800, chirpDuration: 0.25, pattern: "whistle", interval: [3500, 7000] },
+  { name: "山雀 (高低雙音)", timeOffset: 12000, minFreq: 3000, maxFreq: 4500, chirpDuration: 0.08, pattern: "two-tone", interval: [1800, 4000] },
+  { name: "綠繡眼 / 麻雀 (歡樂群鳴)", timeOffset: 20000, minFreq: 4000, maxFreq: 5800, chirpDuration: 0.05, pattern: "chirp", interval: [1000, 3000] }
+];
+
+function log(text) {
+  const box = document.getElementById('logBox');
+  box.innerHTML += `<div>> ${text}</div>`;
+  box.scrollTop = box.scrollHeight;
+}
+
+function updateTimerDisplay(sec) {
+  const m = Math.floor(sec / 60).toString().padStart(2, '0');
+  const s = (sec % 60).toString().padStart(2, '0');
+  document.getElementById('timer').innerText = `${m}:${s}`;
+}
+
+// 1. 風聲
+function startWindSound() {
+  const bufferSize = audioCtx.sampleRate * 3;
+  const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const output = noiseBuffer.getChannelData(0);
+  let b0=0, b1=0, b2=0, b3=0, b4=0, b5=0, b6=0;
+  for (let i = 0; i < bufferSize; i++) {
+    let white = Math.random() * 2 - 1;
+    b0 = 0.99886 * b0 + white * 0.0555179;
+    b1 = 0.99332 * b1 + white * 0.0750759;
+    b2 = 0.96900 * b2 + white * 0.1538520;
+    b3 = 0.86650 * b3 + white * 0.3104856;
+    b4 = 0.55000 * b4 + white * 0.5329522;
+    b5 = -0.7616 * b5 - white * 0.0168980;
+    output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.04;
+    b6 = white * 0.115926;
+  }
+
+  const whiteNoise = audioCtx.createBufferSource();
+  whiteNoise.buffer = noiseBuffer;
+  whiteNoise.loop = true;
+
+  const filter = audioCtx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 350;
+
+  const lfo = audioCtx.createOscillator();
+  lfo.frequency.value = 0.12;
+  const lfoGain = audioCtx.createGain();
+  lfoGain.gain.value = 200;
+
+  lfo.connect(lfoGain);
+  lfoGain.connect(filter.frequency);
+
+  const gain = audioCtx.createGain();
+  gain.gain.value = 0.35;
+
+  whiteNoise.connect(filter);
+  filter.connect(gain);
+  gain.connect(masterGain);
+
+  whiteNoise.start();
+  lfo.start();
+}
+
+// 2. 蟲鳴
+function startCricketsSound() {
+  function chirp() {
+    if (!isRunning) return;
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    const panner = audioCtx.createStereoPanner();
+
+    panner.pan.value = (Math.random() * 1.8) - 0.9;
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(4600 + Math.random() * 400, now);
+
+    const pulses = 3;
+    const pulseLen = 0.015;
+    for (let i = 0; i < pulses; i++) {
+      const startTime = now + i * (pulseLen + 0.01);
+      gain.gain.setValueAtTime(0, startTime);
+      gain.gain.linearRampToValueAtTime(0.025, startTime + 0.003);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + pulseLen);
+    }
+
+    osc.connect(gain);
+    gain.connect(panner);
+    panner.connect(masterGain);
+
+    osc.start(now);
+    osc.stop(now + pulses * (pulseLen + 0.01));
+
+    setTimeout(chirp, Math.random() * 2500 + 1000);
+  }
+  chirp();
+  chirp();
+}
+
+// 3. 鳥聲
+function playBirdSound(bird) {
+  if (!isRunning) return;
+
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  const panner = audioCtx.createStereoPanner();
+
+  panner.pan.value = (Math.random() * 1.6) - 0.8;
+  osc.type = 'sine';
+
+  if (bird.pattern === "chirp" || bird.pattern === "trill") {
+    osc.frequency.setValueAtTime(bird.minFreq, now);
+    osc.frequency.exponentialRampToValueAtTime(bird.maxFreq, now + bird.chirpDuration);
+  } else if (bird.pattern === "two-tone") {
+    osc.frequency.setValueAtTime(bird.maxFreq, now);
+    osc.frequency.setValueAtTime(bird.minFreq, now + bird.chirpDuration / 2);
+  } else {
+    osc.frequency.setValueAtTime(bird.minFreq, now);
+    osc.frequency.linearRampToValueAtTime(bird.maxFreq, now + bird.chirpDuration * 0.5);
+    osc.frequency.linearRampToValueAtTime(bird.minFreq, now + bird.chirpDuration);
+  }
+
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(0.1, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + bird.chirpDuration);
+
+  osc.connect(gain);
+  gain.connect(panner);
+  panner.connect(masterGain);
+
+  osc.start(now);
+  osc.stop(now + bird.chirpDuration);
+}
+
+function startBirdBehavior(bird) {
+  log(`[微光起航] ${bird.name} 開始鳴叫...`);
+
+  function scheduleNextCall() {
+    if (!isRunning) return;
+    const repeats = Math.floor(Math.random() * 4) + 1;
+    let delay = 0;
+
+    for (let i = 0; i < repeats; i++) {
+      setTimeout(() => { playBirdSound(bird); }, delay);
+      delay += (bird.chirpDuration * 1000) + (Math.random() * 80 + 40);
+    }
+
+    const nextInterval = Math.random() * (bird.interval[1] - bird.interval[0]) + bird.interval[0];
+    setTimeout(scheduleNextCall, delay + nextInterval);
+  }
+
+  scheduleNextCall();
+}
+
+// 下載錄音檔
+function downloadAudio() {
+  const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = url;
+  a.download = `forest_dawn_20min_${Date.now()}.webm`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }, 100);
+}
+
+function stopProcess() {
+  if (!isRunning) return;
+  isRunning = false;
+  clearInterval(timerInterval);
+  
+  log("🛑 時間到的或使用者終止，漸隱關閉聲音...");
+  
+  // 3秒漸隱
+  masterGain.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 3);
+  
+  setTimeout(() => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+    }
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = true;
+    log("💾 錄音完成！已自動儲存並觸發瀏覽器下載。");
+  }, 3000);
+}
+
+// 主按鈕控制
+document.getElementById('startBtn').addEventListener('click', () => {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  
+  // 建立 Master Gain 節點
+  masterGain = audioCtx.createGain();
+  masterGain.gain.setValueAtTime(1, audioCtx.currentTime);
+
+  // 1. 輸出給喇叭聽
+  masterGain.connect(audioCtx.destination);
+
+  // 2. 建立錄音流
+  mediaStreamDest = audioCtx.createMediaStreamDestination();
+  masterGain.connect(mediaStreamDest);
+
+  recordedChunks = [];
+  mediaRecorder = new MediaRecorder(mediaStreamDest.stream);
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) recordedChunks.push(e.data);
+  };
+  mediaRecorder.onstop = downloadAudio;
+  mediaRecorder.start();
+
+  isRunning = true;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+
+  log("🎙️ 開始播放與背景錄音...");
+  log("🍃 微風樹梢聲啟動...");
+  startWindSound();
+
+  log("🦗 草叢晨蟲鳴啟動...");
+  startCricketsSound();
+
+  BIRD_HABITS.forEach(bird => {
+    setTimeout(() => {
+      startBirdBehavior(bird);
+    }, bird.timeOffset);
+  });
+
+  // 20 分鐘倒數計時器
+  let remainingSec = totalSeconds;
+  updateTimerDisplay(remainingSec);
+  
+  timerInterval = setInterval(() => {
+    remainingSec--;
+    updateTimerDisplay(remainingSec);
+
+    if (remainingSec <= 0) {
+      stopProcess();
+    }
+  }, 1000);
+});
+
+document.getElementById('stopBtn').addEventListener('click', stopProcess);
+</script>
+
+</body>
+</html>
