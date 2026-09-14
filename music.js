@@ -11,12 +11,12 @@ const musicConfigs = {
     },
     forest: {
         name: '🌲 森林',
-        url: 'https://www.youtube.com/watch?v=0DvSj6DAKDM',
+        url: 'https://youtube.com/shorts/osCiPCRMfdw',
         description: '自然環境音，沉浸大自然頻率。'
     },
     ocean: {
         name: '🐬 海洋',
-        url: 'https://www.youtube.com/watch?v=fFtHZQi00u0',
+        url: 'https://youtube.com/shorts/qms1xrOqMO4',
         description: '平穩音頻，溫和舒緩緊繃神經。'
     }
    /*增加新參數 
