@@ -1,0 +1,464 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>海浪沙灘與海豚聲景模擬器 (20分鐘錄音版)</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      background: linear-gradient(135deg, #021B29 0%, #064E6B 50%, #0E8388 100%);
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 35px 30px;
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      text-align: center;
+      max-width: 580px;
+      width: 100%;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 24px;
+      color: #E0F7FA;
+      letter-spacing: 1px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #B2EBF2;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .timer {
+      font-size: 48px;
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: bold;
+      color: #80DEEA;
+      margin: 20px 0;
+      text-shadow: 0 0 15px rgba(128, 222, 234, 0.4);
+      letter-spacing: 3px;
+    }
+    .controls {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    button {
+      background: linear-gradient(135deg, #00897B, #00acc1);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 137, 123, 0.4);
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 172, 193, 0.6);
+      background: linear-gradient(135deg, #009688, #26c6da);
+    }
+    button:disabled {
+      background: #455A64;
+      box-shadow: none;
+      transform: none;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    button.stop {
+      background: linear-gradient(135deg, #d32f2f, #e53935);
+      box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4);
+    }
+    button.stop:hover {
+      background: linear-gradient(135deg, #f44336, #ef5350);
+      box-shadow: 0 6px 20px rgba(229, 57, 53, 0.6);
+    }
+    .log {
+      margin-top: 25px;
+      font-size: 13px;
+      color: #E0F2F1;
+      height: 130px;
+      overflow-y: auto;
+      text-align: left;
+      background: rgba(0, 0, 0, 0.35);
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.08);
+      font-family: Consolas, Monaco, monospace;
+      line-height: 1.6;
+    }
+    .log div {
+      margin-bottom: 4px;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(0, 230, 118, 0.2);
+      color: #00E676;
+      border: 1px solid #00E676;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>🌊 蔚藍沙灘與海豚躍浪聲景模擬器 🐬</h2>
+  <div class="badge">無版權問題 • 即時演算法合成 • 20分鐘錄音下載</div>
+  <div class="subtitle">海浪拍岸沙沙聲 🏖️ ➔ 海豚迴聲與悠揚哨音 🐬 ➔ 海豚跳出水面潑水聲 💦</div>
+  
+  <div class="timer" id="timer">20:00</div>
+
+  <div class="controls">
+    <button id="startBtn">▶ 啟動播放並開始錄音</button>
+    <button id="stopBtn" class="stop" disabled>■ 結束並下載音訊</button>
+  </div>
+
+  <div class="log" id="logBox">點擊「啟動播放並開始錄音」開啟海洋聲景...</div>
+</div>
+
+<script>
+let audioCtx;
+let masterGain;
+let mediaStreamDest;
+let mediaRecorder;
+let recordedChunks = [];
+let timerInterval;
+let totalSeconds = 20 * 60; // 20 分鐘
+let isRunning = false;
+
+function log(text) {
+  const box = document.getElementById('logBox');
+  box.innerHTML += `<div>> ${text}</div>`;
+  box.scrollTop = box.scrollHeight;
+}
+
+function updateTimerDisplay(sec) {
+  const m = Math.floor(sec / 60).toString().padStart(2, '0');
+  const s = (sec % 60).toString().padStart(2, '0');
+  document.getElementById('timer').innerText = `${m}:${s}`;
+}
+
+// ---------------- 1. 海浪打在沙灘上的聲音 (Pink Noise + Dynamic Lowpass & Gain Wave) ----------------
+function startOceanWaves() {
+  const bufferSize = audioCtx.sampleRate * 5;
+  const noiseBuffer = audioCtx.createBuffer(2, bufferSize, audioCtx.sampleRate);
+  
+  // 生成雙聲道粉紅噪音 (立體聲海浪)
+  for (let channel = 0; channel < 2; channel++) {
+    const output = noiseBuffer.getChannelData(channel);
+    let b0=0, b1=0, b2=0, b3=0, b4=0, b5=0, b6=0;
+    for (let i = 0; i < bufferSize; i++) {
+      let white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      b3 = 0.86650 * b3 + white * 0.3104856;
+      b4 = 0.55000 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.0168980;
+      output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.035;
+      b6 = white * 0.115926;
+    }
+  }
+
+  const noiseSource = audioCtx.createBufferSource();
+  noiseSource.buffer = noiseBuffer;
+  noiseSource.loop = true;
+
+  // 潮汐低通濾波器（湧浪時頻率上升，退潮時頻率下降）
+  const waveFilter = audioCtx.createBiquadFilter();
+  waveFilter.type = 'lowpass';
+  waveFilter.frequency.value = 300;
+
+  // 海浪音量控制
+  const waveGain = audioCtx.createGain();
+  waveGain.gain.value = 0.2;
+
+  noiseSource.connect(waveFilter);
+  waveFilter.connect(waveGain);
+  waveGain.connect(masterGain);
+  noiseSource.start();
+
+  // 模擬一拉一唱的海浪週期 (約 7~10 秒一波浪潮)
+  function triggerWaveCycle() {
+    if (!isRunning) return;
+    const now = audioCtx.currentTime;
+    const waveDuration = Math.random() * 3 + 6; // 6 ~ 9 秒一個浪
+
+    // 漲浪 (Inflow & Crash onto sand)
+    waveGain.gain.cancelScheduledValues(now);
+    waveFilter.frequency.cancelScheduledValues(now);
+
+    waveGain.gain.setValueAtTime(0.15, now);
+    waveGain.gain.linearRampToValueAtTime(0.65, now + waveDuration * 0.4); // 浪頭拍擊
+    waveGain.gain.exponentialRampToValueAtTime(0.1, now + waveDuration); // 退潮
+
+    waveFilter.frequency.setValueAtTime(250, now);
+    waveFilter.frequency.linearRampToValueAtTime(1000, now + waveDuration * 0.35); // 浪花散開細沙聲
+    waveFilter.frequency.exponentialRampToValueAtTime(200, now + waveDuration);
+
+    setTimeout(triggerWaveCycle, waveDuration * 1000 - 500);
+  }
+
+  triggerWaveCycle();
+}
+
+// ---------------- 2. 海豚鳴叫聲 (Dolphin Whistles & Echolocation Clicks) ----------------
+
+// A. 海豚悠揚哨音 (Whistle Frequency Sweep)
+function playDolphinWhistle() {
+  if (!isRunning) return;
+  const now = audioCtx.currentTime;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  const panner = audioCtx.createStereoPanner();
+
+  panner.pan.value = (Math.random() * 1.6) - 0.8;
+  osc.type = 'sine';
+
+  const duration = Math.random() * 0.8 + 0.6; // 0.6~1.4 秒
+  const baseFreq = Math.random() * 3000 + 5000; // 5000Hz ~ 8000Hz
+
+  // 曲線滑音 (Up & Down Sweep)
+  osc.frequency.setValueAtTime(baseFreq, now);
+  osc.frequency.linearRampToValueAtTime(baseFreq + Math.random() * 4000 + 2000, now + duration * 0.5);
+  osc.frequency.linearRampToValueAtTime(baseFreq + Math.random() * 1000, now + duration);
+
+  // 輕微顫音調變 (Vibrato)
+  const lfo = audioCtx.createOscillator();
+  const lfoGain = audioCtx.createGain();
+  lfo.frequency.value = 15; // 15Hz 顫音
+  lfoGain.gain.value = 80;
+  lfo.connect(osc.frequency);
+  lfo.start(now);
+  lfo.stop(now + duration);
+
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(0.08, now + 0.05);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+  osc.connect(gain);
+  gain.connect(panner);
+  panner.connect(masterGain);
+
+  osc.start(now);
+  osc.stop(now + duration);
+}
+
+// B. 海豚定位喀嗒聲 (Echolocation Click Trains)
+function playDolphinClicks() {
+  if (!isRunning) return;
+  const now = audioCtx.currentTime;
+  const clicks = Math.floor(Math.random() * 10) + 8;
+  const panner = audioCtx.createStereoPanner();
+  panner.pan.value = (Math.random() * 1.4) - 0.7;
+
+  let timeOffset = 0;
+  for (let i = 0; i < clicks; i++) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(Math.random() * 2000 + 6000, now + timeOffset);
+
+    gain.gain.setValueAtTime(0.04, now + timeOffset);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + timeOffset + 0.008);
+
+    osc.connect(gain);
+    gain.connect(panner);
+    panner.connect(masterGain);
+
+    osc.start(now + timeOffset);
+    osc.stop(now + timeOffset + 0.01);
+
+    timeOffset += Math.random() * 0.02 + 0.015; // 極快的點擊間隔
+  }
+}
+
+// 海豚發聲行為循環
+function scheduleDolphinSounds() {
+  function loop() {
+    if (!isRunning) return;
+    
+    // 隨機播放哨音或定位喀嗒聲
+    const type = Math.random();
+    if (type < 0.6) {
+      playDolphinWhistle();
+    } else {
+      playDolphinClicks();
+    }
+
+    const nextInterval = Math.random() * 5000 + 3000; // 每 3~8 秒發出一組海豚叫聲
+    setTimeout(loop, nextInterval);
+  }
+  
+  // 入場時間：開播 3 秒後加入海豚叫聲
+  setTimeout(loop, 3000);
+}
+
+// ---------------- 3. 海豚跳出海面與落水聲 (Splash & Jump Effect) ----------------
+function triggerDolphinJump() {
+  if (!isRunning) return;
+  
+  log("🐬 躍浪瞬間！海豚跳出海面並落水破浪 (Splash)...");
+
+  const now = audioCtx.currentTime;
+  const panner = audioCtx.createStereoPanner();
+  panner.pan.value = (Math.random() * 1.2) - 0.6;
+
+  // 1. 出水破浪聲 (Water Rushing sound)
+  const bufferSize = audioCtx.sampleRate * 2.5;
+  const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const output = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    output[i] = Math.random() * 2 - 1;
+  }
+
+  const splashSource = audioCtx.createBufferSource();
+  splashSource.buffer = noiseBuffer;
+
+  const splashFilter = audioCtx.createBiquadFilter();
+  splashFilter.type = 'bandpass';
+  splashFilter.Q.value = 1.2;
+
+  const splashGain = audioCtx.createGain();
+
+  // 水花聲波 (先升起，撞擊海面後大面積散開)
+  splashFilter.frequency.setValueAtTime(400, now);
+  splashFilter.frequency.exponentialRampToValueAtTime(2500, now + 0.4); // 出水
+  splashFilter.frequency.exponentialRampToValueAtTime(600, now + 1.8);  // 落水大浪花
+
+  splashGain.gain.setValueAtTime(0.01, now);
+  splashGain.gain.linearRampToValueAtTime(0.2, now + 0.3); // 騰空
+  splashGain.gain.linearRampToValueAtTime(0.5, now + 0.5); // 撞擊水面巨大聲響
+  splashGain.gain.exponentialRampToValueAtTime(0.001, now + 2.2);
+
+  splashSource.connect(splashFilter);
+  splashFilter.connect(splashGain);
+  splashGain.connect(panner);
+  panner.connect(masterGain);
+
+  splashSource.start(now);
+  splashSource.stop(now + 2.3);
+
+  // 2. 伴隨跳躍時高亢愉悅的海豚短叫聲
+  setTimeout(() => {
+    if (!isRunning) return;
+    playDolphinWhistle();
+  }, 400);
+
+  // 預約下一次跳躍 (約 20 ~ 45 秒跳躍一次)
+  const nextJumpDelay = Math.random() * 25000 + 20000;
+  setTimeout(triggerDolphinJump, nextJumpDelay);
+}
+
+// ---------------- 4. 錄音與下載功能 ----------------
+function downloadAudio() {
+  const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = url;
+  a.download = `ocean_dolphin_20min_${Date.now()}.webm`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }, 100);
+}
+
+function stopProcess() {
+  if (!isRunning) return;
+  isRunning = false;
+  clearInterval(timerInterval);
+  
+  log("🛑 20分鐘倒數結束 (或手動停止)，聲音漸隱關閉中...");
+  
+  // 3.5 秒淡出效果
+  masterGain.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 3.5);
+  
+  setTimeout(() => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+    }
+    document.getElementById('startBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = true;
+    log("💾 音訊檔錄製完畢！已自動導出下載 (ocean_dolphin_20min.webm)。");
+  }, 3500);
+}
+
+// ---------------- 5. 畫面控制邏輯 ----------------
+document.getElementById('startBtn').addEventListener('click', () => {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  
+  masterGain = audioCtx.createGain();
+  masterGain.gain.setValueAtTime(1, audioCtx.currentTime);
+  masterGain.connect(audioCtx.destination);
+
+  mediaStreamDest = audioCtx.createMediaStreamDestination();
+  masterGain.connect(mediaStreamDest);
+
+  recordedChunks = [];
+  mediaRecorder = new MediaRecorder(mediaStreamDest.stream);
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) recordedChunks.push(e.data);
+  };
+  mediaRecorder.onstop = downloadAudio;
+  mediaRecorder.start();
+
+  isRunning = true;
+  document.getElementById('startBtn').disabled = true;
+  document.getElementById('stopBtn').disabled = false;
+
+  log("🎙️ 開始播放聲景並進行背景高音質錄音...");
+  log("🌊 海浪潮汐拍岸聲啟動 (沙灘潮聲)...");
+  startOceanWaves();
+
+  log("🐬 海豚群叫聲啟動 (哨音與定位迴聲)...");
+  scheduleDolphinSounds();
+
+  // 12 秒後預約第一次海豚躍浪事件
+  setTimeout(triggerDolphinJump, 12000);
+
+  // 20 分鐘計時器
+  let remainingSec = totalSeconds;
+  updateTimerDisplay(remainingSec);
+  
+  timerInterval = setInterval(() => {
+    remainingSec--;
+    updateTimerDisplay(remainingSec);
+
+    if (remainingSec <= 0) {
+      stopProcess();
+    }
+  }, 1000);
+});
+
+document.getElementById('stopBtn').addEventListener('click', stopProcess);
+</script>
+
+</body>
+</html>
+ocean_dolphin_20min.html
+目前顯示的是「ocean_dolphin_20min.html」。
