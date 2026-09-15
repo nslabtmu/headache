@@ -11,7 +11,7 @@ const musicConfigs = {
     },
     forest: {
         name: '🌲 森林',
-        url: 'https://youtube.com/shorts/2EcSAtmqPDQ',
+        url: 'https://youtu.be/Gyy1o0o-G6I',
         description: '自然環境音，沉浸大自然頻率。'
     },
     ocean: {
@@ -19,12 +19,12 @@ const musicConfigs = {
         url: 'https://youtube.com/shorts/1A-pOucGHwU',
         description: '平穩音頻，溫和舒緩緊繃神經。'
     }
-   /*增加新參數 
-   rain: {
-        name: '雨聲白噪音',
+   
+   blue: {
+        name: '1950 Blue',
         description: '持續性柔和頻率，幫助深度安眠。',
         videoId: '你的YouTube影片ID_4'
-    }*/
+    }
 };
 
 // 2️⃣ 全域變數與多次播放累積陣列
