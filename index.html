@@ -221,7 +221,7 @@
             <!-- 手機版專用切換選單 -->
             <select class="tabs-select-mobile" id="mobile-tab-select" onchange="switchTab(this.value)">
                 <option value="pane-headache" data-i18n="tab_headache">🤕 頭痛</option>
-                <option value="pane-mood" data-i18n="tab_headache">🤕 心情</option>
+                <option value="pane-mood" >🤕 心情</option>
                 <option value="pane-symptom" data-i18n="tab_symptom">📝 相關症狀</option>
                 <option value="pane-band" data-i18n="tab_band">⌚ 健康資料</option>
             </select>
@@ -358,6 +358,44 @@
                 </div>
               </div>
             </div>
+            <!-- 次頁籤 1.1：心情 -->
+        
+<div id="pane-mood" class="tab-pane active">
+    <!-- 1. 開始測驗卡片 -->
+    <div id="bai-start-card" class="card" style="text-align: center; padding: 20px;">
+        <h3>📋 貝克焦慮量表 (BAI) 評估</h3>
+        <p>本問卷共 21 題，旨在評估您近一週（包含今天）受焦慮症狀困擾的程度。</p>
+        <button type="button" onclick="startBaiQuiz()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">開始評估</button>
+    </div>
+
+    <!-- 2. 逐題回答卡片 (預設隱藏) -->
+    <div id="bai-quiz-card" class="card" style="display: none; padding: 20px;">
+        <!-- 頂部進度條 -->
+        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
+            <span id="bai-progress-text">問題 1 / 21</span>
+            <span id="bai-progress-percent">0%</span>
+        </div>
+        <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
+            <div id="bai-progress-bar" style="width: 0%; background: #4caf50; height: 100%; transition: width 0.3s;"></div>
+        </div>
+
+        <!-- 題目名稱 -->
+        <h3 id="bai-question-title" style="margin-bottom: 20px; font-size: 18px;">題目載入中...</h3>
+
+        <!-- 選項按鈕區 (0 ~ 3 分) -->
+        <div class="bai-options" style="display: flex; flex-direction: column; gap: 10px;">
+            <button class="bai-opt-btn" onclick="answerBaiQuestion(0)">0 - 完全沒有</button>
+            <button class="bai-opt-btn" onclick="answerBaiQuestion(1)">1 - 輕度（不太受困擾）</button>
+            <button class="bai-opt-btn" onclick="answerBaiQuestion(2)">2 - 中度（相當受困擾）</button>
+            <button class="bai-opt-btn" onclick="answerBaiQuestion(3)">3 - 重度（非常受困擾）</button>
+        </div>
+
+        <!-- 上一題按鈕 -->
+        <div style="margin-top: 20px; text-align: left;">
+            <button type="button" id="bai-prev-btn" onclick="prevBaiQuestion()" style="display: none; padding: 6px 12px;">← 上一題</button>
+        </div>
+    </div>
+</div>   
     <!-- 次頁籤 2：相關症狀 -->
                 <div id="pane-symptom" class="tab-pane">
                     <div class="form-group"><label data-i18n="sym_1">1. 持續性頭痛</label><div class="slider-container"><input type="range" name="sym1" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
