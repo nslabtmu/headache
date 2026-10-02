@@ -259,21 +259,7 @@ function resetConsent() {
 }
 
 // ==================== 個人資料設定面板 ====================
-/*async function loadUserProfile(userId) {
-    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
-    if (error) { console.error("讀取個人資料失敗：", error.message); return; }
-    
-    if (data) {
-        if(document.getElementById('prof_nickname')) document.getElementById('prof_nickname').value = data.nickname || '';
-        if(document.getElementById('prof_birthyear')) document.getElementById('prof_birthyear').value = data.birth_year || '';
-        if(document.getElementById('prof_gender')) document.getElementById('prof_gender').value = data.gender || '';
-        if(document.getElementById('prof_tbi')) document.getElementById('prof_tbi').value = data.tbi_study || '';
-        if(document.getElementById('prof_sport')) document.getElementById('prof_sport').value = data.sport_freq || '';
-        enterProfileViewMode();
-    } else {
-        enterProfileEditMode();
-    }
-}*/
+
 
 function setProfileFieldsDisabled(disabled) {
     ['prof_nickname', 'prof_birthyear', 'prof_gender', 'prof_tbi', 'prof_sport'].forEach(id => {
@@ -391,51 +377,7 @@ async function fetchWeather(lat, lon, statusMessage) {
         locationReady = false;
     }
 }
-/* 9/8 async function fetchWeather(lat, lon, statusMessage) {
-    const statusEl = document.getElementById('weather-status');
-    const tempEl = document.getElementById('wx-temp');
-    const humidityEl = document.getElementById('wx-humidity');
-    const pressureEl = document.getElementById('wx-pressure');
-    const pm25El = document.getElementById('wx-pm25');
 
-    try {
-        if (statusEl) statusEl.innerText = "⏳ 正在載入氣象與空污資料資料...";
-
-        // 取氣象資料（不反查地名）
-        const response = await fetch(
-            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,surface_pressure`
-        );
-        
-        if (!response.ok) throw new Error("API 請求失敗");
-        
-        const data = await response.json();
-        const current = data.current;
-
-        // ✅ 只更新氣象 UI
-        if (tempEl) tempEl.innerText = `${current.temperature_2m}`;
-        if (humidityEl) humidityEl.innerText = `${current.relative_humidity_2m}`;
-        if (pressureEl) pressureEl.innerText = `${current.surface_pressure}`;
-        if (pm25El) pm25El.innerText = `${currentAir.pm2_5 ?? '--'}`;
-
-        currentWeather = { 
-            lat, 
-            lon, 
-            fetched_at: new Date().toISOString(), 
-            data: current 
-        };
-        locationReady = true;
-
-        if (statusEl) statusEl.innerHTML = `✅ ${statusMessage}`;
-        
-        const wxDisplay = document.getElementById('weather-data-display');
-        if (wxDisplay) wxDisplay.classList.remove('hidden');
-
-    } catch (err) {
-        console.error("Fetch weather error:", err);
-        if (statusEl) statusEl.innerText = "⚠️ 取得氣象資料失敗";
-        locationReady = false;
-    }
-} 9/8*/
 function updateLocationDisplay(country, city, district, isManual = false) {
     const ipLocationDisplay = document.getElementById('ip-location-display');
     const ipLocationName = document.getElementById('ip-location-name');
@@ -596,113 +538,7 @@ function checkEmergency() {
 function saveFullRecord() {
     saveAllResearchData();
 }
-/*async function saveAllResearchData() {
-    if (REQUIRE_LOCATION_FOR_SUBMIT && !locationReady) {
-        alert("⚠️ 尚未取得定位資訊，無法送出！");
-        return;
-    }
-    
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { alert("請先登入！"); return; }
-    
-    let painLocations = [];
-    let painScore = 0;
-    let medicationUsed = false;
-    let medicationName = '';
-    let medicationCategories = []; // ✅ 提前在最外層宣告
-    let medicationEffect = '';     // ✅ 提前在最外層宣告
-    let notes = '';
-    
-    const headacheIframe = document.querySelector('#pane-headache iframe');
-    if (headacheIframe && headacheIframe.contentDocument) {
-        const iframeDoc = headacheIframe.contentDocument;
-        painLocations = Array.from(iframeDoc.querySelectorAll('input[name="pain_location"]:checked')).map(cb => cb.value);
-        painScore = Number(iframeDoc.getElementById('input-pain')?.value || 0);
-        medicationUsed = document.getElementById('input-medication')?.value === 'yes';
-        medicationName = document.getElementById('input-medication-name')?.value || '';
-        notes = document.getElementById('input-content')?.value || '';
 
-        medicationCategories = Array.from(iframeDoc.querySelectorAll('input[name="med-category"]:checked')).map(cb => cb.value);
-        medicationEffect = iframeDoc.getElementById('input-medication-effect')?.value || '';
-        //medicationCategories = Array.from(document.querySelectorAll('input[name="med-category"]:checked') ).map(cb => cb.value);
-        //medicationEffect = document.getElementById('input-medication-effect')?.value || '';
-    } else {
-        painLocations = Array.from(document.querySelectorAll('input[name="pain_location"]:checked')).map(cb => cb.value);
-        painScore = Number(document.getElementById('input-pain')?.value || 0);
-        medicationUsed = document.getElementById('input-medication')?.value === 'yes';
-        medicationName = document.getElementById('input-medication-name')?.value || '';
-        notes = document.getElementById('input-content')?.value || '';
-    // ✅ else 區塊也補上取得藥物分類與效果的邏輯
-        medicationCategories = Array.from(
-            document.querySelectorAll('input[name="med-category"]:checked')
-        ).map(cb => cb.value);
-        medicationEffect = document.getElementById('input-medication-effect')?.value || '';
-    }
-    
-    const headacheData = {
-        pain_score: painScore,
-        locations: painLocations,
-        medication_used: medicationUsed,
-        medication_name: medicationName,
-        medication_categories: medicationCategories,   // 新增
-        medication_effect: medicationEffect,
-        notes: notes
-    };
-
-    const symptomsData = {};
-    for (let i = 1; i <= 10; i++) {
-        const slider = document.querySelector(`input[name="sym${i}"]`);
-        if (slider) symptomsData[`sym_${i}`] = Number(slider.value);
-    }
-    symptomsData.triggers = document.getElementById('triggers')?.value.trim() || "無";
-
-    const healthData = {
-        heart_rate: Number(document.getElementById('band_heart_rate')?.value) || null,
-        spo2: Number(document.getElementById('band_spo2')?.value) || null,
-        steps: Number(document.getElementById('band_steps')?.value) || null,
-        avg_steps: Number(document.getElementById('band_avg_steps')?.value) || null
-    };
-// ✅ 新增：儲存當下的氣象資料
-    const weatherData = currentWeather ? {
-        temperature: currentWeather.data?.temperature_2m || null,
-        humidity: currentWeather.data?.relative_humidity_2m || null,
-        pressure: currentWeather.data?.surface_pressure || null,
-        location: currentWeather.location || "未知位置",
-        //fetched_at: currentWeather.fetched_at
-    //} : { note: "當下無氣象(防火牆或未抓取)", 
-    // 💡 帶入定位座標，供 Supabase Edge Function 後續補抓氣象
-    latitude: window.userLocation?.lat || null, 
-    longitude: window.userLocation?.lng || null 
-    fetched_at: currentWeather?.fetched_at || null,
-    is_backfilled: !!inputDate // 標記這是一筆補填資料
-        };
- 
-    const payload = {
-        user_id: user.id,
-        user_email: user.email,
-        headache_data: headacheData,
-        symptoms_data: symptomsData,
-        health_data: healthData,
-        // 9/1 weather_data: currentWeather || { note: "未取得" },
-        weather_data: weatherData, 
-        created_at: new Date().toISOString()
-    };
-
-    const { error } = await supabase.from('user_data').insert([payload]);
-
-    if (error) {
-        alert("❌ 儲存失敗：" + error.message);
-    } else {
-        alert("✅ 今日研究日誌與數據已成功送出！");
-        loadUserHistory(user.id);
-    }
-}
-// 假設這是你從 Supabase 撈回來的資料陣列叫 records
-window.allUserRecords = records; // 把資料暫存到全域變數供月曆使用
-
-function saveFullRecord() {
-    saveAllResearchData();
-}*/
 
 // ✅ 新增：切換變更位置面板
 function toggleChangeLocation() {
@@ -729,97 +565,7 @@ function toggleMedicationSection() {
   details.style.display = select.value === 'yes' ? 'block' : 'none';
 }
 
-/*function handleMobileTabChange(tabName) {
-    const tabId = `pane-${tabName}`;
-    switchTab(null, tabId);
-}
-function switchTab(event, tabId, contentClass = 'tab-pane', buttonClass = 'tab-btn') {
-    document.querySelectorAll(`.${contentClass}`).forEach(el => {
-        el.classList.add('hidden');
-        el.classList.remove('active');
-    });
-    
-    document.querySelectorAll(`.${buttonClass}`).forEach(el => {
-        el.classList.remove('active');
-    });
-    
-    const targetEl = document.getElementById(tabId);
-    if (targetEl) {
-        targetEl.classList.remove('hidden');
-        targetEl.classList.add('active');
-    }
-    
-    if (event && event.currentTarget) {
-        event.currentTarget.classList.add('active');
-    }
-}*/
 
-/*function switchTab(tabId) {
-  // 隐藏所有 tab-pane
-  document.querySelectorAll('.tab-pane').forEach(pane => {
-    pane.classList.remove('active');
-  });
-
-  // 取消所有按钮的 active
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.classList.remove('active');
-  });
-
-  // 显示目标 tab
-  const targetPane = document.getElementById(tabId);
-  if (targetPane) {
-    targetPane.classList.add('active');
-  }
-
-  // 高亮对应按钮
-  const targetButton = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
-  if (targetButton) {
-    targetButton.classList.add('active');
-  }
-
-  // 同步手机版 select
-  const mobileSelect = document.getElementById('mobile-tab-select');
-  if (mobileSelect) {
-    mobileSelect.value = tabId;
-  }
-}*/
-
-/*async function switchTab(tabId) {
-  const targetPane = document.getElementById(tabId);
-  if (!targetPane) return;
-
-  // ✅ 只清除「同一層」（同一個父層底下）的 tab-pane，不影響其他層級
-  const paneParent = targetPane.parentElement;
-  Array.from(paneParent.children).forEach(child => {
-    if (child.classList.contains('tab-pane')) {
-      child.classList.remove('active');
-    }
-  });
-  targetPane.classList.add('active');
-
-  // ✅ 按鈕高亮同樣限制在同一層
-  const targetButton = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
-  if (targetButton) {
-    const btnParent = targetButton.parentElement;
-    Array.from(btnParent.children).forEach(btn => {
-      if (btn.classList.contains('tab-btn')) {
-        btn.classList.remove('active');
-      }
-    });
-    targetButton.classList.add('active');
-  }
-
-  // 同步手機版 select（只有主頁籤在用，次頁籤呼叫時找不到對應 option，忽略即可）
-  const mobileSelect = document.getElementById('mobile-tab-select');
-  if (mobileSelect) {
-    mobileSelect.value = tabId;
-  }
-  // ✅ 新增：切到趨勢圖分頁時，才真正畫圖（這時候畫布才是可見的正確尺寸）
-  if (tabId === 'pane-chart') {
-    const { data: { user } } = await supabase.auth.getUser(); // 見下方註記
-    if (user) loadUserHistory(user.id);
-  }
-}  */ // end of switchtab
 
 async function switchTab(tabId) {
   console.log('🔵 [switchTab] 開始執行，tabId =', tabId);
@@ -941,34 +687,7 @@ async function checkMigraineWeatherRisk(lat, lon) {
         console.error("無法取得氣象資料", error);
     }
 }
-//月曆
-/*document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('headacheCalendar');
-    
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth', // 顯示整月模式
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth'
-        },
-        locale: 'zh-tw', // 設定繁體中文
-        height: 'auto',
-        // 這裡未來可以改為透過 fetch 從你的 Cloudflare Workers 後端撈取真實資料
-        events: [
-            { title: '重度頭痛', start: '2026-09-02', color: '#dc3545' }, // 紅色代表重度
-            { title: '輕度頭痛', start: '2026-09-05', color: '#ffc107' }, // 黃色代表輕度
-            { title: '無痛', start: '2026-09-06', color: '#28a745' }      // 綠色代表無痛
-        ],
-        // 當使用者點擊月曆某一格時的互動
-        dateClick: function(info) {
-            alert('你點選了日期： ' + info.dateStr + '\n準備帶出當日氣象與頭痛紀錄...');
-            // 這裡可以寫：彈出 Modal 視窗，或是把畫面滾動到上方並帶入該日期的資料
-        }
-    });
-    
-    calendar.render();
-});*/
+
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('headacheCalendar'); // 請確認你的 HTML 容器 ID
     if (!calendarEl) return;
@@ -1176,73 +895,7 @@ async function exportMedicalReport() {
     doc.save("Headache_Medical_Report.pdf");
 }
 
-// 月曆出現 資料
-/*document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('headacheCalendar');
-    
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        locale: 'zh-tw',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth'
-        },
-        // 動態事件渲染（讓有頭痛紀錄的日子自動變色）
-        events: function(fetchInfo, successCallback, failureCallback) {
-            // 如果全域有資料，就即時轉換成月曆的事件顏色
-            const events = (window.allUserRecords || []).map(record => {
-                let color = '#28a745'; // 綠色（輕微/無）
-                const score = record.headache_data?.pain_score || 0;
-                if (score >= 7) color = '#ff6b6b';      // 重度紅
-                else if (score >= 4) color = '#ffd43b'; // 中度黃
 
-                // 提取記錄的日期（假設你的 created_at 是 "2026-09-08T..." 格式）
-                const dateStr = record.created_at ? record.created_at.split('T')[0] : '';
-
-                return {
-                    title: `痛感: ${score}`,
-                    start: dateStr,
-                    color: color,
-                    extendedProps: record // 把整筆資料藏在事件裡
-                };
-            });
-            successCallback(events);
-        },
-        // 🟢 點擊月曆某一天的核心邏輯
-        dateClick: function(info) {
-            const clickedDate = info.dateStr; // 例如 "2026-09-08"
-            
-            // 從全域資料中找出符合當天的紀錄
-            const matchedRecord = (window.allUserRecords || []).find(r => {
-                const rDate = r.created_at ? r.created_at.split('T')[0] : '';
-                return rDate === clickedDate;
-            });
-
-            if (matchedRecord) {
-                // 📅 狀況 A：這天有紀錄，彈出視窗顯示詳細內容！
-                const hData = matchedRecord.headache_data || {};
-                const wData = matchedRecord.weather_data || {};
-                
-                alert(`📅 記錄日期：${clickedDate}\n` +
-                      `🔥 疼痛指數：${hData.pain_score} / 10\n` +
-                      `📍 痛點部位：${(hData.locations || []).join(', ') || '未記錄'}\n` +
-                      `💊 服藥狀況：${hData.medication_used ? '有 (' + (hData.medication_name || '未填藥名') + ')' : '無'}\n` +
-                      `🌡️ 當時氣壓：${wData.pressure || '無'} hPa`);
-            } else {
-                // 📅 狀況 B：這天沒有記錄，詢問是否要帶入日期補填
-                const confirmAdd = confirm(`📅 日期 ${clickedDate}\n這天尚無頭痛紀錄，是否要切換至填寫頁面進行補填？`);
-                if (confirmAdd) {
-                    // 這裡可以寫切換到填寫分頁的程式碼（例如切換到 pane-headache）
-                    // switchTab('pane-headache');
-                }
-            }
-        }
-    });
-    
-    calendar.render();
-    window.myCalendar = calendar; // 方便之後資料更新時呼叫 calendar.refetchEvents()
-});*/
 document.addEventListener('DOMContentLoaded', function() {
     // 1. 自動取得使用者所在位置（經緯度）
     if (navigator.geolocation) {
