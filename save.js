@@ -80,17 +80,18 @@ async function saveAllResearchData() {
         steps: Number(document.getElementById('band_steps')?.value) || null,
         avg_steps: Number(document.getElementById('band_avg_steps')?.value) || null
     };
-   /* // 🌟 新增：抓取音樂治療的紀錄與選擇的類型（假設你在全域或變數中有記錄這幾項）
-    const musicTherapyData = {
-        protocol: window.lastMusicProtocol || "未進行音樂治療",
-        start_time: window.lastMusicStartTime || null,
-        end_time: window.lastMusicEndTime || null
-    };*/
-    // 🌟 修正：打包多次累積的音樂治療紀錄陣列
-    const musicTherapyData = {
-        sessions: window.sessionMusicLogs || [], // 包含所有聽過的清單、開始與結束時間
-        total_sessions: window.sessionMusicLogs ? window.sessionMusicLogs.length : 0
-    };
+   // 🌟 抓取音樂治療的紀錄與選擇的類型（假設你在全域或變數中有記錄這幾項）
+// 🌟 優化：計算當次日誌累積的音樂治療數據
+        const logs = window.sessionMusicLogs || [];
+        const totalDuration = logs.reduce((acc, cur) => acc + (cur.duration_seconds || 0), 0);
+        const hasCompletedSession = logs.some(log => log.completed === true);
+
+        const musicTherapyData = {
+            sessions: logs,                           // 詳細音樂清單與個別紀錄
+            total_sessions: logs.length,             // 總收聽次數
+            total_duration_seconds: totalDuration,    // 當次日誌總累積收聽秒數
+            has_completed_session: hasCompletedSession // 是否有至少一次完整聽完
+        };
     // 🌟 處理日期與時間（支援補填舊日期）
     const inputDate = document.getElementById('record-date')?.value;
     const inputTime = document.getElementById('record-time')?.value || '00:00:00';
