@@ -215,6 +215,7 @@
             <!-- [次頁籤 Sub-Tabs] -->
             <div class="tabs sub-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
                 <button type="button" data-tab="pane-headache" class="tab-btn active" id="btn-tab-headache" onclick="switchTab('pane-headache')" data-i18n="tab_headache">🤕 頭痛</button>
+                <button type="button" data-tab="pane-mood" class="tab-btn active" id="btn-tab-headache" onclick="switchTab('pane-mood')" data-i18n="tab_mood">🤕 心情</button>
                 <button type="button" class="tab-btn" id="btn-tab-symptom" data-tab="pane-symptom" onclick="switchTab('pane-symptom')" data-i18n="tab_symptom">📝  相關症狀</button>
                 <button type="button" class="tab-btn" id="btn-tab-band" data-tab="pane-band" onclick="switchTab( 'pane-band')" data-i18n="tab_band">⌚ 健康資料</button>
             </div>
@@ -222,7 +223,7 @@
             <!-- 手機版專用切換選單 -->
             <select class="tabs-select-mobile" id="mobile-tab-select" onchange="switchTab(this.value)">
                 <option value="pane-headache" data-i18n="tab_headache">🤕 頭痛</option>
-                <option value="pane-mood" >🤕 心情</option>
+                <option value="pane-mood" data-i18n="tab_mood"" >🤕 心情</option>
                 <option value="pane-symptom" data-i18n="tab_symptom">📝 相關症狀</option>
                 <option value="pane-band" data-i18n="tab_band">⌚ 健康資料</option>
             </select>
