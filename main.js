@@ -11,45 +11,7 @@ let locationReady = false;
 // ✅ pageOrder 中 pane-symptoms 已確認改為 pane-symptom
 const pageOrder = ['pane-profile', 'pane-headache', 'pane-symptom', 'pane-band', 'pane-chart'];
 
-// 初始化監聽與狀態確認
-// ✅ 正確：增加防禦性檢查
-/*document.addEventListener('DOMContentLoaded', () => {
-    // 確保 supabase 物件以及 auth 已經成功載入
-    if (window.supabase && window.supabase.auth) {
-        window.supabase.auth.onAuthStateChange((event, session) => {
-            console.log("Auth 狀態改變：", event, session);
-        });
-    } else {
-        console.error("錯誤：Supabase 尚未初始化或載入失敗！");
-    }
-});*/
-/*document.addEventListener('DOMContentLoaded', () => {
-    // 確保 supabase 物件以及 auth 已經成功載入
-    if (window.supabase && window.supabase.auth) {
-        window.supabase.auth.onAuthStateChange((event, session) => {
-            console.log("Auth 狀態改變：", event, session);
-            
-            // 當偵測到使用者已登入 (SIGNED_IN)
-            if (event === 'SIGNED_IN' && session) {
-                console.log("✅ 登入成功，切換顯示主系統卡片...");
-                
-                // 1. 隱藏 Google 登入卡片 (auth-card)
-                const authCard = document.getElementById('auth-card');
-                if (authCard) {
-                    authCard.classList.add('hidden');
-                }
-                
-                // 2. 顯示主系統卡片 (main-card)
-                const mainCard = document.getElementById('main-card');
-                if (mainCard) {
-                    mainCard.classList.remove('hidden');
-                }
-            }
-        });
-    } else {
-        console.error("錯誤：Supabase 尚未初始化或載入失敗！");
-    }
-});*/
+
 document.addEventListener('DOMContentLoaded', async () => {
     // 確保 supabase 物件以及 auth 已經成功載入
     if (window.supabase && window.supabase.auth) {
