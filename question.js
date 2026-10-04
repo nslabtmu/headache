@@ -305,3 +305,285 @@ async function savePsqiScoreToSupabase(score, qualityText) {
         alert("儲存失敗，請檢查網路連線。");
     }
 }
+// ==========================================
+// 📋 BDI 21 題問卷邏輯
+// ==========================================
+// BDI-II 21 題完整題目與選項資料
+const bdiQuestions = [
+    {
+        title: "1. 悲傷 (Sadness)",
+        options: [
+            "0 - 我不感到悲傷。",
+            "1 - 大部分時間我都感到悲傷。",
+            "2 - 我隨時都感到悲傷。",
+            "3 - 我極度悲傷或不快樂，甚至到了無法忍受的地步。"
+        ]
+    },
+    {
+        title: "2. 悲觀 (Pessimism)",
+        options: [
+            "0 - 我對未來並不感到灰心或沮喪。",
+            "1 - 我感到對未來比以前更沮喪。",
+            "2 - 我覺得自己沒什麼值得期待的事情。",
+            "3 - 我覺得未來沒有希望，情況只會越來越糟糕。"
+        ]
+    },
+    {
+        title: "3. 過去的失敗 (Past Failure)",
+        options: [
+            "0 - 我不覺得自己是個失敗者。",
+            "1 - 我覺得自己失敗的次數比應該有的還多。",
+            "2 - 回顧過去，我看到許多失敗。",
+            "3 - 我覺得自己作為一個人，是完全失敗的。"
+        ]
+    },
+    {
+        title: "4. 失去樂趣 (Loss of Pleasure)",
+        options: [
+            "0 - 我從喜歡的事情中獲得的樂趣和以前一樣。",
+            "1 - 我無法像以前那樣享受事物。",
+            "2 - 我能從習慣喜歡的事情中獲得的樂趣極少。",
+            "3 - 我無法從任何事物中獲得任何樂趣。"
+        ]
+    },
+    {
+        title: "5. 罪惡感 (Guilty Feelings)",
+        options: [
+            "0 - 我特別不覺得有罪惡感。",
+            "1 - 我對許多做過或該做而沒做的事情感到罪惡。",
+            "2 - 大部分時間我都感到相當有罪惡感。",
+            "3 - 我隨時隨地都感到極度的罪惡感。"
+        ]
+    },
+    {
+        title: "6. 懲罰感 (Punishment Feelings)",
+        options: [
+            "0 - 我不覺得自己正在受到懲罰。",
+            "1 - 我覺得自己可能會受到懲罰。",
+            "2 - 我預期自己會受到懲罰。",
+            "3 - 我覺得自己正在受到懲罰。"
+        ]
+    },
+    {
+        title: "7. 自我討厭 (Self-Dislike)",
+        options: [
+            "0 - 我對自己的感覺和以前一樣。",
+            "1 - 我對自己失去了信心。",
+            "2 - 我對自己感到失望。",
+            "3 - 我討厭我自己。"
+        ]
+    },
+    {
+        title: "8. 自我批判 (Self-Criticalness)",
+        options: [
+            "0 - 我不會比以前更多地批評或責怪自己。",
+            "1 - 我比以前更容易批評自己的缺失。",
+            "2 - 我因自己的過錯而批評自己。",
+            "3 - 我為發生的所有壞事責怪自己。"
+        ]
+    },
+    {
+        title: "9. 自殺意念或想法 (Suicidal Thoughts)",
+        options: [
+            "0 - 我沒有任何想傷害自己的想法。",
+            "1 - 我有傷害自己的想法，但我不會真的去做。",
+            "2 - 我想要殺了自己。",
+            "3 - 如果有機會，我會自殺。"
+        ]
+    },
+    {
+        title: "10. 哭泣 (Crying)",
+        options: [
+            "0 - 我不會比以前哭得更多。",
+            "1 - 我比以前更容易哭泣。",
+            "2 - 我因為每一件小事而哭泣。",
+            "3 - 我想哭，但我哭不出來。"
+        ]
+    },
+    {
+        title: "11. 躁動不安 (Agitation)",
+        options: [
+            "0 - 我不會比以前更容易感到坐立不安或急躁。",
+            "1 - 我感到比以前更坐立不安或急躁。",
+            "2 - 我非常坐立不安，以至於很難靜靜坐著。",
+            "3 - 我太過坐立不安，必須一直走動或做些事情。"
+        ]
+    },
+    {
+        title: "12. 失去興趣 (Loss of Interest)",
+        options: [
+            "0 - 我對其他人或活動的興趣沒有減少。",
+            "1 - 我對其他人或事物的興趣比以前減少了。",
+            "2 - 我失去了大部分對其他人或事物的興趣。",
+            "3 - 我對任何事情都提不起興趣。"
+        ]
+    },
+    {
+        title: "13. 優柔寡斷 (Indecisiveness)",
+        options: [
+            "0 - 我做出做決定的能力和以前一樣好。",
+            "1 - 我發現做決定比以前更加困難。",
+            "2 - 我做決定時遇到極大的困難。",
+            "3 - 我根本無法做出任何決定。"
+        ]
+    },
+    {
+        title: "14. 無價值感 (Worthlessness)",
+        options: [
+            "0 - 我不覺得自己是沒有價值的人。",
+            "1 - 我不覺得自己像以前那樣有價值和有用。",
+            "2 - 與其他人相比，我覺得自己比較沒有價值。",
+            "3 - 我覺得自己完全沒有價值。"
+        ]
+    },
+    {
+        title: "15. 活力喪失 (Loss of Energy)",
+        options: [
+            "0 - 我的精力跟以前一樣好。",
+            "1 - 我的精力比以前少。",
+            "2 - 我沒有足夠的精力去做很多事情。",
+            "3 - 我沒有足夠的精力去做任何事情。"
+        ]
+    },
+    {
+        title: "16. 睡眠習慣改變 (Changes in Sleeping Pattern)",
+        options: [
+            "0 - 我的睡眠狀況沒有任何改變。",
+            "1 - 我睡得比以前稍微多或少了一些。",
+            "2 - 我睡得比以前多得多或少得多。",
+            "3 - 我幾乎整天都在睡，或者比以前少睡了許多（難以入睡/早醒）。"
+        ]
+    },
+    {
+        title: "17. 易怒 (Irritability)",
+        options: [
+            "0 - 我不會比以前更容易發脾氣。",
+            "1 - 我比以前更容易激動或發脾氣。",
+            "2 - 我比以前容易發脾氣許多。",
+            "3 - 我隨時隨地都感到易怒。"
+        ]
+    },
+    {
+        title: "18. 食慾改變 (Changes in Appetite)",
+        options: [
+            "0 - 我的食慾沒有任何改變。",
+            "1 - 我的食慾比以前稍微好一點或差一點。",
+            "2 - 我的食慾比以前好得多或差得多。",
+            "3 - 我完全沒有食慾，或者隨時都想暴飲暴食。"
+        ]
+    },
+    {
+        title: "19. 專注力困難 (Concentration Difficulty)",
+        options: [
+            "0 - 我可以像以前一樣好地集中注意力。",
+            "1 - 我無法像以前那樣集中注意力。",
+            "2 - 我很難長時間集中注意力在任何事情上。",
+            "3 - 我發現自己無法集中注意力在任何事情上。"
+        ]
+    },
+    {
+        title: "20. 疲勞或疲倦 (Tiredness or Fatigue)",
+        options: [
+            "0 - 我不會比以前更容易感到疲倦。",
+            "1 - 我比以前更容易感到疲倦或累。",
+            "2 - 我太累了，以至於無法做很多以前常做的事。",
+            "3 - 我太累了，幾乎無法做任何事。"
+        ]
+    },
+    {
+        title: "21. 對性的興趣改變 (Loss of Interest in Sex)",
+        options: [
+            "0 - 我最近對性的興趣沒有改變。",
+            "1 - 我對性的興趣比以前減少了。",
+            "2 - 我現在對性的興趣大幅減少。",
+            "3 - 我對性完全失去了興趣。"
+        ]
+    }
+];
+
+let currentBdiIndex = 0;
+let bdiScores = []; // 儲存使用者的答案分頁 (0-3 分)
+
+// 1. 開始評估
+function startBdiQuiz() {
+    currentBdiIndex = 0;
+    bdiScores = [];
+    document.getElementById("bdi-start-card").style.display = "none";
+    document.getElementById("bdi-quiz-card").style.display = "block";
+    renderBdiQuestion();
+}
+
+// 2. 動態渲染題目與專屬選項
+function renderBdiQuestion() {
+    const q = bdiQuestions[currentBdiIndex];
+    
+    // 更新題目與進度
+    document.getElementById("bdi-question-title").innerText = q.title;
+    document.getElementById("bdi-progress-text").innerText = `問題 ${currentBdiIndex + 1} / ${bdiQuestions.length}`;
+    
+    const percent = Math.round(((currentBdiIndex + 1) / bdiQuestions.length) * 100);
+    document.getElementById("bdi-progress-percent").innerText = `${percent}%`;
+    document.getElementById("bdi-progress-bar").style.width = `${percent}%`;
+
+    // 動態建置 4 個選項按鈕
+    const container = document.getElementById("bdi-options-container");
+    container.innerHTML = ""; // 清空舊選項
+
+    q.options.forEach((optText, score) => {
+        const btn = document.createElement("button");
+        btn.className = "bdi-opt-btn";
+        btn.innerText = optText;
+        btn.style.cssText = "padding: 12px; font-size: 15px; text-align: left; cursor: pointer; border: 1px solid #ccc; border-radius: 6px; background-color: #fff; transition: background 0.2s;";
+        
+        // 懸停效果
+        btn.onmouseover = () => btn.style.backgroundColor = "#f0f0f0";
+        btn.onmouseout = () => btn.style.backgroundColor = "#fff";
+        
+        btn.onclick = () => answerBdiQuestion(score);
+        container.appendChild(btn);
+    });
+
+    // 控制上一題按鈕顯示狀態
+    const prevBtn = document.getElementById("bdi-prev-btn");
+    prevBtn.style.display = currentBdiIndex > 0 ? "inline-block" : "none";
+}
+
+// 3. 記錄答案並推進下一題
+function answerBdiQuestion(score) {
+    bdiScores[currentBdiIndex] = score;
+
+    if (currentBdiIndex < bdiQuestions.length - 1) {
+        currentBdiIndex++;
+        renderBdiQuestion();
+    } else {
+        finishBdiQuiz();
+    }
+}
+
+// 4. 返回上一題
+function prevBdiQuestion() {
+    if (currentBdiIndex > 0) {
+        currentBdiIndex--;
+        renderBdiQuestion();
+    }
+}
+
+// 5. 結束測驗，計算總分
+function finishBdiQuiz() {
+    const totalScore = bdiScores.reduce((sum, s) => sum + s, 0);
+    
+    let resultText = "";
+    if (totalScore <= 13) {
+        resultText = "無或極輕微憂鬱狀況";
+    } else if (totalScore <= 19) {
+        resultText = "輕度憂鬱狀況";
+    } else if (totalScore <= 28) {
+        resultText = "中度憂鬱狀況";
+    } else {
+        resultText = "重度憂鬱狀況";
+    }
+
+    alert(`評估完成！\n您的 BDI-II 總分是：${totalScore} 分\n評估結果：${resultText}`);
+    
+    // 您可在這裡接續跳轉至結果頁面或顯示結果卡片
+}
