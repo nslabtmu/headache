@@ -9,6 +9,11 @@ let currentLang = 'zh-TW';
 let locationReady = false;
 let appStarted = false;
 
+// ✅ 同意書版本號：改版時只要改這一個地方
+// PDF 檔名請對應命名為 consent_v{版本號}.pdf
+const CONSENT_VERSION = '4';
+const CONSENT_PDF_URL = `./consent_v${CONSENT_VERSION}.pdf`;
+
 // ✅ pageOrder 中 pane-symptoms 已確認改為 pane-symptom
 const pageOrder = ['pane-profile', 'pane-headache', 'pane-symptom','pane-mood', 'pane-band', 'pane-chart'];
 
@@ -19,10 +24,14 @@ function startApp(user) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    if (!(window.supabase && window.supabase.auth)) {
-        console.error("錯誤：Supabase 尚未初始化或載入失敗！");
-        return;
-    }
+    const pdfFrame = document.getElementById('pdfFrame');
+    const pdfLink = document.getElementById('pdfDownloadLink');
+    if (pdfFrame) pdfFrame.src = CONSENT_PDF_URL;
+    if (pdfLink) pdfLink.href = CONSENT_PDF_URL;
+        if (!(window.supabase && window.supabase.auth)) {
+            console.error("錯誤：Supabase 尚未初始化或載入失敗！");
+            return;
+        }
 
     const authCard = document.getElementById('auth-card');
     const consentCard = document.getElementById('consent-card');
@@ -168,6 +177,13 @@ function toggleLanguage() {
 
 // ==================== 身份驗證與頁面跳轉 ====================
 function agreeConsent() {
+    localStorage.setItem('has_agreed', 'true');
+    localStorage.setItem('agreed_version', CONSENT_VERSION);
+
+    document.getElementById('consent-card')?.classList.add('hidden');
+    document.getElementById('auth-card')?.classList.remove('hidden');
+}
+/*function agreeConsent() {
     // 1. 先暫存在瀏覽器，代表這個人已經點過同意了
     localStorage.setItem('has_agreed', 'true');
 
@@ -178,10 +194,10 @@ function agreeConsent() {
     if (authCard) authCard.classList.remove('hidden');
 
     console.log('✅ 已記錄暫存同意狀態');
-}
+}*/
 
 // 假設這是你登入成功後取得 user 物件的地方
-async function handleLoginSuccess(user) {
+/*async function handleLoginSuccess(user) {
     try {
         // 檢查瀏覽器有沒有剛剛暫存的同意狀態
         const hasAgreedLocal = localStorage.getItem('has_agreed');
@@ -202,6 +218,27 @@ async function handleLoginSuccess(user) {
             localStorage.removeItem('has_agreed');
             console.log('✅ 同意書已成功連動並寫入 Supabase！');
         }
+    } catch (error) {
+        console.error('❌ 同步同意書到資料庫失敗：', error);
+    }
+}*/
+async function handleLoginSuccess(user) {
+    try {
+        if (localStorage.getItem('has_agreed') !== 'true') return;
+
+        const { error } = await supabase
+            .from('consent_records')
+            .insert({
+                user_id: user.id,
+                user_email: user.email,
+                consent_version: localStorage.getItem('agreed_version') || CONSENT_VERSION,
+                agreed: true,
+                agreed_at: new Date().toISOString()
+            });
+        if (error) throw error;
+
+        localStorage.removeItem('has_agreed');
+        localStorage.removeItem('agreed_version');
     } catch (error) {
         console.error('❌ 同步同意書到資料庫失敗：', error);
     }
