@@ -763,7 +763,7 @@ function toggleMedicationSection() {
 
 
 
-async function switchTab(tabId) {
+/*async function switchTab(tabId) {
   console.log('🔵 [switchTab] 開始執行，tabId =', tabId);
   
   const targetPane = document.getElementById(tabId);
@@ -812,6 +812,26 @@ async function switchTab(tabId) {
   }
   
   console.log('✅ [switchTab] 完成！');
+}*/
+function switchMainTab(name) {
+  document.querySelectorAll('.main-pane').forEach(p => p.style.display = 'none');
+  document.getElementById('main-' + name).style.display = 'block';
+  document.querySelectorAll('.top-tab').forEach(b =>
+    b.classList.toggle('active', b.dataset.main === name));
+}
+function switchLevel2Tab(name) {
+  document.querySelectorAll('.l2-pane').forEach(p => p.style.display = 'none');
+  document.getElementById('l2-' + name).style.display = 'block';
+  document.querySelectorAll('.level2-tab').forEach(b =>
+    b.classList.toggle('active', b.dataset.l2 === name));
+  if (name === 'trend' && window.calendar) calendar.render(); // 月曆隱藏時需重繪
+}
+function switchTab(id) { // 只管第三層
+  document.querySelectorAll('#attack-form .tab-pane').forEach(p =>
+    p.classList.toggle('active', p.id === id));
+  document.querySelectorAll('.sub-tabs .tab-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.tab === id));
+  document.getElementById('mobile-tab-select').value = id;
 }
 
 // 3. 切換帳戶選單開關
