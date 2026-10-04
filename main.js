@@ -1076,3 +1076,25 @@ async function checkWeatherRisk(lat, lon) {
         console.error("無法取得氣象預報資料", error);
     }
 }
+/*1004*/
+let appStarted = false;
+function startApp(user) {
+    if (appStarted) return;      // 避免 getSession 和 SIGNED_IN 重複觸發
+    appStarted = true;
+    showMainApp(user);
+}
+
+// 初始檢查
+if (session && !error) {
+    startApp(session.user);
+}
+
+// 監聽
+window.supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+        startApp(session.user);
+    } else if (event === 'SIGNED_OUT') {
+        appStarted = false;
+        showAuthFlow();
+    }
+});
