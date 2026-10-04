@@ -136,7 +136,7 @@
 </div> -->
         <!-- ==================== 主頁籤 1: 頭痛資料填寫 ==================== -->
 
-  <!-- 氣象模組 - 最新版：IP位置 + 氣象 + 統一的變更位置面板 -->
+  <!-- 氣象模組 - 最新版：IP位置 + 氣象 + 統一的變更位置面板
 <div id="pane-form" class="tab-pane active"> <!--<form id="pane-form" onsubmit="event.preventDefault(); saveFullRecord();"> -->
     <div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
     <!-- ==================== 1. 地理位置卡片 ==================== -->
@@ -197,28 +197,21 @@
     <strong>⚠️ 氣象偏頭痛預警：</strong> <span id="alert-message">偵測到目前氣壓偏低，今日偏頭痛發作機率可能升高，請多加注意！</span>
 </div>
 <!-- 🌡️ 氣壓與頭痛風險預警卡片 -->
-<div id="weather-risk-card" class="card card-left hidden" style="background: var(--color-danger-bg); border-color: #ecd3cd;">
+<div id="weather-risk-card" class="card card-left hidden" style="background: var(--color-danger-bg); border-color: #ecd3cd;"></div>
     <div class="card-body">
         <h3 class="card-title" style="font-size: 1.1rem; margin-bottom: 8px;">⚠️ 氣象頭痛風險提示</h3>
         <p id="weather-risk-text" style="font-size: 0.95rem; margin: 0; color: var(--color-text-main);">
             正在檢測當地氣壓變化...
         </p>
     </div>
-</div>
 </div><!-- ✅ 天氣區塊結束 -->
 
   
-  <!--<nav class="sub-navbar-level2">
+  <nav class="sub-navbar-level2">
     <button type="button" class="level2-tab active" data-l2="diary" onclick="switchLevel2Tab('diary')" data-i18n="nav_diary">📝 1.1 日記</button>
     <button type="button" class="level2-tab" data-l2="trend" onclick="switchLevel2Tab('trend')" data-i18n="nav_trend">📊 1.2 趨勢圖</button>
-  </nav> -->
-    
- <!-- 第二層 -->
-            <nav class="sub-navbar-level2">
-                <button class="level2-tab active" onclick="switchLevel2Tab('diary')">📝 1.1 日記</button>
-                <button class="level2-tab" onclick="switchLevel2Tab('trend')">📊 1.2 趨勢圖</button>
-            </nav>
-      <div id="l2-diary" class="l2-pane active">
+  </nav>
+      <div id="l2-diary" class="l2-pane active"></div>
 
             <!-- 第三層 -->
             <div class="tabs sub-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
@@ -613,14 +606,9 @@
   </select>
 </div>  
 </div>
+    </div>
 </section>
 
-
-
-
-
-
-      
 <!-- ==================== 主頁籤 music ==================== -->
         <!-- 「2. 音樂」主分頁內容區域 
      
@@ -676,15 +664,16 @@
 <div id="music-cards-container" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
     <!-- 程式會自動在這裡產生所有音樂卡片 -->
 </div>
+     </div>
 </section>
 
         <!-- ==================== 主頁籤 3: 衛教新知 ==================== -->
  <section id="main-info" class="main-pane" style="display:none">     
-            <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">衛教</h3>
+            <h3 data-i18n="info_title" style="margin-top:0; color:#2980b9;">衛教</h3>
     <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
         <p>頭痛相關衛教資訊內容...</p>
-        <p></p><a href="https://www.nhi.gov.tw/ch/cp-2782-dfe08-2951-1.html">中央健康保險署</a></p>
-        <a href="https://shh.tmu.edu.tw/page/HealthDetail.aspx?deptCode=07&seqNo=20230406135539499401">雙和衛教內容</a>
+        <p><a href="https://www.nhi.gov.tw/ch/cp-2782-dfe08-2951-1.html">中央健康保險署</a></p>
+<p><a href="https://shh.tmu.edu.tw/page/HealthDetail.aspx?deptCode=07&amp;seqNo=20230406135539499401">雙和衛教內容</a></p>
     </div>    
 </section>
   <!--基本資料 -->
@@ -766,7 +755,7 @@
         <div style="font-size: 11px; color: #95a5a6;"> © 2026 TMU-nslab-TBI by Lucy   </div>
     
     </footer>
-
+</div> <!-- main-card 結束 -->
     <script src="./main.js"></script>
 </body>
 </html>
