@@ -9,7 +9,7 @@ let currentLang = 'zh-TW';
 let locationReady = false;
 
 // ✅ pageOrder 中 pane-symptoms 已確認改為 pane-symptom
-const pageOrder = ['pane-profile', 'pane-headache', 'pane-symptom', 'pane-band', 'pane-chart'];
+const pageOrder = ['pane-profile', 'pane-headache', 'pane-symptom','pane-mood', 'pane-band', 'pane-chart'];
 
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -320,6 +320,7 @@ async function fetchWeather(lat, lon, statusMessage) {
     
     // 💡 如果你前端有對應的空污 UI 顯示元素，也可以在這裡宣告
      const pm25El = document.getElementById('wx-pm25');
+    const pm25StatusEl = document.getElementById('wx-pm25-status');
 
     try {
         if (statusEl) statusEl.innerText = "⏳ 正在載入氣象與空污資料...";
@@ -352,8 +353,20 @@ async function fetchWeather(lat, lon, statusMessage) {
         if (pressureEl) pressureEl.innerText = `${currentWx.surface_pressure ?? '--'}`;
         
         // 💡 如果有前端 UI 欄位可以順便更新空污（例如 PM2.5）
-         if (pm25El) pm25El.innerText = `${currentAir.pm2_5 ?? '--'}`;
+         if (pm25El) {
+            const pm25Val = currentAir.pm2_5;
+    
+            // 填入數值
+            pm25El.innerText = pm25Val ?? '--';
 
+            // 帶入評估文字與標準說明
+            if (pm25StatusEl) {
+                const aq = getAirQualityStatus(pm25Val);
+                // 顯示結果與標準說明
+                pm25StatusEl.innerText = `(${aq.text}，以台灣與世界衛生組織常用的 PM2.5 濃度級距為標準)`;
+                pm25StatusEl.style.color = aq.color;
+            }
+        }
         // ✅ 整合天氣與空污資料存入全域變數 (完美對應你資料庫的結構)
         currentWeather = { 
             lat, 
@@ -377,6 +390,28 @@ async function fetchWeather(lat, lon, statusMessage) {
         locationReady = false;
     }
 }
+/**
+ * 評估空氣品質 (PM2.5)
+ * 評估標準：以台灣環境部與世界衛生組織 (WHO) 常用的 PM2.5 濃度級距為依據
+ */
+function getAirQualityStatus(pm25) {
+    if (pm25 === null || pm25 === undefined || isNaN(pm25)) {
+        return { text: "資料讀取中", color: "#7f8c8d" };
+    }
+
+    const val = Number(pm25);
+
+    if (val <= 15.4) {
+        return { text: "優", color: "#27ae60" };      // 綠色
+    } else if (val <= 35.4) {
+        return { text: "普通", color: "#f39c12" };   // 黃色 / 橘色
+    } else if (val <= 54.4) {
+        return { text: "差", color: "#e67e22" };     // 橘紅色
+    } else {
+        return { text: "極差", color: "#e74c3c" };   // 紅色
+    }
+}
+
 // 1. 修正 UI 顯示（避免 district 為空時後面出現多餘的 "-"）
 function updateLocationDisplay(country, city, district, isManual = false) {
     const ipLocationDisplay = document.getElementById('ip-location-display');
