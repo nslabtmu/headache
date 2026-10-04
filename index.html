@@ -397,16 +397,23 @@
             <!-- 次頁籤 1.1：心情 -->
         
 <div id="pane-mood" class="tab-pane">
-    <!-- 1. 開始測驗卡片 -->
+
+  <!-- 量表選擇器 -->
+  <div class="quiz-picker" style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+    <button type="button" class="btn" onclick="showQuiz('bai')">BAI 焦慮</button>
+    <button type="button" class="btn" onclick="showQuiz('bdi')">BDI 憂鬱</button>
+    <button type="button" class="btn" onclick="showQuiz('psqi')">PSQI 睡眠</button>
+  </div>
+
+  <!-- ========== BAI ========== -->
+  <div id="quiz-bai" class="quiz-wrap">
     <div id="bai-start-card" class="card" style="text-align: center; padding: 20px;">
         <h3>📋 貝克焦慮量表 (BAI) 評估</h3>
         <p>本問卷共 21 題，旨在評估您近一週（包含今天）受焦慮症狀困擾的程度。</p>
         <button type="button" onclick="startBaiQuiz()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">開始評估</button>
     </div>
 
-    <!-- 2. 逐題回答卡片 (預設隱藏) -->
     <div id="bai-quiz-card" class="card" style="display: none; padding: 20px;">
-        <!-- 頂部進度條 -->
         <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
             <span id="bai-progress-text">問題 1 / 21</span>
             <span id="bai-progress-percent">0%</span>
@@ -414,67 +421,52 @@
         <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
             <div id="bai-progress-bar" style="width: 0%; background: #4caf50; height: 100%; transition: width 0.3s;"></div>
         </div>
-
-        <!-- 題目名稱 -->
         <h3 id="bai-question-title" style="margin-bottom: 20px; font-size: 18px;">題目載入中...</h3>
-
-        <!-- 選項按鈕區 (0 ~ 3 分) -->
         <div class="bai-options" style="display: flex; flex-direction: column; gap: 10px;">
             <button type="button" class="bai-opt-btn" onclick="answerBaiQuestion(0)">0 - 完全沒有</button>
             <button type="button" class="bai-opt-btn" onclick="answerBaiQuestion(1)">1 - 輕度（不太受困擾）</button>
             <button type="button" class="bai-opt-btn" onclick="answerBaiQuestion(2)">2 - 中度（相當受困擾）</button>
             <button type="button" class="bai-opt-btn" onclick="answerBaiQuestion(3)">3 - 重度（非常受困擾）</button>
         </div>
-
-        <!-- 上一題按鈕 -->
         <div style="margin-top: 20px; text-align: left;">
             <button type="button" id="bai-prev-btn" onclick="prevBaiQuestion()" style="display: none; padding: 6px 12px;">← 上一題</button>
         </div>
     </div>
-<div id="psqi-container" class="card-container">
+  </div><!-- quiz-bai 結束 -->
 
-    <!-- BDI開始評估卡片 -->
-<div id="bdi-start-card" class="card" style="text-align: center; padding: 20px;">
-    <h3>📋 貝克憂鬱量表 (BDI) 評估</h3>
-    <p>本問卷共 21 題，請仔細閱讀每一組選項，選出最能描述您<b>近兩週（包含今天）</b>心情的敘述。</p>
-    <button type="button" onclick="startBdiQuiz()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">開始評估</button>
-</div>
-
-<!-- 2. 逐題回答卡片 (預設隱藏) -->
-<div id="bdi-quiz-card" class="card" style="display: none; padding: 20px;">
-    <!-- 頂部進度條 -->
-    <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
-        <span id="bdi-progress-text">問題 1 / 21</span>
-        <span id="bdi-progress-percent">0%</span>
-    </div>
-    <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
-        <div id="bdi-progress-bar" style="width: 0%; background: #4caf50; height: 100%; transition: width 0.3s;"></div>
+  <!-- ========== BDI ========== -->
+  <div id="quiz-bdi" class="quiz-wrap" style="display:none">
+    <div id="bdi-start-card" class="card" style="text-align: center; padding: 20px;">
+        <h3>📋 貝克憂鬱量表 (BDI) 評估</h3>
+        <p>本問卷共 21 題，請仔細閱讀每一組選項，選出最能描述您<b>近兩週（包含今天）</b>心情的敘述。</p>
+        <button type="button" onclick="startBdiQuiz()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">開始評估</button>
     </div>
 
-    <!-- 題目名稱 -->
-    <h3 id="bdi-question-title" style="margin-bottom: 20px; font-size: 18px;">題目載入中...</h3>
-
-    <!-- 動態選項按鈕區 -->
-    <div id="bdi-options-container" style="display: flex; flex-direction: column; gap: 10px;">
-        <!-- JS 會自動動態渲染 4 個專屬選項 -->
+    <div id="bdi-quiz-card" class="card" style="display: none; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
+            <span id="bdi-progress-text">問題 1 / 21</span>
+            <span id="bdi-progress-percent">0%</span>
+        </div>
+        <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
+            <div id="bdi-progress-bar" style="width: 0%; background: #4caf50; height: 100%; transition: width 0.3s;"></div>
+        </div>
+        <h3 id="bdi-question-title" style="margin-bottom: 20px; font-size: 18px;">題目載入中...</h3>
+        <div id="bdi-options-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        <div style="margin-top: 20px; display: flex; justify-content: space-between;">
+            <button type="button" id="bdi-prev-btn" onclick="prevBdiQuestion()" style="display: none; padding: 6px 12px;">← 上一題</button>
+        </div>
     </div>
+  </div><!-- quiz-bdi 結束 -->
 
-    <!-- 控制按鈕區 -->
-    <div style="margin-top: 20px; display: flex; justify-content: space-between;">
-        <button type="button" id="bdi-prev-btn" onclick="prevBdiQuestion()" style="display: none; padding: 6px 12px;">← 上一題</button>
-    </div>
-</div>
-    
-    <!-- 開始測驗卡片 -->
+  <!-- ========== PSQI ========== -->
+  <div id="quiz-psqi" class="quiz-wrap" style="display:none">
     <div id="psqi-start-card" class="card" style="text-align: center; padding: 20px;">
         <h3>🌙 匹茲堡睡眠品質指數 (PSQI) 評估</h3>
         <p>本問卷旨在評估您<b>過去一個月</b>的睡眠品質與習慣，包含入睡時間、睡眠時長與睡眠困擾等。</p>
         <button type="button" onclick="startPsqiQuiz()" style="padding: 10px 20px; font-size: 16px; cursor: pointer; background: #3f51b5; color: white; border: none; border-radius: 4px;">開始評估</button>
     </div>
 
-    <!-- 2. 逐題回答卡片 (預設隱藏) -->
     <div id="psqi-quiz-card" class="card" style="display: none; padding: 20px;">
-        <!-- 頂部進度條 -->
         <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
             <span id="psqi-progress-text">問題 1 / 18</span>
             <span id="psqi-progress-percent">0%</span>
@@ -482,31 +474,23 @@
         <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
             <div id="psqi-progress-bar" style="width: 0%; background: #3f51b5; height: 100%; transition: width 0.3s;"></div>
         </div>
-
-        <!-- 題目名稱與提示 -->
         <h3 id="psqi-question-title" style="margin-bottom: 10px; font-size: 18px;">題目載入中...</h3>
         <p id="psqi-question-desc" style="font-size: 13px; color: #666; margin-bottom: 20px; display: none;"></p>
-
-        <!-- 動態選項區塊 (輸入框或單選 Radio) -->
-        <div id="psqi-input-container" style="margin-bottom: 20px;">
-            <!-- 由 JavaScript 動態渲染 -->
-        </div>
-
-        <!-- 上一題 / 下一題 控制區 -->
+        <div id="psqi-input-container" style="margin-bottom: 20px;"></div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <button type="button" id="psqi-prev-btn" onclick="prevPsqiQuestion()" style="display: none; padding: 8px 16px;">← 上一題</button>
             <button type="button" id="psqi-next-btn" onclick="submitPsqiQuestion()" style="padding: 8px 20px; background: #3f51b5; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin-left: auto;">下一題 →</button>
         </div>
     </div>
-    
-    </div>
+  </div><!-- quiz-psqi 結束 -->
 
-                <div class="button-group">
-                <button type="button" class="btn" onclick="switchTab('pane-headache') " data-i18n="btn_prev_step">⬅️ 上一步</button>
-                <button type="button" class="btn" onclick="switchTab('pane-symptom')" data-i18n="next_btn">下一頁</button>
-                </div>
-    
-</div>   
+  <!-- 上一步 / 下一頁 -->
+  <div class="button-group">
+    <button type="button" class="btn" onclick="switchTab('pane-headache')" data-i18n="btn_prev_step">⬅️ 上一步</button>
+    <button type="button" class="btn" onclick="switchTab('pane-symptom')" data-i18n="next_btn">下一頁</button>
+  </div>
+
+</div><!-- pane-mood 結束 -->
     <!-- 次頁籤 2：相關症狀 -->
                 <div id="pane-symptom" class="tab-pane">
                     <div class="form-group"><label data-i18n="sym_1">1. 持續性頭痛</label><div class="slider-container"><input type="range" name="sym1" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
