@@ -70,7 +70,7 @@
 <!-- 其他登入方式 -->
         <div id="alternative-login" style="display: none; margin-top: 16px;">
           <div class="tab-buttons" style="display: flex; gap: 5px; margin-bottom: 10px;">
-            <button  type="button" class="btn" onclick="switchLoginTab('email' data-i18n="login_email")" style="flex:1;">📧 Email</button>
+            <button  type="button" class="btn" onclick="switchLoginTab('email')" data-i18n="login_email" style="flex:1;">📧 Email</button>
             <button  type="button" class="btn" onclick="switchLoginTab('account')" style="flex:1;" data-i18n="login_account">🔑 帳號密碼</button>
           </div>
 
@@ -135,8 +135,7 @@
 </div> -->
         <!-- ==================== 主頁籤 1: 頭痛資料填寫 ==================== -->
 
-  <!-- 氣象模組 - 最新版：IP位置 + 氣象 + 統一的變更位置面板
-<div id="pane-form" class="tab-pane active"> <!--<form id="pane-form" onsubmit="event.preventDefault(); saveFullRecord();"> -->
+  <!-- 氣象模組 - 最新版：IP位置 + 氣象 + 統一的變更位置面板 -->
     <div id="weather-section" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #e9ecef;">
     <!-- ==================== 1. 地理位置卡片 ==================== -->
     <div id="location-card" style="background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb;">
@@ -196,12 +195,13 @@
     <strong>⚠️ 氣象偏頭痛預警：</strong> <span id="alert-message">偵測到目前氣壓偏低，今日偏頭痛發作機率可能升高，請多加注意！</span>
 </div>
 <!-- 🌡️ 氣壓與頭痛風險預警卡片 -->
-<div id="weather-risk-card" class="card card-left hidden" style="background: var(--color-danger-bg); border-color: #ecd3cd;"></div>
+<div id="weather-risk-card" class="card card-left hidden" style="background: var(--color-danger-bg); border-color: #ecd3cd;">
     <div class="card-body">
         <h3 class="card-title" style="font-size: 1.1rem; margin-bottom: 8px;">⚠️ 氣象頭痛風險提示</h3>
         <p id="weather-risk-text" style="font-size: 0.95rem; margin: 0; color: var(--color-text-main);">
             正在檢測當地氣壓變化...
         </p>
+    </div>
     </div>
 </div><!-- ✅ 天氣區塊結束 -->
 
@@ -210,7 +210,7 @@
     <button type="button" class="level2-tab active" data-l2="diary" onclick="switchLevel2Tab('diary')" data-i18n="nav_diary">📝 1.1 日記</button>
     <button type="button" class="level2-tab" data-l2="trend" onclick="switchLevel2Tab('trend')" data-i18n="nav_trend">📊 1.2 趨勢圖</button>
   </nav>
-      <div id="l2-diary" class="l2-pane active"></div>
+      <div id="l2-diary" class="l2-pane active">
 
             <!-- 第三層 -->
             <div class="tabs sub-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
@@ -550,11 +550,11 @@
                     </div>
                     <div class="button-group" style="display: flex; gap: 10px; margin-top: 15px;">
                         <button type="button" class="btn" onclick="switchTab('pane-symptom')" data-i18n="btn_prev_step">⬅️ 上一步</button>
-                        <button type="button" type="button" class="btn" style="background:#27ae60; color:white;" onclick="saveFullRecord()">💾 儲存當前紀錄</button>
+                        <button type="button" class="btn" style="background:#27ae60; color:white;" onclick="saveFullRecord()">💾 儲存當前紀錄</button>
                     </div>
                 </div>
             </form>
-        </div> <!-- pane-form 结束 -->
+        </div> <!-- l2-diary 結束 -->
               
 <!-- ==================== 主頁籤 2: 趨勢圖 ==================== <div id="pane-chart" class="tab-pane"> -->
    <div id="l2-trend" class="l2-pane" style="display:none"> 
@@ -605,7 +605,6 @@
   </select>
 </div>  
 </div>
-    </div>
 </section>
 
 <!-- ==================== 主頁籤 music ==================== -->
@@ -662,7 +661,6 @@
     <!-- 音樂療程動態生成容器 music.js 改-->
 <div id="music-cards-container" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
     <!-- 程式會自動在這裡產生所有音樂卡片 -->
-</div>
      </div>
 </section>
 
