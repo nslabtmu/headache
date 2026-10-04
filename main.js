@@ -377,8 +377,89 @@ async function fetchWeather(lat, lon, statusMessage) {
         locationReady = false;
     }
 }
-
+// 1. 修正 UI 顯示（避免 district 為空時後面出現多餘的 "-"）
 function updateLocationDisplay(country, city, district, isManual = false) {
+    const ipLocationDisplay = document.getElementById('ip-location-display');
+    const ipLocationName = document.getElementById('ip-location-name');
+    
+    if (ipLocationDisplay && ipLocationName) {
+        const suffix = isManual ? ' (手動選擇)' : '';
+        // 過濾掉空值的欄位，並用 " - " 連接
+        const locationParts = [country, city, district].filter(Boolean);
+        ipLocationName.innerText = `${locationParts.join(' - ')}${suffix}`;
+        ipLocationDisplay.classList.remove('hidden');
+    }
+}
+
+// 2. 更換並優化 IP 定位邏輯 (改用 ipwho.is 備用 ip-api.com)
+async function fetchIpLocation(statusEl) {
+    if (statusEl) statusEl.innerText = "🌐 嘗試透過 IP 取得大致位置...";
+    
+    let data = null;
+
+    // 嘗試 API 1: ipwho.is (無 CORS 問題，支援 HTTPS)
+    try {
+        const res = await fetch('https://ipwho.is/');
+        if (res.ok) {
+            const json = await res.json();
+            if (json.success) {
+                data = {
+                    country: json.country || "未知國家",
+                    country_code: json.country_code,
+                    city: json.city || json.region || "未知城市",
+                    latitude: json.latitude,
+                    longitude: json.longitude
+                };
+            }
+        }
+    } catch (e) {
+        console.warn("ipwho.is 失敗，切換備用 API");
+    }
+
+    // 備用 API 2: ip-api.com (若上面失敗則啟用)
+    if (!data) {
+        try {
+            const res = await fetch('https://ipapi.co/json/');
+            if (res.ok) {
+                const json = await res.json();
+                data = {
+                    country: json.country_name || "未知國家",
+                    country_code: json.country_code,
+                    city: json.city || json.region || "未知城市",
+                    latitude: json.latitude,
+                    longitude: json.longitude
+                };
+            }
+        } catch (e) {
+            console.error("備用 IP API 也失敗:", e);
+        }
+    }
+
+    // 判定結果與渲染
+    if (data && data.latitude && data.longitude) {
+        // ✅ 成功取得 IP 定位
+        updateLocationDisplay(data.country, data.city, "");
+        setTaiwanLocationMode(data.country_code === 'TW'); 
+        
+        // 抓取氣象資料
+        fetchWeather(data.latitude, data.longitude, "IP 定位成功");
+    } else {
+        // ❌ 完全無法取得 IP 定位
+        console.error("IP Location Error: 無法取得有效的 IP 座標");
+        if (statusEl) statusEl.innerText = "❌ 無法定位，請手動選擇";
+        
+        updateLocationDisplay("未知", "無法取得", "請變更位置重試");
+        
+        setTaiwanLocationMode(true);
+        toggleChangeLocation();
+        if (typeof initDistrictSelector === 'function') {
+            initDistrictSelector();
+        }
+        
+        locationReady = false;
+    }
+}
+/*function updateLocationDisplay(country, city, district, isManual = false) {
     const ipLocationDisplay = document.getElementById('ip-location-display');
     const ipLocationName = document.getElementById('ip-location-name');
     
@@ -419,7 +500,7 @@ async function fetchIpLocation(statusEl) {
         
         locationReady = false;
     }
-}
+}*/
 async function getLocationAndWeather() {
     const statusEl = document.getElementById('weather-status');
     if (statusEl) statusEl.innerText = "📍 正在請求 GPS 定位權限...";
