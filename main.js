@@ -352,21 +352,22 @@ async function fetchWeather(lat, lon, statusMessage) {
         if (humidityEl) humidityEl.innerText = `${currentWx.relative_humidity_2m ?? '--'}`;
         if (pressureEl) pressureEl.innerText = `${currentWx.surface_pressure ?? '--'}`;
         
-        // 💡 如果有前端 UI 欄位可以順便更新空污（例如 PM2.5）
-         if (pm25El) {
-            const pm25Val = currentAir.pm2_5;
+       if (pm25El) {
+    const pm25Val = currentAir.pm2_5;
     
-            // 填入數值
-            pm25El.innerText = pm25Val ?? '--';
+    // 取得評估結果（包含顏色與評語）
+    const aq = getAirQualityStatus(pm25Val);
 
-            // 帶入評估文字與標準說明
-            if (pm25StatusEl) {
-                const aq = getAirQualityStatus(pm25Val);
-                // 顯示結果與標準說明
-                pm25StatusEl.innerText = `(${aq.text}，以台灣與世界衛生組織常用的 PM2.5 濃度級距為標準)`;
-                pm25StatusEl.style.color = aq.color;
-            }
-        }
+    // 1. 填入數字，並同步套用顏色（例如：12.5 變成綠色）
+    pm25El.innerText = pm25Val ?? '--';
+    pm25El.style.color = aq.color;
+
+    // 2. 帶入評估文字與標準說明，也套用相同顏色
+    if (pm25StatusEl) {
+        pm25StatusEl.innerText = `(${aq.text}，以台灣與世界衛生組織常用的 PM2.5 濃度級距為標準)`;
+        pm25StatusEl.style.color = aq.color;
+    }
+}
         // ✅ 整合天氣與空污資料存入全域變數 (完美對應你資料庫的結構)
         currentWeather = { 
             lat, 
