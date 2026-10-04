@@ -4,15 +4,57 @@ const REQUIRE_LOCATION_FOR_SUBMIT = false;
 // 全域變數
 
 let currentWeather = null;
-chartInstance = null;
+let chartInstance = null;
 let currentLang = 'zh-TW';
 let locationReady = false;
+let appStarted = false;
 
 // ✅ pageOrder 中 pane-symptoms 已確認改為 pane-symptom
 const pageOrder = ['pane-profile', 'pane-headache', 'pane-symptom','pane-mood', 'pane-band', 'pane-chart'];
 
+function startApp(user) {
+    if (appStarted) return;
+    appStarted = true;
+    showMainApp(user);
+}
 
 document.addEventListener('DOMContentLoaded', async () => {
+    if (!(window.supabase && window.supabase.auth)) {
+        console.error("錯誤：Supabase 尚未初始化或載入失敗！");
+        return;
+    }
+
+    const authCard = document.getElementById('auth-card');
+    const consentCard = document.getElementById('consent-card');
+    const mainCard = document.getElementById('main-card');
+
+    try {
+        const { data: { session }, error } = await window.supabase.auth.getSession();
+        if (session && !error) {
+            console.log("✅ 已登入，啟動主系統");
+            startApp(session.user);
+        } else {
+            console.log("📄 尚未登入，顯示同意書");
+            consentCard?.classList.remove('hidden');
+            authCard?.classList.add('hidden');
+            mainCard?.classList.add('hidden');
+        }
+    } catch (err) {
+        console.error("檢查登入狀態失敗：", err);
+    }
+
+    window.supabase.auth.onAuthStateChange((event, session) => {
+        console.log("Auth 狀態改變：", event);
+        if (event === 'SIGNED_IN' && session) {
+            handleLoginSuccess(session.user);
+            startApp(session.user);
+        } else if (event === 'SIGNED_OUT') {
+            appStarted = false;
+            showAuthFlow();
+        }
+    });
+});
+/* document.addEventListener('DOMContentLoaded', async () => {
     // 確保 supabase 物件以及 auth 已經成功載入
     if (window.supabase && window.supabase.auth) {
         const authCard = document.getElementById('auth-card');
@@ -59,7 +101,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         console.error("錯誤：Supabase 尚未初始化或載入失敗！");
     }
-});
+});*/
 
 document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('record-date');
@@ -379,7 +421,7 @@ async function fetchWeather(lat, lon, statusMessage) {
             }
         };
         locationReady = true;
-
+        checkWeatherRisk(lat, lon);
         if (statusEl) statusEl.innerHTML = `✅ ${statusMessage}`;
         
         const wxDisplay = document.getElementById('weather-data-display');
@@ -1013,7 +1055,7 @@ async function exportMedicalReport() {
 }
 
 
-document.addEventListener('DOMContentLoaded', function() {
+/*document.addEventListener('DOMContentLoaded', function() {
     // 1. 自動取得使用者所在位置（經緯度）
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -1031,7 +1073,8 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         checkWeatherRisk(25.03, 121.56);
     }
-});
+});*/
+
 async function checkWeatherRisk(lat, lon) {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=pressure_msl,temperature_2m`;
     
@@ -1076,25 +1119,3 @@ async function checkWeatherRisk(lat, lon) {
         console.error("無法取得氣象預報資料", error);
     }
 }
-/*1004*/
-let appStarted = false;
-function startApp(user) {
-    if (appStarted) return;      // 避免 getSession 和 SIGNED_IN 重複觸發
-    appStarted = true;
-    showMainApp(user);
-}
-
-// 初始檢查
-if (session && !error) {
-    startApp(session.user);
-}
-
-// 監聽
-window.supabase.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN' && session) {
-        startApp(session.user);
-    } else if (event === 'SIGNED_OUT') {
-        appStarted = false;
-        showAuthFlow();
-    }
-});
