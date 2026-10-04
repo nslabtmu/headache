@@ -975,7 +975,7 @@ function selectPainPart(partName) {
     console.log("目前選中的部位：", selectedParts);
 }
 // 低氣壓等預警?
-function checkBarometricPressureAlert(pressure) {
+/*function checkBarometricPressureAlert(pressure) {
     const alertBox = document.getElementById('weather-alert-box');
     const alertMsg = document.getElementById('alert-message');
     
@@ -986,7 +986,7 @@ function checkBarometricPressureAlert(pressure) {
     } else {
         alertBox.style.display = 'none'; // 氣壓正常則隱藏警報
     }
-}
+}*/
 // 假設這是你原本獲取並更新氣象數據的函數
 function updateWeatherUI(data) {
     // 1. 更新畫面上的數值
