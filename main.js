@@ -319,7 +319,7 @@ async function fetchWeather(lat, lon, statusMessage) {
     const pressureEl = document.getElementById('wx-pressure');
     
     // 💡 如果你前端有對應的空污 UI 顯示元素，也可以在這裡宣告
-    // const pm25El = document.getElementById('wx-pm25');
+     const pm25El = document.getElementById('wx-pm25');
 
     try {
         if (statusEl) statusEl.innerText = "⏳ 正在載入氣象與空污資料...";
@@ -352,7 +352,7 @@ async function fetchWeather(lat, lon, statusMessage) {
         if (pressureEl) pressureEl.innerText = `${currentWx.surface_pressure ?? '--'}`;
         
         // 💡 如果有前端 UI 欄位可以順便更新空污（例如 PM2.5）
-        // if (pm25El) pm25El.innerText = `${currentAir.pm2_5 ?? '--'}`;
+         if (pm25El) pm25El.innerText = `${currentAir.pm2_5 ?? '--'}`;
 
         // ✅ 整合天氣與空污資料存入全域變數 (完美對應你資料庫的結構)
         currentWeather = { 
