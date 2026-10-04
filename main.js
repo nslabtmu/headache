@@ -189,11 +189,11 @@ async function handleLoginSuccess(user) {
         if (hasAgreedLocal === 'true') {
             // 將同意紀錄正式寫入 Supabase 的同意書 Table
             const { error } = await supabase
-                .from('consents') // ⬅️ 換成你的同意書 Table 名稱
+                .from('consents_records') // ⬅️ 換成你的同意書 Table 名稱
                 .upsert({
                     user_id: user.id,          // 帶入登入後的真實 user.id
                     agreed: true,
-                    agreed_at: new Date()
+                    agreed_at: new Date().toISOString()
                 });
 
             if (error) throw error;
