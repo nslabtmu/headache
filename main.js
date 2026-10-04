@@ -1156,3 +1156,20 @@ async function checkWeatherRisk(lat, lon) {
         console.error("無法取得氣象預報資料", error);
     }
 }
+function selectPain(score, label) {
+  // 1. 更新隱藏的 input 欄位數值
+  document.getElementById('input-pain').value = score;
+
+  // 2. 更新頂部徽章文字
+  document.getElementById('pain-val-display').innerText = `${score} 分 - ${label}`;
+
+  // 3. 切換按鈕 active 樣式
+  const buttons = document.querySelectorAll('.face-btn');
+  buttons.forEach(btn => {
+    if (parseInt(btn.getAttribute('data-value')) === score) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+}
