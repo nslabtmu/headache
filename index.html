@@ -95,52 +95,38 @@
 <!-- 3. 主系統卡片 -->
     <div class="card card-left hidden" id="main-card">
         
-        <!-- [第一層 Header] 乾淨標題 + 第一層頁籤 + 右側帳號選單 -->
-        <header class="header-container">
-            <div class="header-left">
-                <h2 data-i18n="form_title" class="system-title">🩺 頭痛記錄系統</h2>
-                <!-- 第一層頁籤 -->
-                <nav class="top-navbar">
-                    <button class="top-tab active" onclick="switchMainTab('pane-symptoms')">🩺 1. 症狀</button>
-                    <button class="top-tab" onclick="switchMainTab('pane-music')">🎵 2. 音樂</button>
-                </nav>
-            </div>
-            
-            <div class="header-actions">
-                <!-- 語系切換 -->
-                <div class="lang-switch">
-                    <button class="lang-btn active">中文</button>
-                    <button class="lang-btn">EN</button>
-                </div>
-
-    <!-- 帳戶下拉選單 (個人資料與登出合併於此) -->
+        <!-- 第一層 -->
+<header class="header-container">
+  <div class="header-left">
+    <h2 class="system-title" data-i18n="form_title">🩺 頭痛記錄系統</h2>
+    <nav class="top-navbar">
+      <button type="button" class="top-tab active" data-main="symptoms" onclick="switchMainTab('symptoms')" data-i18n="nav_symptoms">🩺 1. 症狀</button>
+      <button type="button" class="top-tab" data-main="music" onclick="switchMainTab('music')" data-i18n="nav_music">🎵 2. 音樂</button>
+    </nav>
+  </div>
+  <div class="header-actions">
+    <div class="lang-switch">
+      <button type="button" class="lang-btn active" data-lang="zh" onclick="setLang('zh')">中文</button>
+      <button type="button" class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    </div>
     <div class="account-dropdown">
-        <button id="user-email-btn" class="lang-btn" onclick="toggleAccountMenu()">👤 <span id="user-email-text"></span>
-        <span class="arrow">▾</span>
-      </button>
- <!-- 重填同意書按鈕 
-    <button id="resetConsentBtn" class="lang-btn hidden" onclick="resetConsent()" style="position: fixed; top: 15px; left: 15px; color: #e74c3c;">📄 重填同意書</button>
-   -->
-<div id="account-menu" class="dropdown-menu">
-  <!-- 1. 切換至個人資料頁籤 -->
-  <a href="javascript:void(0)" class="dropdown-item" onclick="switchTab('pane-profile'); toggleAccountMenu();" data-i18n="menu_profile">👤 個人資料設定</a>
-  <a href="javascript:void(0)" class="dropdown-item" onclick="openDisclaimerModal(); toggleAccountMenu();" data-i18n="menu_disclaimer">⚠️ 免責聲明</a>
-    <!-- 2. 重新開啟同意書頁面 -->
-  <a href="javascript:void(0)" class="dropdown-item" onclick="resetConsent(); toggleAccountMenu();" data-i18n="menu_consent">📄 重填同意書</a>
-
-  <!-- 3. 匯出紀錄 (如果已經有匯出函式可帶入，沒有可先留空或彈窗提示) -->
-  <a href="javascript:void(0)" class="dropdown-item" onclick="exportMedicalReport(); toggleAccountMenu();" data-i18n="menu_export">📥 匯出記錄 (PDF)</a>
-  <hr class="dropdown-divider" />
-
-  <!-- 4. 觸發 Supabase 登出 -->
-  <a href="javascript:void(0)" class="dropdown-item logout-btn" onclick="handleLogout(); toggleAccountMenu();" data-i18n="menu_logout">🚪 登出系統</a>
-</div>
+      <button type="button" id="user-email-btn" class="lang-btn" onclick="toggleAccountMenu()">👤 <span id="user-email-text"></span> ▾</button>
+      <div id="account-menu" class="dropdown-menu">
+        <a href="javascript:void(0)" class="dropdown-item" onclick="openDisclaimerModal(); toggleAccountMenu();" data-i18n="menu_disclaimer">⚠️ 免責聲明</a>
+        <a href="javascript:void(0)" class="dropdown-item" onclick="resetConsent(); toggleAccountMenu();" data-i18n="menu_consent">📄 重填同意書</a>
+        <a href="javascript:void(0)" class="dropdown-item" onclick="exportMedicalReport(); toggleAccountMenu();" data-i18n="menu_export">📥 匯出記錄 (PDF)</a>
+        <a href="javascript:void(0)" class="dropdown-item" onclick="switchMainTab('info'); toggleAccountMenu();" data-i18n="menu_info">💡 新知區</a>
+        <a href="javascript:void(0)" class="dropdown-item" onclick="switchMainTab('profile'); toggleAccountMenu();" data-i18n="menu_profile">⚙️ 個人資料/個資</a>
+        <hr class="dropdown-divider" />
+        <a href="javascript:void(0)" class="dropdown-item logout-btn" onclick="handleLogout(); toggleAccountMenu();" data-i18n="menu_logout">🚪 登出系統</a>
+      </div>
     </div>
   </div>
 </header>
 
+<!-- 第一層內容容器 -->
+<section id="main-symptoms" class="main-pane active">
 
-     
 <!-- 主頁籤按鈕 
 <div class="main-tabs">
     <button class="tab-btn active" data-tab="pane-form" onclick="switchTab('pane-form')" data-i18n="main_record">📝 記錄區</button>
@@ -221,13 +207,19 @@
 </div>
 </div><!-- ✅ 天氣區塊結束 -->
 
+  <!-- 第二層 -->
+  <nav class="sub-navbar-level2">
+    <button type="button" class="level2-tab active" data-l2="diary" onclick="switchLevel2Tab('diary')" data-i18n="nav_diary">📝 1.1 日記</button>
+    <button type="button" class="level2-tab" data-l2="trend" onclick="switchLevel2Tab('trend')" data-i18n="nav_trend">📊 1.2 趨勢圖</button>
+  </nav>
 
-<nav class="sub-navbar-level2">
+  <div id="l2-diary" class="l2-pane active">
+            <nav class="sub-navbar-level2">
                 <button class="level2-tab active" onclick="switchLevel2Tab('diary')">📝 1.1 日記</button>
                 <button class="level2-tab" onclick="switchLevel2Tab('trend')">📊 1.2 趨勢圖</button>
             </nav>
-    
-            <!-- [次頁籤 Sub-Tabs] -->
+    <div id="l2-diary" class="l2-pane active">
+            <!-- 第三層 -->
             <div class="tabs sub-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
                 <button type="button" data-tab="pane-headache" class="tab-btn active" id="btn-tab-headache" onclick="switchTab('pane-headache')" data-i18n="tab_headache">🤕 頭痛</button>
                 <button type="button" data-tab="pane-mood" class="tab-btn" id="btn-tab-mood" onclick="switchTab('pane-mood')" data-i18n="tab_mood">🩵 心情</button>
@@ -263,22 +255,7 @@
         💡 若為補填歷史紀錄，請選擇日期、時間
     </small>
 </div>
-    <!-- 1. 疼痛程度選擇 
-        <div class="form-card">
-      <label for="input-pain" class="card-label">
-        <span>疼痛程度 (0-10)</span>
-        <span id="pain-val-display" class="score-badge">5</span>
-      </label>
-      <input 
-        type="range" 
-        id="input-pain" 
-        min="0" 
-        max="10" 
-        value="5" 
-        class="range-slider"
-        oninput="document.getElementById('pain-val-display').innerText = this.value" />
-    
-        </div> -->
+
         <!-- 1. 疼痛程度選擇（臉譜表） -->
 <div class="form-card">
   <label class="card-label">
@@ -426,7 +403,7 @@
             </div>
             <!-- 次頁籤 1.1：心情 -->
         
-<div id="pane-mood" class="tab-pane active">
+<div id="pane-mood" class="tab-pane">
     <!-- 1. 開始測驗卡片 -->
     <div id="bai-start-card" class="card" style="text-align: center; padding: 20px;">
         <h3>📋 貝克焦慮量表 (BAI) 評估</h3>
@@ -585,53 +562,71 @@
                 </div>
             </form>
         </div> <!-- pane-form 结束 -->
-                <!--基本資料 -->
-                <div id="pane-profile" class="tab-pane">
-                    <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料</h3>
-                    <div class="form-group">
-                        <label data-i18n="prof_name">1. 暱稱（非必填）</label>
-                        <input type="text" id="prof_nickname" placeholder="例如: 王小明 / Alex">
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="prof_birth">2. 出生年 (西元)</label>
-                        <input type="number" id="prof_birthyear" placeholder="例如: 1990">
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="prof_gender">3. 性別</label>
-                        <select id="prof_gender">
-                            <option value="" data-i18n="select_default">請選擇...</option>
-                            <option value="male" data-i18n="gender_male">男性</option>
-                            <option value="female" data-i18n="gender_female">女性</option>
-                            <option value="other" data-i18n="gender_other">其他 / 不願透露</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="prof_tbi">4. 是否參與輕度腦外傷研究</label>
-                        <select id="prof_tbi">
-                            <option value="" data-i18n="select_default">請選擇...</option>
-                            <option value="yes" data-i18n="yes">是</option>
-                            <option value="no" data-i18n="no">否</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label data-i18n="prof_sport">5. 運動頻率</label>
-                        <select id="prof_sport">
-                            <option value="none" data-i18n="sport_none">幾乎不運動</option>
-                            <option value="light" data-i18n="sport_light">輕度（每周 1-2 次 超過30分鐘）</option>
-                            <option value="moderate" data-i18n="sport_moderate">中度（每周 3-4 次 超過30分鐘）</option>
-                            <option value="heavy" data-i18n="sport_heavy">規律高強度（每周 5 次以上 超過30分鐘）</option>
-                        </select>
-                    </div>
-                    <button type="button" class="btn" id="saveProfileBtn" onclick="saveUserProfile()" data-i18n="save_profile_btn">儲存</button>
-                    <button type="button" class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
-                </div>
-     
+              
+<!-- ==================== 主頁籤 2: 趨勢圖 ==================== <div id="pane-chart" class="tab-pane"> -->
+   <div id="l2-trend" class="l2-pane" style="display:none"> 
+    <!-- 📅 新增：歷史頭痛月曆檢視區塊 -->
+    <div class="card mb-4 shadow-sm">
+    <div class="card-body">
+    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;" class="mb-3">               
+     <h3 class="card-title mb-0" data-i18n ="calendar_title">📅 頭痛發作月曆總覽</h3>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="exportMedicalReport();" data-i18n="menu_export">
+                    📥 匯出記錄 (PDF)
+                </button>
+            </div>
+        <p data-i18n="calendar_hint" class="text-muted small">點擊日期可檢視或補填當天紀錄，顏色代表頭痛嚴重程度。</p>
+        
+        <!-- 月曆渲染容器 -->
+        <div id="headacheCalendar" style="min-height: 400px;"></div>
+    </div>
+    </div>
+    <!-- 標題與提示標籤區塊 -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+        <h3 data-i18n="chart_title" style="margin: 0; color: #2980b9;">📈 頭痛指數與發作頻率趨勢圖</h3>
+        
+        <!-- 💡 新增：範例資料提示標籤（預設隱藏） -->
+        <span id="mock-data-badge" style="display: none; background: #fff3cd; color: #856404; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid #ffeeba;">
+            💡 目前為示範數據 (近 7 天)
+        </span>
+    </div>
+
+    <!-- 圖表容器 (建議加上 position: relative 與 max-height 防止圖表放大暴走) -->
+    <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: relative;">
+        <canvas id="painChart" style="max-height: 400px;"></canvas>
+    </div>
+
+<div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+  <!-- 第一層：症狀類別選單 -->
+  <label for="categorySelect">類別：</label>
+  <select id="categorySelect" onchange="onCategoryChange()">
+    <option value="all">全部症狀</option>
+    <option value="digestive">消化系統</option>
+    <option value="sensory">感官與神經</option>
+    <option value="other">其他感受</option>
+  </select>
+
+  <!-- 第二層：具體症狀選單 -->
+  <label for="symptomSelect">症狀：</label>
+  <select id="symptomSelect" onchange="updateSymptomMetric()">
+    <!-- 由 JS 動態繪製 -->
+  </select>
+</div>  
+</div>
+</section>
+
+
+
+
+
+
+      
 <!-- ==================== 主頁籤 music ==================== -->
         <!-- 「2. 音樂」主分頁內容區域 
+     
         <div id="main-pane-music" class="main-pane">
             <p style="padding: 20px; color: #666;">[ 2. 音樂播放與療癒音樂清單 ]</p>
         </div>-->
-<div id="pane-music" class="tab-pane" style="display: none; padding: 15px;">
+ <section id="main-music" class="main-pane" style="display:none">
     <div style="max-width: 900px; margin: 0 auto;">
         <h2 class="section-title" style="font-size: 18px; color: #2c3e50; margin-bottom: 5px;">🎧 偏頭痛 U 序列音樂治療專區</h2>
         <p style="font-size: 13px; color: #6c757d; margin-bottom: 20px;">
@@ -680,73 +675,59 @@
 <div id="music-cards-container" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
     <!-- 程式會自動在這裡產生所有音樂卡片 -->
 </div>
+</section>
 
-    </div>
-     
-<!-- ==================== 主頁籤 2: 趨勢圖 ==================== -->
-    <div id="pane-chart" class="tab-pane">
-    <!-- 📅 新增：歷史頭痛月曆檢視區塊 -->
-    <div class="card mb-4 shadow-sm">
-    <div class="card-body">
-    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;" class="mb-3">               
-     <h3 class="card-title mb-0" data-i18n ="calendar_title">📅 頭痛發作月曆總覽</h3>
-                <button type="button" class="btn btn-outline-primary btn-sm" onclick="exportMedicalReport();" data-i18n="menu_export">
-                    📥 匯出記錄 (PDF)
-                </button>
-            </div>
-        <p data-i18n="calendar_hint" class="text-muted small">點擊日期可檢視或補填當天紀錄，顏色代表頭痛嚴重程度。</p>
-        
-        <!-- 月曆渲染容器 -->
-        <div id="headacheCalendar" style="min-height: 400px;"></div>
-    </div>
-    </div>
-
-
-
-    <!-- 標題與提示標籤區塊 -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
-        <h3 data-i18n="chart_title" style="margin: 0; color: #2980b9;">📈 頭痛指數與發作頻率趨勢圖</h3>
-        
-        <!-- 💡 新增：範例資料提示標籤（預設隱藏） -->
-        <span id="mock-data-badge" style="display: none; background: #fff3cd; color: #856404; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid #ffeeba;">
-            💡 目前為示範數據 (近 7 天)
-        </span>
-    </div>
-
-    <!-- 圖表容器 (建議加上 position: relative 與 max-height 防止圖表放大暴走) -->
-    <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: relative;">
-        <canvas id="painChart" style="max-height: 400px;"></canvas>
-    </div>
-
-<div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-  <!-- 第一層：症狀類別選單 -->
-  <label for="categorySelect">類別：</label>
-  <select id="categorySelect" onchange="onCategoryChange()">
-    <option value="all">全部症狀</option>
-    <option value="digestive">消化系統</option>
-    <option value="sensory">感官與神經</option>
-    <option value="other">其他感受</option>
-  </select>
-
-  <!-- 第二層：具體症狀選單 -->
-  <label for="symptomSelect">症狀：</label>
-  <select id="symptomSelect" onchange="updateSymptomMetric()">
-    <!-- 由 JS 動態繪製 -->
-  </select>
-</div>
-    
-    
-</div>
         <!-- ==================== 主頁籤 3: 衛教新知 ==================== -->
-<div id="pane-info" class="tab-pane">
+ <section id="main-info" class="main-pane" style="display:none">     
             <h3 data-i18n="chart_title" style="margin-top:0; color:#2980b9;">衛教</h3>
     <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
         <p>頭痛相關衛教資訊內容...</p>
         <p></p><a href="https://www.nhi.gov.tw/ch/cp-2782-dfe08-2951-1.html">中央健康保險署</a></p>
         <a href="https://shh.tmu.edu.tw/page/HealthDetail.aspx?deptCode=07&seqNo=20230406135539499401">雙和衛教內容</a>
-    </div>
     </div>    
-</div>
+</section>
+  <!--基本資料 -->
+      <section id="main-profile" class="main-pane" style="display:none">
+                    <h3 data-i18n="profile_heading" style="margin-top:0; color:#2980b9;">基本資料</h3>
+                    <div class="form-group">
+                        <label data-i18n="prof_name">1. 暱稱（非必填）</label>
+                        <input type="text" id="prof_nickname" placeholder="例如: 王小明 / Alex">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="prof_birth">2. 出生年 (西元)</label>
+                        <input type="number" id="prof_birthyear" placeholder="例如: 1990">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="prof_gender">3. 性別</label>
+                        <select id="prof_gender">
+                            <option value="" data-i18n="select_default">請選擇...</option>
+                            <option value="male" data-i18n="gender_male">男性</option>
+                            <option value="female" data-i18n="gender_female">女性</option>
+                            <option value="other" data-i18n="gender_other">其他 / 不願透露</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="prof_tbi">4. 是否參與輕度腦外傷研究</label>
+                        <select id="prof_tbi">
+                            <option value="" data-i18n="select_default">請選擇...</option>
+                            <option value="yes" data-i18n="yes">是</option>
+                            <option value="no" data-i18n="no">否</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="prof_sport">5. 運動頻率</label>
+                        <select id="prof_sport">
+                            <option value="none" data-i18n="sport_none">幾乎不運動</option>
+                            <option value="light" data-i18n="sport_light">輕度（每周 1-2 次 超過30分鐘）</option>
+                            <option value="moderate" data-i18n="sport_moderate">中度（每周 3-4 次 超過30分鐘）</option>
+                            <option value="heavy" data-i18n="sport_heavy">規律高強度（每周 5 次以上 超過30分鐘）</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn" id="saveProfileBtn" onclick="saveUserProfile()" data-i18n="save_profile_btn">儲存</button>
+                    <button type="button" class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
+                </section>
+
+      
 <!-- 免責聲明彈窗 Modal -->
 <div id="disclaimer-modal" class="modal-overlay hidden" onclick="closeDisclaimerModal(event)">
   <div class="modal-card" onclick="event.stopPropagation()">
