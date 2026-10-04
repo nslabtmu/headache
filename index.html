@@ -215,7 +215,7 @@
             <!-- [次頁籤 Sub-Tabs] -->
             <div class="tabs sub-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
                 <button type="button" data-tab="pane-headache" class="tab-btn active" id="btn-tab-headache" onclick="switchTab('pane-headache')" data-i18n="tab_headache">🤕 頭痛</button>
-                <button type="button" data-tab="pane-mood" class="tab-btn active" id="btn-tab-headache" onclick="switchTab('pane-mood')" data-i18n="tab_mood">🤕 心情</button>
+                <button type="button" data-tab="pane-mood" class="tab-btn" id="btn-tab-headache" onclick="switchTab('pane-mood')" data-i18n="tab_mood">🩵 心情</button>
                 <button type="button" class="tab-btn" id="btn-tab-symptom" data-tab="pane-symptom" onclick="switchTab('pane-symptom')" data-i18n="tab_symptom">📝  相關症狀</button>
                 <button type="button" class="tab-btn" id="btn-tab-band" data-tab="pane-band" onclick="switchTab( 'pane-band')" data-i18n="tab_band">⌚ 健康資料</button>
             </div>
@@ -223,7 +223,7 @@
             <!-- 手機版專用切換選單 -->
             <select class="tabs-select-mobile" id="mobile-tab-select" onchange="switchTab(this.value)">
                 <option value="pane-headache" data-i18n="tab_headache">🤕 頭痛</option>
-                <option value="pane-mood" data-i18n="tab_mood"" >🤕 心情</option>
+                <option value="pane-mood" data-i18n="tab_mood" >🩵 心情</option>
                 <option value="pane-symptom" data-i18n="tab_symptom">📝 相關症狀</option>
                 <option value="pane-band" data-i18n="tab_band">⌚ 健康資料</option>
             </select>
@@ -398,7 +398,40 @@
         </div>
     </div>
 <div id="psqi-container" class="card-container">
-    <!-- 1. 開始測驗卡片 -->
+
+    <!-- BDI開始評估卡片 -->
+<div id="bdi-start-card" class="card" style="text-align: center; padding: 20px;">
+    <h3>📋 貝克憂鬱量表 (BDI) 評估</h3>
+    <p>本問卷共 21 題，請仔細閱讀每一組選項，選出最能描述您<b>近兩週（包含今天）</b>心情的敘述。</p>
+    <button type="button" onclick="startBdiQuiz()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">開始評估</button>
+</div>
+
+<!-- 2. 逐題回答卡片 (預設隱藏) -->
+<div id="bdi-quiz-card" class="card" style="display: none; padding: 20px;">
+    <!-- 頂部進度條 -->
+    <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
+        <span id="bdi-progress-text">問題 1 / 21</span>
+        <span id="bdi-progress-percent">0%</span>
+    </div>
+    <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
+        <div id="bdi-progress-bar" style="width: 0%; background: #4caf50; height: 100%; transition: width 0.3s;"></div>
+    </div>
+
+    <!-- 題目名稱 -->
+    <h3 id="bdi-question-title" style="margin-bottom: 20px; font-size: 18px;">題目載入中...</h3>
+
+    <!-- 動態選項按鈕區 -->
+    <div id="bdi-options-container" style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- JS 會自動動態渲染 4 個專屬選項 -->
+    </div>
+
+    <!-- 控制按鈕區 -->
+    <div style="margin-top: 20px; display: flex; justify-content: space-between;">
+        <button type="button" id="bdi-prev-btn" onclick="prevBdiQuestion()" style="display: none; padding: 6px 12px;">← 上一題</button>
+    </div>
+</div>
+    
+    <!-- 開始測驗卡片 -->
     <div id="psqi-start-card" class="card" style="text-align: center; padding: 20px;">
         <h3>🌙 匹茲堡睡眠品質指數 (PSQI) 評估</h3>
         <p>本問卷旨在評估您<b>過去一個月</b>的睡眠品質與習慣，包含入睡時間、睡眠時長與睡眠困擾等。</p>
