@@ -265,7 +265,56 @@
         class="range-slider"
         oninput="document.getElementById('pain-val-display').innerText = this.value" />
     
-        </div>
+        </div> -->
+        <!-- 1. 疼痛程度選擇（臉譜表） -->
+<div class="form-card">
+  <label class="card-label">
+    <span>疼痛程度</span>
+    <span id="pain-val-display" class="score-badge">5 分 - 中度疼痛</span>
+  </label>
+
+  <!-- 隱藏的 input，方便後續表單提交或 JS 讀取數值 -->
+  <input type="hidden" id="input-pain" name="pain_level" value="5" />
+
+  <!-- 臉譜選擇區域 -->
+  <div class="faces-container">
+    <button type="button" class="face-btn" data-value="0" onclick="selectPain(0, '不痛')">
+      <span class="face-emoji">😄</span>
+      <span class="face-score">0</span>
+      <span class="face-desc">不痛</span>
+    </button>
+    
+    <button type="button" class="face-btn" data-value="2" onclick="selectPain(2, '輕微疼痛')">
+      <span class="face-emoji">🙂</span>
+      <span class="face-score">2</span>
+      <span class="face-desc">輕微</span>
+    </button>
+    
+    <button type="button" class="face-btn" data-value="4" onclick="selectPain(4, '稍微疼痛')">
+      <span class="face-emoji">😐</span>
+      <span class="face-score">4</span>
+      <span class="face-desc">稍微</span>
+    </button>
+    
+    <button type="button" class="face-btn active" data-value="6" onclick="selectPain(6, '中度疼痛')">
+      <span class="face-emoji">😣</span>
+      <span class="face-score">6</span>
+      <span class="face-desc">中度</span>
+    </button>
+    
+    <button type="button" class="face-btn" data-value="8" onclick="selectPain(8, '嚴重疼痛')">
+      <span class="face-emoji">😭</span>
+      <span class="face-score">8</span>
+      <span class="face-desc">嚴重</span>
+    </button>
+    
+    <button type="button" class="face-btn" data-value="10" onclick="selectPain(10, '劇烈疼痛')">
+      <span class="face-emoji">😱</span>
+      <span class="face-score">10</span>
+      <span class="face-desc">劇痛</span>
+    </button>
+  </div>
+</div>
 
         <!--9/8 new 3D -->
 <div class="form-card" style="text-align: center;">
