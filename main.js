@@ -280,9 +280,9 @@ function showMainApp(user) {
     const mainCard = document.getElementById('main-card');
     if (mainCard) mainCard.classList.remove('hidden');
 
-    switchTab('pane-form');
+    switchMainTab('symptoms');
     // ✅ 再顯示次頁籤（頭痛）
-    switchTab('pane-headache');
+    switchLevel2Tab('diary');
 
     const userEmailText = document.getElementById('user-email-text');
     const userEmail = document.getElementById('user-email');
@@ -296,7 +296,7 @@ function showMainApp(user) {
     loadUserHistory(user.id);
     setupRealtimeListener(user.id);   // ✅ 加這行，用真實 user.id
 }
-async function loadUserHistory(userId) {
+async function loadCalendarRecords(userId) {
     const { data, error } = await supabase
         .from('user_data')
         .select('*')
@@ -824,7 +824,7 @@ function switchLevel2Tab(name) {
   document.getElementById('l2-' + name).style.display = 'block';
   document.querySelectorAll('.level2-tab').forEach(b =>
     b.classList.toggle('active', b.dataset.l2 === name));
-  if (name === 'trend' && window.calendar) calendar.render(); // 月曆隱藏時需重繪
+  if (name === 'trend' && window.myCalendar) calendar.render(); // 月曆隱藏時需重繪
 }
 function switchTab(id) { // 只管第三層
   document.querySelectorAll('#attack-form .tab-pane').forEach(p =>
