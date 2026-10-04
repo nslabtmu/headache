@@ -93,18 +93,25 @@
 
     
 <!-- 3. 主系統卡片 -->
- <div class="card card-left hidden" id="main-card">
+    <div class="card card-left hidden" id="main-card">
         
-        <!-- [頂部欄 Header] 乾淨大標 + 右側控制 -->
-        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid #eee;">
-            <h2 data-i18n="form_title" style="margin: 0;">🩺 症狀與音樂</h2>
+        <!-- [第一層 Header] 乾淨標題 + 第一層頁籤 + 右側帳號選單 -->
+        <header class="header-container">
+            <div class="header-left">
+                <h2 data-i18n="form_title" class="system-title">🩺 頭痛記錄系統</h2>
+                <!-- 第一層頁籤 -->
+                <nav class="top-navbar">
+                    <button class="top-tab active" onclick="switchMainTab('symptoms')">🩺 1. 症狀</button>
+                    <button class="top-tab" onclick="switchMainTab('music')">🎵 2. 音樂</button>
+                </nav>
+            </div>
             
-<div class="header-actions">
-    <!-- 語系切換 -->
-    <div class="lang-switch">
-      <button class="lang-btn active">中文</button>
-      <button class="lang-btn">EN</button>
-    </div>
+            <div class="header-actions">
+                <!-- 語系切換 -->
+                <div class="lang-switch">
+                    <button class="lang-btn active">中文</button>
+                    <button class="lang-btn">EN</button>
+                </div>
 
     <!-- 帳戶下拉選單 (個人資料與登出合併於此) -->
     <div class="account-dropdown">
@@ -134,13 +141,13 @@
 
 
      
-<!-- 主頁籤按鈕 -->
+<!-- 主頁籤按鈕 
 <div class="main-tabs">
     <button class="tab-btn active" data-tab="pane-form" onclick="switchTab('pane-form')" data-i18n="main_record">📝 記錄區</button>
     <button class="tab-btn" data-tab="pane-music" onclick="switchTab('pane-music')"data-i18n="main_music"> 🎵 音樂區</button>
     <button class="tab-btn" data-tab="pane-chart" onclick="switchTab('pane-chart')" data-i18n="main_chart">📊 趨勢圖</button>
     <button class="tab-btn" data-tab="pane-info"  onclick="switchTab('pane-info')" data-i18n="main_info">新知區</button>
-</div>
+</div> -->
         <!-- ==================== 主頁籤 1: 頭痛資料填寫 ==================== -->
 
   <!-- 氣象模組 - 最新版：IP位置 + 氣象 + 統一的變更位置面板 -->
@@ -214,6 +221,12 @@
 </div>
 </div><!-- ✅ 天氣區塊結束 -->
 
+
+<nav class="sub-navbar-level2">
+                <button class="level2-tab active" onclick="switchLevel2Tab('diary')">📝 1.1 日記</button>
+                <button class="level2-tab" onclick="switchLevel2Tab('trend')">📊 1.2 趨勢圖</button>
+            </nav>
+    
             <!-- [次頁籤 Sub-Tabs] -->
             <div class="tabs sub-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
                 <button type="button" data-tab="pane-headache" class="tab-btn active" id="btn-tab-headache" onclick="switchTab('pane-headache')" data-i18n="tab_headache">🤕 頭痛</button>
