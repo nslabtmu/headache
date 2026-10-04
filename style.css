@@ -1308,3 +1308,22 @@ input[type="range"] {
 .main-pane.active, .level2-pane.active, .level3-pane.active {
   display: block;
 }
+.sub-navbar-level2 {
+  display: flex;
+  width: 100%;
+  gap: 0;
+}
+
+.level2-tab {
+  min-width: 0;                 /* 允許縮小,不被文字撐開 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+.level2-tab[data-l2="diary"] { flex: 3; }   /* 3/4 */
+.level2-tab[data-l2="trend"] { flex: 1; }   /* 1/4 */
+@media (max-width: 600px) {
+  .level2-tab { font-size: 13px; padding: 8px 4px; }
+}
