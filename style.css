@@ -1128,3 +1128,183 @@ input[type="range"] {
   color: #64748b;
   margin-top: 2px;
 }
+/* --- 頂部 Header & 第一層頁籤 --- */
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.system-title {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #1e293b;
+}
+
+.top-navbar {
+  display: flex;
+  gap: 8px;
+}
+
+.top-tab {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #f1f5f9;
+  font-weight: bold;
+  cursor: pointer;
+  color: #475569;
+}
+
+.top-tab.active {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+/* --- 第二層頁籤 (1.1 / 1.2) --- */
+.sub-navbar-level2 {
+  display: flex;
+  gap: 12px;
+  border-bottom: 2px solid #cbd5e1;
+  margin-bottom: 16px;
+}
+
+.level2-tab {
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.level2-tab.active {
+  color: #059669;
+  border-bottom: 3px solid #059669;
+}
+
+/* --- 第三層頁籤 (1.1.1 ~ 1.1.4) --- */
+.sub-navbar-level3 {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+}
+
+.level3-tab {
+  padding: 8px 14px;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: bold;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.level3-tab.active {
+  background-color: #475569;
+  color: #ffffff;
+  border-color: #475569;
+}
+
+/* --- 下拉選單控制 --- */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 110%;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  min-width: 180px;
+  z-index: 1000;
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 10px 16px;
+  color: #334155;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f5f9;
+}
+
+/* --- Wong-Baker 臉譜按鈕樣式 --- */
+.faces-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+  overflow-x: auto;
+}
+
+.face-btn {
+  flex: 1;
+  min-width: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 4px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.face-btn:hover {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+}
+
+.face-btn.active {
+  border-color: #2563eb;
+  background-color: #eff6ff;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+}
+
+.face-emoji {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.face-score {
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin-top: 4px;
+  color: #1e293b;
+}
+
+.face-desc {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* 顯示/隱藏 切換面板 */
+.main-pane, .level2-pane, .level3-pane {
+  display: none;
+}
+.main-pane.active, .level2-pane.active, .level3-pane.active {
+  display: block;
+}
