@@ -1193,3 +1193,7 @@ function selectPain(score, label) {
     }
   });
 }
+function showQuiz(name) {
+  document.querySelectorAll('.quiz-wrap').forEach(el => el.style.display = 'none');
+  document.getElementById('quiz-' + name).style.display = 'block';
+}
