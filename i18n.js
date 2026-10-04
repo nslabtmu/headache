@@ -70,10 +70,10 @@ const langDict = {
         warning_text: '🚨 偵測到重大危險徵象！請勿填表，請立即前往最近的急診室就醫評估！'
     },
 'en': {
-  nav_symptoms: "🩺 1. Symptoms", nav_music: "🎵 2. Music",
-  nav_diary: "📝 1.1 Diary", nav_trend: "📊 1.2 Trends",
-  tab_headache: "🤕 1.1.1 Headache", tab_mood: "💙 1.1.2 Mood",
-  tab_symptom: "📝 1.1.3 Symptoms", tab_band: "⌚ 1.1.4 Health Data",
+  nav_symptoms: "🩺 Symptoms", nav_music: "🎵 Music",
+  nav_diary: "📝 Diary", nav_trend: "📊 Trends",
+  tab_headache: "🤕 Headache", tab_mood: "💙  Mood",
+  tab_symptom: "📝 Symptoms", tab_band: "⌚ Health Data",
   menu_disclaimer: "⚠️ Disclaimer", menu_consent: "📄 Re-sign Consent",
   menu_export: "📥 Export Records (PDF)", menu_info: "💡 Health Info",
   menu_profile: "⚙️ Profile / Privacy", menu_logout: "🚪 Log out",
