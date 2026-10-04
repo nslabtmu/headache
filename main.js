@@ -1073,7 +1073,7 @@ function checkBarometricPressureAlert(pressure) {
     }
 }
 // 匯出資料
-async function exportMedicalReport() {
+/*async function exportMedicalReport() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
@@ -1109,7 +1109,7 @@ async function exportMedicalReport() {
 
     // 儲存 PDF 檔案
     doc.save("Headache_Medical_Report.pdf");
-}
+}*/
 
 
 /*document.addEventListener('DOMContentLoaded', function() {
