@@ -922,3 +922,187 @@ async function savePssiScoreToSupabase(totalScore, levelText, subScores) {
     }
 }
 
+// ==========================================
+// 📋 PHQ-9 憂鬱 / GAD-7 焦慮 量表
+// ==========================================
+// 兩份量表結構相同（0~3 分、過去兩週），用同一個工廠函式產生，
+// 會自動建立全域函式：startPhq9Quiz / prevPhq9Question、startGad7Quiz / prevGad7Question
+
+const MENTAL_LIKERT_OPTIONS = [
+    "0 - 完全沒有",
+    "1 - 好幾天",
+    "2 - 一半以上的天數",
+    "3 - 幾乎每天"
+];
+
+// 官方附加題（不計分）：總分 > 0 時才會出現
+const MENTAL_FUNCTION_QUESTION = "如果您勾選了上述任何問題，這些問題對您在工作、處理家務或與他人相處上，造成多大的困難？";
+const MENTAL_FUNCTION_OPTIONS = [
+    "0 - 完全沒有困難",
+    "1 - 有一點困難",
+    "2 - 非常困難",
+    "3 - 極度困難"
+];
+
+// PHQ-9 第 9 題（傷害自己的念頭）有作答時顯示。請依使用者所在地區確認電話。
+const CRISIS_NOTICE =
+    "\n\n⚠️ 您在第 9 題提到有不如死掉或傷害自己的念頭。您不需要獨自承受，" +
+    "請盡快聯絡身邊信任的人，或撥打 1925（安心專線，24 小時）、1995（生命線）、1980（張老師）。" +
+    "若有立即危險，請撥 110 或 119。";
+
+function createLikertQuiz(cfg) {
+    const n = cfg.questions.length;
+    let idx = 0;
+    let answers = new Array(n).fill(null);
+    let followUp = null;
+
+    const $ = s => document.getElementById(`${cfg.id}-${s}`);
+    const sum = () => answers.reduce((a, b) => a + (b || 0), 0);
+
+    function start() {
+        idx = 0;
+        answers.fill(null);
+        followUp = null;
+        $('start-card').style.display = 'none';
+        $('quiz-card').style.display = 'block';
+        render();
+    }
+
+    function render() {
+        const isFollow = idx >= n;
+        const title = isFollow ? MENTAL_FUNCTION_QUESTION : `${idx + 1}. ${cfg.questions[idx]}`;
+        const opts = isFollow ? MENTAL_FUNCTION_OPTIONS : MENTAL_LIKERT_OPTIONS;
+        const selected = isFollow ? followUp : answers[idx];
+        const percent = isFollow ? 100 : Math.round(((idx + 1) / n) * 100);
+
+        $('question-title').innerText = title;
+        $('progress-text').innerText = isFollow ? '補充題' : `問題 ${idx + 1} / ${n}`;
+        $('progress-percent').innerText = `${percent}%`;
+        $('progress-bar').style.width = `${percent}%`;
+
+        const stem = $('stem'); // 「過去兩週，您有多常被以下問題困擾？」補充題不適用
+        if (stem) stem.style.display = isFollow ? 'none' : 'block';
+
+        const box = $('options-container');
+        box.innerHTML = '';
+        opts.forEach((text, score) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.innerText = text;
+            btn.style.cssText = 'padding:12px; font-size:15px; text-align:left; cursor:pointer; border:1px solid #ccc; border-radius:6px; background:#fff;';
+            if (selected === score) btn.style.outline = '3px solid #3f51b5';
+            btn.onclick = () => answer(score);
+            box.appendChild(btn);
+        });
+
+        $('prev-btn').style.display = idx > 0 ? 'inline-block' : 'none';
+    }
+
+    function answer(score) {
+        if (idx < n) {
+            answers[idx] = score;
+            if (idx < n - 1) {
+                idx++;
+                render();
+            } else if (sum() > 0) {
+                idx = n; // 進入補充題
+                render();
+            } else {
+                finish();
+            }
+        } else {
+            followUp = score;
+            finish();
+        }
+    }
+
+    function prev() {
+        if (idx > 0) {
+            idx--;
+            render();
+        }
+    }
+
+    async function finish() {
+        const total = sum();
+        const level = cfg.getLevel(total);
+        const fu = total > 0 ? followUp : null;
+
+        let msg = `${cfg.icon} ${cfg.name} 評估已完成！\n\n` +
+                  `總分：${total} / ${cfg.maxScore} 分\n` +
+                  `評估結果：${level}`;
+        if (total >= cfg.cutoff) msg += `\n\n分數已達 ${cfg.cutoff} 分以上的篩檢切點，建議尋求專業評估。`;
+        if (cfg.crisisItem !== undefined && answers[cfg.crisisItem] >= 1) msg += CRISIS_NOTICE;
+        if (fu !== null) msg += `\n\n對日常生活的影響：${MENTAL_FUNCTION_OPTIONS[fu].slice(4)}`;
+        msg += `\n\n此量表為篩檢工具，不等同診斷。\n點擊「確定」將分數記錄至系統。`;
+
+        if (confirm(msg)) {
+            await save(total, level, fu);
+            $('quiz-card').style.display = 'none';
+            $('start-card').style.display = 'block';
+        }
+    }
+
+    async function save(total, level, fu) {
+        try {
+            const { error } = await supabase.from(cfg.table).insert([{
+                user_id: window.appState?.userId || null,
+                total_score: total,
+                level: level,
+                answers: answers,
+                functional_difficulty: fu, // 0~3 或 null
+                created_at: new Date().toISOString()
+            }]);
+            if (error) throw error;
+            alert(`✅ 已成功記錄 ${cfg.name} 分數。`);
+        } catch (err) {
+            console.error(`❌ 寫入 ${cfg.name} 失敗：`, err);
+            alert('儲存失敗，請檢查網路連線。');
+        }
+    }
+
+    window[`start${cfg.fn}Quiz`] = start;
+    window[`prev${cfg.fn}Question`] = prev;
+}
+
+// ---------- PHQ-9 ----------
+createLikertQuiz({
+    id: 'phq9', fn: 'Phq9', name: 'PHQ-9 憂鬱', icon: '🌧️',
+    maxScore: 27, cutoff: 10, table: 'phq9_scores',
+    crisisItem: 8, // 第 9 題（索引 8）
+    questions: [
+        "做事時提不起勁或沒有樂趣",
+        "感到心情低落、沮喪或絕望",
+        "入睡困難、睡不安穩或睡眠過多",
+        "覺得疲倦或沒有活力",
+        "食慾不振或吃太多",
+        "覺得自己很糟，或覺得自己很失敗，或讓自己或家人失望",
+        "對事物專注有困難，例如閱讀報紙或看電視時",
+        "動作或說話速度緩慢到別人已經察覺？或正好相反——煩躁或坐立不安、動來動去的情況比平常更嚴重",
+        "有不如死掉或用某種方式傷害自己的念頭"
+    ],
+    getLevel: t => t <= 4 ? "無或極輕微憂鬱 (Minimal)"
+                 : t <= 9 ? "輕度憂鬱 (Mild)"
+                 : t <= 14 ? "中度憂鬱 (Moderate)"
+                 : t <= 19 ? "中重度憂鬱 (Moderately Severe)"
+                 : "重度憂鬱 (Severe)"
+});
+
+// ---------- GAD-7 ----------
+createLikertQuiz({
+    id: 'gad7', fn: 'Gad7', name: 'GAD-7 焦慮', icon: '😰',
+    maxScore: 21, cutoff: 10, table: 'gad7_scores',
+    questions: [
+        "感到緊張、焦慮或煩躁",
+        "無法停止或控制擔憂",
+        "對各種事情過度擔憂",
+        "很難放鬆",
+        "坐立不安，難以靜坐",
+        "變得容易生氣或煩躁",
+        "感到害怕，好像有什麼可怕的事會發生"
+    ],
+    getLevel: t => t <= 4 ? "極輕微焦慮 (Minimal)"
+                 : t <= 9 ? "輕度焦慮 (Mild)"
+                 : t <= 14 ? "中度焦慮 (Moderate)"
+                 : "重度焦慮 (Severe)"
+});
