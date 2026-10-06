@@ -550,7 +550,62 @@
         <button type="button" id="pssi-prev-btn" onclick="prevPssiQuestion()" style="display: none; padding: 8px 16px;">← 上一題</button>
     </div>
 </div>
+<!-- 1. 在量表選擇器（quiz-picker）裡加入兩顆按鈕 -->
+<button type="button" class="btn" onclick="showQuiz('phq9')">PHQ-9 憂鬱</button>
+<button type="button" class="btn" onclick="showQuiz('gad7')">GAD-7 焦慮</button>
 
+
+<!-- 2. 以下兩個區塊貼在 quiz-pss 之後 -->
+
+<!-- ========== PHQ-9 ========== -->
+<div id="quiz-phq9" class="quiz-wrap" style="display:none">
+    <div id="phq9-start-card" class="card" style="text-align: center; padding: 20px;">
+        <h3>🌧️ PHQ-9 憂鬱症篩檢量表</h3>
+        <p>本問卷共 9 題，評估您<b>過去兩週（包含今天）</b>受憂鬱症狀困擾的程度。</p>
+        <button type="button" onclick="startPhq9Quiz()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">開始評估</button>
+    </div>
+
+    <div id="phq9-quiz-card" class="card" style="display: none; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
+            <span id="phq9-progress-text">問題 1 / 9</span>
+            <span id="phq9-progress-percent">0%</span>
+        </div>
+        <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
+            <div id="phq9-progress-bar" style="width: 0%; background: #4caf50; height: 100%; transition: width 0.3s;"></div>
+        </div>
+        <p id="phq9-stem" style="font-size: 13px; color: #666; margin-bottom: 10px;">過去兩週，您有多常被以下問題困擾？</p>
+        <h3 id="phq9-question-title" style="margin-bottom: 20px; font-size: 18px;">題目載入中...</h3>
+        <div id="phq9-options-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        <div style="margin-top: 20px; text-align: left;">
+            <button type="button" id="phq9-prev-btn" onclick="prevPhq9Question()" style="display: none; padding: 6px 12px;">← 上一題</button>
+        </div>
+    </div>
+</div><!-- quiz-phq9 結束 -->
+
+<!-- ========== GAD-7 ========== -->
+<div id="quiz-gad7" class="quiz-wrap" style="display:none">
+    <div id="gad7-start-card" class="card" style="text-align: center; padding: 20px;">
+        <h3>😰 GAD-7 焦慮症篩檢量表</h3>
+        <p>本問卷共 7 題，評估您<b>過去兩週（包含今天）</b>受焦慮症狀困擾的程度。</p>
+        <button type="button" onclick="startGad7Quiz()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">開始評估</button>
+    </div>
+
+    <div id="gad7-quiz-card" class="card" style="display: none; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
+            <span id="gad7-progress-text">問題 1 / 7</span>
+            <span id="gad7-progress-percent">0%</span>
+        </div>
+        <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
+            <div id="gad7-progress-bar" style="width: 0%; background: #4caf50; height: 100%; transition: width 0.3s;"></div>
+        </div>
+        <p id="gad7-stem" style="font-size: 13px; color: #666; margin-bottom: 10px;">過去兩週，您有多常被以下問題困擾？</p>
+        <h3 id="gad7-question-title" style="margin-bottom: 20px; font-size: 18px;">題目載入中...</h3>
+        <div id="gad7-options-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        <div style="margin-top: 20px; text-align: left;">
+            <button type="button" id="gad7-prev-btn" onclick="prevGad7Question()" style="display: none; padding: 6px 12px;">← 上一題</button>
+        </div>
+    </div>
+</div><!-- quiz-gad7 結束 -->
   <!-- 上一步 / 下一頁 -->
   <div class="button-group">
     <button type="button" class="btn" onclick="switchTab('pane-headache')" data-i18n="btn_prev_step">⬅️ 上一步</button>
