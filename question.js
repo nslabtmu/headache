@@ -587,3 +587,161 @@ function finishBdiQuiz() {
     
     // 您可在這裡接續跳轉至結果頁面或顯示結果卡片
 }
+// ==========================================
+// 🌀 DHI 眩暈障礙量表 (Dizziness Handicap Inventory) 邏輯
+// ==========================================
+// 共 25 題，每題「是=4、有時=2、否=0」，總分 0 ~ 100
+// 分項：P 生理(7題 /28分)、F 功能(9題 /36分)、E 情緒(9題 /36分)
+
+const dhiQuestions = [
+    { text: "1. 抬頭看時，您的眩暈問題會加重嗎？", cat: "P" },
+    { text: "2. 因為眩暈問題，您會感到挫折嗎？", cat: "E" },
+    { text: "3. 因為眩暈問題，您會限制自己的出差或休閒旅行嗎？", cat: "F" },
+    { text: "4. 走在超市的走道間，您的眩暈問題會加重嗎？", cat: "P" },
+    { text: "5. 因為眩暈問題，您上下床會有困難嗎？", cat: "F" },
+    { text: "6. 您的眩暈問題是否嚴重限制了社交活動，例如外出用餐、看電影、跳舞或參加聚會？", cat: "F" },
+    { text: "7. 因為眩暈問題，您閱讀時會有困難嗎？", cat: "F" },
+    { text: "8. 從事較費力的活動（如運動、跳舞、做家事）時，您的眩暈問題會加重嗎？", cat: "P" },
+    { text: "9. 因為眩暈問題，您會害怕沒人陪同就離開家嗎？", cat: "E" },
+    { text: "10. 因為眩暈問題，您曾在別人面前感到尷尬嗎？", cat: "E" },
+    { text: "11. 快速轉動頭部時，您的眩暈問題會加重嗎？", cat: "P" },
+    { text: "12. 因為眩暈問題，您會避免到高的地方嗎？", cat: "F" },
+    { text: "13. 在床上翻身時，您的眩暈問題會加重嗎？", cat: "P" },
+    { text: "14. 因為眩暈問題，您要做粗重的家事或庭院工作會有困難嗎？", cat: "F" },
+    { text: "15. 因為眩暈問題，您會擔心別人以為您喝醉了嗎？", cat: "E" },
+    { text: "16. 因為眩暈問題，您要獨自散步會有困難嗎？", cat: "F" },
+    { text: "17. 走在人行道上時，您的眩暈問題會加重嗎？", cat: "P" },
+    { text: "18. 因為眩暈問題，您要集中注意力會有困難嗎？", cat: "E" },
+    { text: "19. 因為眩暈問題，您在黑暗中於家裡走動會有困難嗎？", cat: "F" },
+    { text: "20. 因為眩暈問題，您會害怕獨自待在家嗎？", cat: "E" },
+    { text: "21. 因為眩暈問題，您會覺得自己有障礙嗎？", cat: "E" },
+    { text: "22. 您的眩暈問題是否讓您與家人或朋友的關係產生壓力？", cat: "E" },
+    { text: "23. 因為眩暈問題，您會感到沮喪嗎？", cat: "E" },
+    { text: "24. 您的眩暈問題是否影響到工作或家務責任？", cat: "F" },
+    { text: "25. 彎腰時，您的眩暈問題會加重嗎？", cat: "P" }
+];
+
+const DHI_TOTAL = dhiQuestions.length; // 25
+
+let currentDhiIndex = 0;
+let dhiAnswers = new Array(DHI_TOTAL).fill(null); // 紀錄 25 題答案 (0 / 2 / 4)
+
+// 開始問卷
+function startDhiQuiz() {
+    currentDhiIndex = 0;
+    dhiAnswers.fill(null);
+    document.getElementById('dhi-start-card').style.display = 'none';
+    document.getElementById('dhi-quiz-card').style.display = 'block';
+    renderDhiQuestion();
+}
+
+// 渲染當前題目與進度
+function renderDhiQuestion() {
+    const qTitle = document.getElementById('dhi-question-title');
+    const pText = document.getElementById('dhi-progress-text');
+    const pPercent = document.getElementById('dhi-progress-percent');
+    const pBar = document.getElementById('dhi-progress-bar');
+    const prevBtn = document.getElementById('dhi-prev-btn');
+
+    // 1. 題目內容
+    qTitle.innerText = dhiQuestions[currentDhiIndex].text;
+
+    // 2. 進度條
+    const currentNum = currentDhiIndex + 1;
+    const percent = Math.round((currentNum / DHI_TOTAL) * 100);
+    pText.innerText = `問題 ${currentNum} / ${DHI_TOTAL}`;
+    pPercent.innerText = `${percent}%`;
+    pBar.style.width = `${percent}%`;
+
+    // 3. 上一題按鈕
+    prevBtn.style.display = currentDhiIndex > 0 ? 'inline-block' : 'none';
+
+    // 4. 若已作答過，標示先前選擇（按鈕需帶 data-score="0|2|4" 與 class="dhi-option-btn"）
+    document.querySelectorAll('.dhi-option-btn').forEach(btn => {
+        const selected = dhiAnswers[currentDhiIndex] === parseInt(btn.dataset.score);
+        btn.style.outline = selected ? '3px solid #3f51b5' : 'none';
+    });
+}
+
+// 點擊選項答案 (score: 4=是, 2=有時, 0=否)
+function answerDhiQuestion(score) {
+    dhiAnswers[currentDhiIndex] = score;
+
+    if (currentDhiIndex < DHI_TOTAL - 1) {
+        currentDhiIndex++;
+        renderDhiQuestion();
+    } else {
+        finishDhiQuiz();
+    }
+}
+
+// 上一題
+function prevDhiQuestion() {
+    if (currentDhiIndex > 0) {
+        currentDhiIndex--;
+        renderDhiQuestion();
+    }
+}
+
+// 計算總分與分項分數
+function calcDhiScores() {
+    const sub = { P: 0, F: 0, E: 0 };
+    let total = 0;
+    dhiQuestions.forEach((q, i) => {
+        const s = dhiAnswers[i] || 0;
+        sub[q.cat] += s;
+        total += s;
+    });
+    return { total, physical: sub.P, functional: sub.F, emotional: sub.E };
+}
+
+// 判斷眩暈障礙程度 (Jacobson & Newman, 1990)
+function getDhiLevel(total) {
+    if (total <= 30) return "輕度障礙 (Mild)";
+    if (total <= 60) return "中度障礙 (Moderate)";
+    return "重度障礙 (Severe)";
+}
+
+// 完成問卷：計算分數、彈窗確認與存檔
+async function finishDhiQuiz() {
+    const { total, physical, functional, emotional } = calcDhiScores();
+    const levelText = getDhiLevel(total);
+
+    const isConfirmed = confirm(
+        `🌀 DHI 評估已完成！\n\n` +
+        `總分：${total} / 100 分\n` +
+        `評估結果：${levelText}\n\n` +
+        `分項分數：\n` +
+        `・生理 (P)：${physical} / 28\n` +
+        `・功能 (F)：${functional} / 36\n` +
+        `・情緒 (E)：${emotional} / 36\n\n` +
+        `點擊「確定」將分數記錄至系統。`
+    );
+
+    if (isConfirmed) {
+        await saveDhiScoreToSupabase(total, levelText, { physical, functional, emotional });
+
+        document.getElementById('dhi-quiz-card').style.display = 'none';
+        document.getElementById('dhi-start-card').style.display = 'block';
+    }
+}
+
+// 存檔至 Supabase（請依你的資料表欄位調整；supabase 為你已初始化的 client）
+async function saveDhiScoreToSupabase(totalScore, levelText, subScores) {
+    const { error } = await supabase.from('dhi_scores').insert({
+        total_score: totalScore,
+        level: levelText,
+        physical_score: subScores.physical,
+        functional_score: subScores.functional,
+        emotional_score: subScores.emotional,
+        answers: dhiAnswers,
+        created_at: new Date().toISOString()
+    });
+    if (error) {
+        console.error('DHI 存檔失敗：', error);
+        alert('存檔失敗，請稍後再試。');
+    } else {
+        alert('✅ 已成功記錄 DHI 分數。');
+    }
+}
+
