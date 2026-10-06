@@ -745,3 +745,175 @@ async function saveDhiScoreToSupabase(totalScore, levelText, subScores) {
     }
 }
 
+// ==========================================
+// 🛡️ PSS-I 創傷後壓力症狀量表 (PTSD Symptom Scale - Interview) 邏輯
+// ==========================================
+// 共 17 題，對應 DSM-IV 的 PTSD 症狀，每題 0 ~ 3 分，總分 0 ~ 51
+// 分項：B 重新經驗(5題 /15)、C 逃避與麻木(7題 /21)、D 過度警覺(5題 /15)
+// 注意：此為篩檢/追蹤用途，不能取代專業診斷。
+
+const PSSI_CUTOFF = 15; // 研究中常用的篩檢切點(約 14~15)，可依需求調整
+
+const pssiQuestions = [
+    // B. 重新經驗
+    { text: "1. 腦中不由自主地浮現創傷事件的畫面、想法或記憶，令您痛苦。", cat: "B" },
+    { text: "2. 反覆做與創傷事件有關、令您痛苦的夢。", cat: "B" },
+    { text: "3. 突然覺得或表現得好像創傷事件又再次發生（如閃回、彷彿身歷其境）。", cat: "B" },
+    { text: "4. 接觸到會讓您聯想到創傷事件的人、事、物時，會感到強烈的心理痛苦。", cat: "B" },
+    { text: "5. 接觸到會讓您聯想到創傷事件的人、事、物時，會出現身體反應（如心跳加快、冒汗、發抖）。", cat: "B" },
+    // C. 逃避與麻木
+    { text: "6. 刻意避免去想、去談或去感受與創傷事件有關的事。", cat: "C" },
+    { text: "7. 刻意避開會讓您想起創傷事件的活動、地點或人。", cat: "C" },
+    { text: "8. 無法回想起創傷事件中的某些重要部分。", cat: "C" },
+    { text: "9. 對以前重視或喜歡的活動，明顯失去興趣或較少參與。", cat: "C" },
+    { text: "10. 覺得與他人疏離、有距離感，或像是被隔離在外。", cat: "C" },
+    { text: "11. 情感變得麻木，難以感受愛、喜悅等情緒。", cat: "C" },
+    { text: "12. 覺得未來一片黯淡（如不覺得會有事業、婚姻、子女或正常的壽命）。", cat: "C" },
+    // D. 過度警覺
+    { text: "13. 難以入睡或難以維持睡眠。", cat: "D" },
+    { text: "14. 容易煩躁，或有突如其來的怒氣。", cat: "D" },
+    { text: "15. 難以集中注意力。", cat: "D" },
+    { text: "16. 對周遭環境過度警戒、緊繃，總覺得要提防什麼。", cat: "D" },
+    { text: "17. 容易被嚇到，或對突然的聲響、動靜反應過度。", cat: "D" }
+];
+
+// 頻率/嚴重度選項（索引即分數）
+const pssiOptions = [
+    "0 - 完全沒有",
+    "1 - 每週 1 次以下 / 輕微",
+    "2 - 每週 2 ~ 4 次 / 中等",
+    "3 - 每週 5 次以上 / 非常嚴重"
+];
+
+const PSSI_TOTAL = pssiQuestions.length; // 17
+
+let currentPssiIndex = 0;
+let pssiAnswers = new Array(PSSI_TOTAL).fill(null); // 紀錄 17 題答案 (0~3)
+let pssiTraumaNote = ""; // 受測者描述的創傷事件（選填，僅供自己參考）
+
+// 開始問卷
+function startPssiQuiz() {
+    // 先確認作答的參照事件，這是 PSS-I 的前提
+    const note = prompt(
+        "請先想一件讓您感到嚴重創傷的事件，以下題目請針對『過去兩週』與該事件相關的感受作答。\n\n" +
+        "（可簡短寫下事件類型，也可留白直接開始）"
+    );
+    if (note === null) return; // 按取消則不開始
+    pssiTraumaNote = note.trim();
+
+    currentPssiIndex = 0;
+    pssiAnswers.fill(null);
+    document.getElementById('pssi-start-card').style.display = 'none';
+    document.getElementById('pssi-quiz-card').style.display = 'block';
+    renderPssiQuestion();
+}
+
+// 渲染當前題目與進度
+function renderPssiQuestion() {
+    const qTitle = document.getElementById('pssi-question-title');
+    const pText = document.getElementById('pssi-progress-text');
+    const pPercent = document.getElementById('pssi-progress-percent');
+    const pBar = document.getElementById('pssi-progress-bar');
+    const prevBtn = document.getElementById('pssi-prev-btn');
+
+    qTitle.innerText = pssiQuestions[currentPssiIndex].text;
+
+    const currentNum = currentPssiIndex + 1;
+    const percent = Math.round((currentNum / PSSI_TOTAL) * 100);
+    pText.innerText = `問題 ${currentNum} / ${PSSI_TOTAL}`;
+    pPercent.innerText = `${percent}%`;
+    pBar.style.width = `${percent}%`;
+
+    prevBtn.style.display = currentPssiIndex > 0 ? 'inline-block' : 'none';
+
+    // 標示先前選擇（按鈕需帶 class="pssi-option-btn" 與 data-score="0~3"）
+    document.querySelectorAll('.pssi-option-btn').forEach(btn => {
+        const selected = pssiAnswers[currentPssiIndex] === parseInt(btn.dataset.score);
+        btn.style.outline = selected ? '3px solid #3f51b5' : 'none';
+    });
+}
+
+// 點擊選項答案 (score: 0~3)
+function answerPssiQuestion(score) {
+    pssiAnswers[currentPssiIndex] = score;
+
+    if (currentPssiIndex < PSSI_TOTAL - 1) {
+        currentPssiIndex++;
+        renderPssiQuestion();
+    } else {
+        finishPssiQuiz();
+    }
+}
+
+// 上一題
+function prevPssiQuestion() {
+    if (currentPssiIndex > 0) {
+        currentPssiIndex--;
+        renderPssiQuestion();
+    }
+}
+
+// 計算總分與分項分數
+function calcPssiScores() {
+    const sub = { B: 0, C: 0, D: 0 };
+    let total = 0;
+    pssiQuestions.forEach((q, i) => {
+        const s = pssiAnswers[i] || 0;
+        sub[q.cat] += s;
+        total += s;
+    });
+    return { total, reexperiencing: sub.B, avoidance: sub.C, arousal: sub.D };
+}
+
+// 判斷結果（無官方嚴重度分級，這裡只用篩檢切點）
+function getPssiLevel(total) {
+    return total >= PSSI_CUTOFF
+        ? `達篩檢切點 (≥ ${PSSI_CUTOFF})，建議尋求專業評估`
+        : `未達篩檢切點 (< ${PSSI_CUTOFF})`;
+}
+
+// 完成問卷：計算分數、彈窗確認與存檔
+async function finishPssiQuiz() {
+    const { total, reexperiencing, avoidance, arousal } = calcPssiScores();
+    const levelText = getPssiLevel(total);
+
+    const isConfirmed = confirm(
+        `🛡️ PSS-I 評估已完成！\n\n` +
+        `總分：${total} / 51 分\n` +
+        `結果：${levelText}\n\n` +
+        `分項分數：\n` +
+        `・重新經驗 (B)：${reexperiencing} / 15\n` +
+        `・逃避與麻木 (C)：${avoidance} / 21\n` +
+        `・過度警覺 (D)：${arousal} / 15\n\n` +
+        `此量表為篩檢工具，不等同診斷。\n` +
+        `點擊「確定」將分數記錄至系統。`
+    );
+
+    if (isConfirmed) {
+        await savePssiScoreToSupabase(total, levelText, { reexperiencing, avoidance, arousal });
+
+        document.getElementById('pssi-quiz-card').style.display = 'none';
+        document.getElementById('pssi-start-card').style.display = 'block';
+    }
+}
+
+// 存檔至 Supabase（請依你的資料表欄位調整；supabase 為你已初始化的 client）
+async function savePssiScoreToSupabase(totalScore, levelText, subScores) {
+    const { error } = await supabase.from('pssi_scores').insert({
+        total_score: totalScore,
+        level: levelText,
+        reexperiencing_score: subScores.reexperiencing,
+        avoidance_score: subScores.avoidance,
+        arousal_score: subScores.arousal,
+        answers: pssiAnswers,
+        trauma_note: pssiTraumaNote, // 敏感資料，建議確認 RLS 與加密政策
+        created_at: new Date().toISOString()
+    });
+    if (error) {
+        console.error('PSS-I 存檔失敗：', error);
+        alert('存檔失敗，請稍後再試。');
+    } else {
+        alert('✅ 已成功記錄 PSS-I 分數。');
+    }
+}
+
