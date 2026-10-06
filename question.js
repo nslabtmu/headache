@@ -101,132 +101,137 @@ async function finishBaiQuiz() {
 // ==========================================
 // 🌙 PSQI 睡眠品質量表邏輯
 // ==========================================
+// ==========================================
+// 🌙 PSQI 正式計分版（取代原本的 PSQI 邏輯）
+// ==========================================
+// 使用方式：把原檔中的以下四項換成本檔版本
+//   psqiQuestions / submitPsqiQuestion / finishPsqiQuiz / savePsqiScoreToSupabase
+// 以下維持原樣不用動：psqiDefaultOptions、startPsqiQuiz、renderPsqiQuestion、prevPsqiQuestion
+// 注意：`let psqiAnswers = new Array(psqiQuestions.length)` 必須在新的 psqiQuestions 之後宣告。
 
-// PSQI 18 題題目結構
+// 18 題（第 10 題「同床者」不計分，故省略）。每題加上 key，計分時不再依賴索引位置。
 const psqiQuestions = [
-    { type: 'time', title: "1. 過去一個月中，您通常幾點上床睡覺？", placeholder: "例如 23:00 或 23:30" },
-    { type: 'number', title: "2. 過去一個月中，您上床後通常需要多久才能入睡（分鐘）？", placeholder: "請輸入分鐘數，如 30" },
-    { type: 'time', title: "3. 過去一個月中，您通常幾點起床？", placeholder: "例如 07:00 或 07:30" },
-    { type: 'number', title: "4. 過去一個月中，您每天晚上實際睡眠的時間是多少小時？", desc: "（這可能與您躺在床上時間不同）", placeholder: "請輸入小時數，如 6.5 或 7" },
-    
-    // 第 5 題（5a ~ 5j 睡眠困擾）
-    { type: 'choice', title: "5a. 過去一個月中，您是否無法在 30 分鐘內入睡？" },
-    { type: 'choice', title: "5b. 過去一個月中，您是否夜間易醒或早醒？" },
-    { type: 'choice', title: "5c. 過去一個月中，您是否夜間需要起來上廁所？" },
-    { type: 'choice', title: "5d. 過去一個月中，您是否感到呼吸不順暢？" },
-    { type: 'choice', title: "5e. 過去一個月中，您是否咳嗽或鼾聲很大？" },
-    { type: 'choice', title: "5f. 過去一個月中，您是否感到太冷？" },
-    { type: 'choice', title: "5g. 過去一個月中，您是否感到太熱？" },
-    { type: 'choice', title: "5h. 過去一個月中，您是否做噩夢？" },
-    { type: 'choice', title: "5i. 過去一個月中，您是否感到身體疼痛？" },
-    
-    // 第 6 ~ 9 題
-    { type: 'choice', title: "6. 過去一個月中，您對整體睡眠品質的評價如何？", customOptions: ["非常好 (0分)", "良好 (1分)", "較差 (2分)", "非常差 (3分)"] },
-    { type: 'choice', title: "7. 過去一個月中，您是否需要服用藥物來幫助入睡？" },
-    { type: 'choice', title: "8. 過去一個月中，您在開車、吃飯或參加社交活動時，是否難以保持清醒？" },
-    { type: 'choice', title: "9. 過去一個月中，您在完成事情上是否感到精力/動力不足？" }
+    { key: 'bed',      type: 'time',   title: "1. 過去一個月中，您通常幾點上床睡覺？", desc: "請以 24 小時制輸入", placeholder: "例如 23:00 或 23:30" },
+    { key: 'latency',  type: 'number', max: 720, title: "2. 過去一個月中，您上床後通常需要多久才能入睡（分鐘）？", placeholder: "請輸入分鐘數，如 30" },
+    { key: 'wake',     type: 'time',   title: "3. 過去一個月中，您通常幾點起床？", desc: "請以 24 小時制輸入", placeholder: "例如 07:00 或 07:30" },
+    { key: 'sleepHrs', type: 'number', max: 24, title: "4. 過去一個月中，您每天晚上實際睡眠的時間是多少小時？", desc: "（這可能與您躺在床上時間不同）", placeholder: "請輸入小時數，如 6.5 或 7" },
+
+    { key: '5a', type: 'choice', title: "5a. 過去一個月中，您是否無法在 30 分鐘內入睡？" },
+    { key: '5b', type: 'choice', title: "5b. 過去一個月中，您是否夜間易醒或早醒？" },
+    { key: '5c', type: 'choice', title: "5c. 過去一個月中，您是否夜間需要起來上廁所？" },
+    { key: '5d', type: 'choice', title: "5d. 過去一個月中，您是否感到呼吸不順暢？" },
+    { key: '5e', type: 'choice', title: "5e. 過去一個月中，您是否咳嗽或鼾聲很大？" },
+    { key: '5f', type: 'choice', title: "5f. 過去一個月中，您是否感到太冷？" },
+    { key: '5g', type: 'choice', title: "5g. 過去一個月中，您是否感到太熱？" },
+    { key: '5h', type: 'choice', title: "5h. 過去一個月中，您是否做噩夢？" },
+    { key: '5i', type: 'choice', title: "5i. 過去一個月中，您是否感到身體疼痛？" },
+    { key: '5j', type: 'choice', title: "5j. 過去一個月中，是否有其他原因影響了您的睡眠？" },
+
+    { key: 'q6', type: 'choice', title: "6. 過去一個月中，您對整體睡眠品質的評價如何？", customOptions: ["非常好 (0分)", "良好 (1分)", "較差 (2分)", "非常差 (3分)"] },
+    { key: 'q7', type: 'choice', title: "7. 過去一個月中，您是否需要服用藥物來幫助入睡？" },
+    { key: 'q8', type: 'choice', title: "8. 過去一個月中，您在開車、吃飯或參加社交活動時，是否難以保持清醒？" },
+    // 原版第 9 題是「困難程度」而非頻率，所以要用自訂選項
+    { key: 'q9', type: 'choice', title: "9. 過去一個月中，要維持足夠的熱忱把事情做好，對您來說有多大的困難？",
+      customOptions: ["完全沒有困難 (0分)", "只有很輕微的困難 (1分)", "有些困難 (2分)", "有很大的困難 (3分)"] }
 ];
 
-// 四分格標準選項
-const psqiDefaultOptions = [
-    "0 - 過去一個月中完全沒有",
-    "1 - 每週少於 1 次",
-    "2 - 每週 1 ~ 2 次",
-    "3 - 每週 3 次或以上"
-];
+// ---------- 輔助函式 ----------
 
-let currentPsqiIndex = 0;
-let psqiAnswers = new Array(psqiQuestions.length).fill(null);
-
-// 開始 PSQI 測驗
-function startPsqiQuiz() {
-    currentPsqiIndex = 0;
-    psqiAnswers.fill(null);
-    document.getElementById('psqi-start-card').style.display = 'none';
-    document.getElementById('psqi-quiz-card').style.display = 'block';
-    renderPsqiQuestion();
+// "23:30" → 1410（分鐘）；格式錯誤回傳 null
+function parseClockToMinutes(str) {
+    if (typeof str !== 'string') return null;
+    const m = str.trim().replace('：', ':').match(/^(\d{1,2}):(\d{2})$/);
+    if (!m) return null;
+    const h = parseInt(m[1], 10), min = parseInt(m[2], 10);
+    if (h > 23 || min > 59) return null;
+    return h * 60 + min;
 }
 
-// 渲染題目
-function renderPsqiQuestion() {
-    const qData = psqiQuestions[currentPsqiIndex];
-    const qTitle = document.getElementById('psqi-question-title');
-    const qDesc = document.getElementById('psqi-question-desc');
-    const inputContainer = document.getElementById('psqi-input-container');
-    const pText = document.getElementById('psqi-progress-text');
-    const pPercent = document.getElementById('psqi-progress-percent');
-    const pBar = document.getElementById('psqi-progress-bar');
-    const prevBtn = document.getElementById('psqi-prev-btn');
-    const nextBtn = document.getElementById('psqi-next-btn');
-
-    // 1. 標題與描述
-    qTitle.innerText = qData.title;
-    if (qData.desc) {
-        qDesc.innerText = qData.desc;
-        qDesc.style.display = 'block';
-    } else {
-        qDesc.style.display = 'none';
-    }
-
-    // 2. 進度條
-    const currentNum = currentPsqiIndex + 1;
-    const totalNum = psqiQuestions.length;
-    const percent = Math.round((currentNum / totalNum) * 100);
-    pText.innerText = `問題 ${currentNum} / ${totalNum}`;
-    pPercent.innerText = `${percent}%`;
-    pBar.style.width = `${percent}%`;
-
-    // 3. 根據題目類型生成對應輸入介面
-    inputContainer.innerHTML = '';
-    const prevAns = psqiAnswers[currentPsqiIndex];
-
-    if (qData.type === 'time' || qData.type === 'number') {
-        const inputType = qData.type === 'time' ? 'text' : 'number';
-        inputContainer.innerHTML = `
-            <input type="${inputType}" id="psqi-input-field" value="${prevAns !== null ? prevAns : ''}" 
-                   placeholder="${qData.placeholder}" 
-                   style="width: 100%; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
-        `;
-    } else if (qData.type === 'choice') {
-        const options = qData.customOptions || psqiDefaultOptions;
-        let html = `<div style="display: flex; flex-direction: column; gap: 12px;">`;
-        options.forEach((optText, idx) => {
-            const isChecked = prevAns === idx ? 'checked' : '';
-            html += `
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px; border: 1px solid #e0e0e0; border-radius: 6px; background: #f9f9f9;">
-                    <input type="radio" name="psqi-option" value="${idx}" ${isChecked}> 
-                    <span>${optText}</span>
-                </label>
-            `;
-        });
-        html += `</div>`;
-        inputContainer.innerHTML = html;
-    }
-
-    // 4. 控制按鈕
-    prevBtn.style.display = currentPsqiIndex > 0 ? 'inline-block' : 'none';
-    if (currentPsqiIndex === totalNum - 1) {
-        nextBtn.innerText = "🎉 完成評估";
-        nextBtn.style.background = "#2196F3";
-    } else {
-        nextBtn.innerText = "下一題 →";
-        nextBtn.style.background = "#3f51b5";
-    }
+function formatMinutes(total) {
+    return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
 }
 
-// 點擊「下一題 / 完成」
+function getPsqiAnswer(key) {
+    const idx = psqiQuestions.findIndex(q => q.key === key);
+    return idx >= 0 ? psqiAnswers[idx] : null;
+}
+
+// 躺在床上的時數（可跨午夜，例如 23:00 → 07:00 = 8 小時）
+function calcTimeInBedHours() {
+    const bed = parseClockToMinutes(getPsqiAnswer('bed'));
+    const wake = parseClockToMinutes(getPsqiAnswer('wake'));
+    if (bed === null || wake === null) return null;
+    let diff = wake - bed;
+    if (diff <= 0) diff += 1440;
+    return diff / 60;
+}
+
+// ---------- 計分：7 個成分，各 0~3，總分 0~21 ----------
+function calcPsqiScores() {
+    const a = k => getPsqiAnswer(k) || 0;
+    const band = (sum, [t1, t2]) => sum === 0 ? 0 : sum <= t1 ? 1 : sum <= t2 ? 2 : 3;
+
+    // C1 主觀睡眠品質：第 6 題
+    const quality = a('q6');
+
+    // C2 入睡時間：第 2 題（分鐘）分級 + 5a，兩者相加再分級
+    const latencyMin = a('latency');
+    const latencyScore = latencyMin <= 15 ? 0 : latencyMin <= 30 ? 1 : latencyMin <= 60 ? 2 : 3;
+    const latency = band(latencyScore + a('5a'), [2, 4]);
+
+    // C3 睡眠時數：第 4 題
+    const sleepHours = a('sleepHrs');
+    const duration = sleepHours >= 7 ? 0 : sleepHours >= 6 ? 1 : sleepHours >= 5 ? 2 : 3;
+
+    // C4 睡眠效率 = 實際睡眠時數 / 躺在床上時數 × 100%
+    const timeInBed = calcTimeInBedHours() || 0;
+    const efficiencyPct = timeInBed > 0 ? Math.min(100, (sleepHours / timeInBed) * 100) : 0;
+    const efficiency = efficiencyPct >= 85 ? 0 : efficiencyPct >= 75 ? 1 : efficiencyPct >= 65 ? 2 : 3;
+
+    // C5 睡眠困擾：5b ~ 5j 加總
+    const disturbSum = ['5b','5c','5d','5e','5f','5g','5h','5i','5j'].reduce((s, k) => s + a(k), 0);
+    const disturbance = band(disturbSum, [9, 18]);
+
+    // C6 助眠藥物：第 7 題
+    const medication = a('q7');
+
+    // C7 日間功能障礙：第 8 + 9 題
+    const daytime = band(a('q8') + a('q9'), [2, 4]);
+
+    const components = { quality, latency, duration, efficiency, disturbance, medication, daytime };
+    const total = Object.values(components).reduce((s, v) => s + v, 0);
+    return { total, components, efficiencyPct, timeInBed, sleepHours };
+}
+
+// ---------- 點擊「下一題 / 完成」（含輸入驗證） ----------
 function submitPsqiQuestion() {
     const qData = psqiQuestions[currentPsqiIndex];
+    const inputEl = document.getElementById('psqi-input-field');
     let answerVal = null;
 
-    if (qData.type === 'time' || qData.type === 'number') {
-        const inputEl = document.getElementById('psqi-input-field');
-        if (!inputEl || !inputEl.value.trim()) {
-            alert("請填寫此題答案後再進行下一題。");
+    if (qData.type === 'time') {
+        const mins = parseClockToMinutes(inputEl ? inputEl.value : '');
+        if (mins === null) {
+            alert("請輸入有效的時間（24 小時制），例如 23:30 或 07:00。");
             return;
         }
-        answerVal = inputEl.value.trim();
-    } else if (qData.type === 'choice') {
+        answerVal = formatMinutes(mins);
+    } else if (qData.type === 'number') {
+        const num = parseFloat(inputEl ? inputEl.value : '');
+        if (!isFinite(num) || num < 0 || num > qData.max) {
+            alert(`請輸入 0 ~ ${qData.max} 之間的數字。`);
+            return;
+        }
+        // 實際睡眠時數不應超過躺在床上的時數
+        if (qData.key === 'sleepHrs') {
+            const inBed = calcTimeInBedHours();
+            if (inBed !== null && num > inBed + 0.01) {
+                alert(`您填的實際睡眠（${num} 小時）超過躺在床上的時間（約 ${inBed.toFixed(1)} 小時）。\n請確認，或按「上一題」回頭修改上床／起床時間。`);
+                return;
+            }
+        }
+        answerVal = num;
+    } else {
         const selected = document.querySelector('input[name="psqi-option"]:checked');
         if (!selected) {
             alert("請先選擇一個程度選項。");
@@ -235,7 +240,6 @@ function submitPsqiQuestion() {
         answerVal = parseInt(selected.value);
     }
 
-    // 儲存答案
     psqiAnswers[currentPsqiIndex] = answerVal;
 
     if (currentPsqiIndex < psqiQuestions.length - 1) {
@@ -246,55 +250,56 @@ function submitPsqiQuestion() {
     }
 }
 
-// 上一題
-function prevPsqiQuestion() {
-    if (currentPsqiIndex > 0) {
-        currentPsqiIndex--;
-        renderPsqiQuestion();
-    }
-}
-
-// 計算 PSQI 總分與彈窗確認
+// ---------- 完成：顯示結果與存檔 ----------
 async function finishPsqiQuiz() {
-    // 簡單總分估計演算法（針對選擇題部分估算）
-    let choiceTotal = 0;
-    psqiQuestions.forEach((q, idx) => {
-        if (q.type === 'choice' && typeof psqiAnswers[idx] === 'number') {
-            choiceTotal += psqiAnswers[idx];
-        }
-    });
-
-    let qualityText = "";
-    if (choiceTotal <= 5) qualityText = "睡眠品質良好 (Good Sleep)";
-    else qualityText = "睡眠品質較佳/顯著困擾 (Poor Sleep)";
+    const r = calcPsqiScores();
+    const c = r.components;
+    const qualityText = r.total > 5
+        ? "睡眠品質不佳 (Poor Sleeper，總分 > 5)"
+        : "睡眠品質良好 (Good Sleeper，總分 ≤ 5)";
 
     const isConfirmed = confirm(
         `🌙 PSQI 睡眠品質評估已完成！\n\n` +
-        `填寫結果備註：\n` +
-        `• 入睡時間：約 ${psqiAnswers[0]}\n` +
-        `• 需入睡分鐘：${psqiAnswers[1]} 分鐘\n` +
-        `• 實際睡眠：${psqiAnswers[3]} 小時\n` +
-        `• 困擾指標估算：${choiceTotal} 分 (${qualityText})\n\n` +
+        `PSQI 總分：${r.total} / 21\n` +
+        `評估結果：${qualityText}\n\n` +
+        `七大成分（各 0~3 分）：\n` +
+        `・主觀睡眠品質：${c.quality}\n` +
+        `・入睡時間：${c.latency}\n` +
+        `・睡眠時數：${c.duration}\n` +
+        `・睡眠效率：${c.efficiency}\n` +
+        `・睡眠困擾：${c.disturbance}\n` +
+        `・助眠藥物：${c.medication}\n` +
+        `・日間功能障礙：${c.daytime}\n\n` +
+        `躺在床上約 ${r.timeInBed.toFixed(1)} 小時，實際睡眠 ${r.sleepHours} 小時，睡眠效率 ${r.efficiencyPct.toFixed(0)}%\n\n` +
+        `此量表為篩檢工具，不等同診斷。\n` +
         `點擊「確定」將睡眠評估紀錄寫入系統。`
     );
 
     if (isConfirmed) {
-        await savePsqiScoreToSupabase(choiceTotal, qualityText);
+        await savePsqiScoreToSupabase(r, qualityText);
         document.getElementById('psqi-quiz-card').style.display = 'none';
         document.getElementById('psqi-start-card').style.display = 'block';
     }
 }
 
-// 寫入 Supabase
-async function savePsqiScoreToSupabase(score, qualityText) {
+// ---------- 寫入 Supabase ----------
+// 注意：psqi_details 現在是物件（原本是答案陣列），舊資料與新資料的格式不同
+async function savePsqiScoreToSupabase(r, qualityText) {
     try {
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('headache_logs') // 或獨立表 'psqi_evaluations'
             .insert([{
                 user_id: window.appState?.userId || null,
-                psqi_score: score,
+                psqi_score: r.total,
                 psqi_result: qualityText,
-                psqi_details: psqiAnswers, // 備份 18 題完整的填寫資料 (JSON)
+                psqi_details: {
+                    version: 'v2',
+                    answers: psqiAnswers,
+                    components: r.components,
+                    sleep_efficiency_pct: Math.round(r.efficiencyPct * 10) / 10,
+                    time_in_bed_hours: Math.round(r.timeInBed * 10) / 10,
+                    sleep_hours: r.sleepHours
+                },
                 recorded_at: new Date().toISOString()
             }]);
 
