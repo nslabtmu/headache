@@ -487,33 +487,67 @@
     </div>
   </div><!-- quiz-psqi 結束 -->
 <!-- ==========================================
-   對應的 HTML 範例（放進你的頁面）
-   ==========================================  -->
-
-<div id="dhi-start-card">
-  <h3>🌀 眩暈評估量表 (DHI)</h3>
-  <p>共 25 題，約 5 分鐘。請依「最近的狀況」作答。</p>
-  <button onclick="startDhiQuiz()">開始評估</button>
+     🌀 DHI 眩暈障礙量表（搭配 dhi-quiz.js）
+     ========================================== -->
+<div id="dhi-start-card" class="card" style="padding: 20px;">
+    <h3 style="margin-bottom: 10px;">🌀 眩暈障礙量表 (DHI)</h3>
+    <p style="font-size: 14px; color: #666; margin-bottom: 20px;">共 25 題，約 5 分鐘。請依您最近的眩暈狀況，選擇「是」、「有時」或「否」。</p>
+    <button type="button" onclick="startDhiQuiz()" style="padding: 8px 20px; background: #3f51b5; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">開始評估</button>
 </div>
 
-<div id="dhi-quiz-card" style="display:none;">
-  <div style="display:flex; justify-content:space-between;">
-    <span id="dhi-progress-text"></span>
-    <span id="dhi-progress-percent"></span>
-  </div>
-  <div style="background:#e0e0e0; height:8px; border-radius:4px;">
-    <div id="dhi-progress-bar" style="height:100%; width:0; background:#3f51b5; border-radius:4px;"></div>
-  </div>
+<div id="dhi-quiz-card" class="card" style="display: none; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
+        <span id="dhi-progress-text">問題 1 / 25</span>
+        <span id="dhi-progress-percent">0%</span>
+    </div>
+    <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
+        <div id="dhi-progress-bar" style="width: 0%; background: #3f51b5; height: 100%; transition: width 0.3s;"></div>
+    </div>
+    <h3 id="dhi-question-title" style="margin-bottom: 20px; font-size: 18px;">題目載入中...</h3>
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+        <button type="button" class="dhi-option-btn" data-score="4" onclick="answerDhiQuestion(4)"
+            style="padding: 12px; text-align: left; border: 1px solid #e0e0e0; border-radius: 6px; background: #f9f9f9; cursor: pointer; font-size: 15px;">是（4 分）</button>
+        <button type="button" class="dhi-option-btn" data-score="2" onclick="answerDhiQuestion(2)"
+            style="padding: 12px; text-align: left; border: 1px solid #e0e0e0; border-radius: 6px; background: #f9f9f9; cursor: pointer; font-size: 15px;">有時（2 分）</button>
+        <button type="button" class="dhi-option-btn" data-score="0" onclick="answerDhiQuestion(0)"
+            style="padding: 12px; text-align: left; border: 1px solid #e0e0e0; border-radius: 6px; background: #f9f9f9; cursor: pointer; font-size: 15px;">否（0 分）</button>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" id="dhi-prev-btn" onclick="prevDhiQuestion()" style="display: none; padding: 8px 16px;">← 上一題</button>
+    </div>
+</div>
 
-  <h4 id="dhi-question-title"></h4>
+<!-- ==========================================
+     🛡️ PSS-I 創傷後壓力症狀量表（搭配 pssi-quiz.js）
+     ========================================== -->
+<div id="pssi-start-card" class="card" style="padding: 20px;">
+    <h3 style="margin-bottom: 10px;">🛡️ 創傷後壓力症狀量表 (PSS-I)</h3>
+    <p style="font-size: 14px; color: #666; margin-bottom: 20px;">共 17 題，請針對過去兩週與創傷事件相關的感受作答。此量表為篩檢工具，不等同診斷。</p>
+    <button type="button" onclick="startPssiQuiz()" style="padding: 8px 20px; background: #3f51b5; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">開始評估</button>
+</div>
 
-  <div style="display:flex; flex-direction:column; gap:10px;">
-    <button class="dhi-option-btn" data-score="4" onclick="answerDhiQuestion(4)">是 (4 分)</button>
-    <button class="dhi-option-btn" data-score="2" onclick="answerDhiQuestion(2)">有時 (2 分)</button>
-    <button class="dhi-option-btn" data-score="0" onclick="answerDhiQuestion(0)">否 (0 分)</button>
-  </div>
-
-  <!--<button id="dhi-prev-btn" onclick="prevDhiQuestion()" style="display:none;">← 上一題</button>-->
+<div id="pssi-quiz-card" class="card" style="display: none; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
+        <span id="pssi-progress-text">問題 1 / 17</span>
+        <span id="pssi-progress-percent">0%</span>
+    </div>
+    <div style="width: 100%; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
+        <div id="pssi-progress-bar" style="width: 0%; background: #3f51b5; height: 100%; transition: width 0.3s;"></div>
+    </div>
+    <h3 id="pssi-question-title" style="margin-bottom: 20px; font-size: 18px;">題目載入中...</h3>
+    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+        <button type="button" class="pssi-option-btn" data-score="0" onclick="answerPssiQuestion(0)"
+            style="padding: 12px; text-align: left; border: 1px solid #e0e0e0; border-radius: 6px; background: #f9f9f9; cursor: pointer; font-size: 15px;">0 - 完全沒有</button>
+        <button type="button" class="pssi-option-btn" data-score="1" onclick="answerPssiQuestion(1)"
+            style="padding: 12px; text-align: left; border: 1px solid #e0e0e0; border-radius: 6px; background: #f9f9f9; cursor: pointer; font-size: 15px;">1 - 每週 1 次以下 / 輕微</button>
+        <button type="button" class="pssi-option-btn" data-score="2" onclick="answerPssiQuestion(2)"
+            style="padding: 12px; text-align: left; border: 1px solid #e0e0e0; border-radius: 6px; background: #f9f9f9; cursor: pointer; font-size: 15px;">2 - 每週 2 ~ 4 次 / 中等</button>
+        <button type="button" class="pssi-option-btn" data-score="3" onclick="answerPssiQuestion(3)"
+            style="padding: 12px; text-align: left; border: 1px solid #e0e0e0; border-radius: 6px; background: #f9f9f9; cursor: pointer; font-size: 15px;">3 - 每週 5 次以上 / 非常嚴重</button>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" id="pssi-prev-btn" onclick="prevPssiQuestion()" style="display: none; padding: 8px 16px;">← 上一題</button>
+    </div>
 </div>
 
   <!-- 上一步 / 下一頁 -->
