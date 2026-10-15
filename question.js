@@ -28,9 +28,9 @@ const UI = {
     cutoff: c => T(`分數已達 ${c} 分以上的篩檢切點，建議尋求專業評估。`, `Your score is at or above the screening cutoff (${c}). Consider seeking a professional assessment.`),
     badTime: T('請輸入有效的時間（24 小時制），例如 23:30 或 07:00。', 'Please enter a valid time in 24-hour format, e.g. 23:30 or 07:00.'),
     badNum: m => T(`請輸入 0 ~ ${m} 之間的數字。`, `Please enter a number between 0 and ${m}.`),
-    noClient: T('找不到 Supabase client（請在 config.js 設定 window.supabaseClient）', 'Supabase client not found (set window.supabaseClient in config.js)')
+    noClient: T('找不到 Supabase client（請在 config.js 設定 window.supabaseClient）', 'Supabase client not found (set window.supabaseClient in config.js)'),
     viewScore: T('查看分數', 'View my score'),
-    doneMsg: T('您已完成此問卷，感謝作答。', 'You have answered all questions. Thank you.'),
+    doneMsg: T('您已完成此問卷，感謝作答。', 'You have answered all questions. Thank you.')
 };
 
 const HOTLINE = T(
