@@ -1106,3 +1106,376 @@ createLikertQuiz({
                  : t <= 14 ? "中度焦慮 (Moderate)"
                  : "重度焦慮 (Severe)"
 });
+//1015
+// ==========================================
+// 🧩 統一量表引擎
+// ==========================================
+const lbl = arr => arr.map((label, i) => ({ label, score: i })); // 索引即分數
+const PSQI_FREQ = ["過去一個月沒有發生 (0分)", "每週不到一次 (1分)", "每週一、兩次 (2分)", "每週三次以上 (3分)"];
+// 如果你原本的 psqiDefaultOptions 文字不同，把上面這行換成你的
+
+const OPT_STYLE = 'padding:12px; font-size:15px; text-align:left; cursor:pointer; border:1px solid #ccc; border-radius:6px; background:#fff;';
+const PRIMARY_STYLE = 'padding:8px 20px; background:#3f51b5; color:#fff; border:none; border-radius:4px; font-weight:bold; cursor:pointer;';
+
+const sumTo = (a, n) => a.slice(0, n).reduce((s, v) => s + (v || 0), 0);
+
+// ---------- PHQ-9 / GAD-7 共用工廠 ----------
+function likert({ name, icon, desc, questions, maxScore, cutoff, getLevel, crisisItem }) {
+    return {
+        name, icon, desc,
+        stem: "過去兩週，您有多常被以下問題困擾？",
+        items: questions.map((q, i) => ({ title: `${i + 1}. ${q}`, options: lbl(MENTAL_LIKERT_OPTIONS) })),
+        followUp: { title: MENTAL_FUNCTION_QUESTION, options: lbl(MENTAL_FUNCTION_OPTIONS) },
+        score(a) {
+            const total = sumTo(a, questions.length);
+            const fu = total > 0 ? (a[questions.length] ?? null) : null;
+            const lines = [];
+            if (total >= cutoff) lines.push(`分數已達 ${cutoff} 分以上的篩檢切點，建議尋求專業評估。`);
+            if (fu !== null) lines.push(`對日常生活的影響：${MENTAL_FUNCTION_OPTIONS[fu].slice(4)}`);
+            return {
+                total, max: maxScore, level: getLevel(total), lines,
+                crisis: crisisItem !== undefined && a[crisisItem] >= 1,
+                details: { functional_difficulty: fu }
+            };
+        }
+    };
+}
+
+// ---------- 量表註冊表（新增量表只要加一個項目） ----------
+const QUIZZES = {
+    phq9: likert({
+        name: 'PHQ-9 憂鬱', icon: '🌧️', desc: '共 9 題，評估過去兩週的憂鬱症狀。',
+        maxScore: 27, cutoff: 10, crisisItem: 8,
+        questions: [
+            "做事時提不起勁或沒有樂趣",
+            "感到心情低落、沮喪或絕望",
+            "入睡困難、睡不安穩或睡眠過多",
+            "覺得疲倦或沒有活力",
+            "食慾不振或吃太多",
+            "覺得自己很糟，或覺得自己很失敗，或讓自己或家人失望",
+            "對事物專注有困難，例如閱讀報紙或看電視時",
+            "動作或說話速度緩慢到別人已經察覺？或正好相反——煩躁或坐立不安、動來動去的情況比平常更嚴重",
+            "有不如死掉或用某種方式傷害自己的念頭"
+        ],
+        getLevel: t => t <= 4 ? "無或極輕微憂鬱 (Minimal)" : t <= 9 ? "輕度憂鬱 (Mild)"
+                     : t <= 14 ? "中度憂鬱 (Moderate)" : t <= 19 ? "中重度憂鬱 (Moderately Severe)" : "重度憂鬱 (Severe)"
+    }),
+
+    gad7: likert({
+        name: 'GAD-7 焦慮', icon: '😰', desc: '共 7 題，評估過去兩週的焦慮症狀。',
+        maxScore: 21, cutoff: 10,
+        questions: [
+            "感到緊張、焦慮或煩躁", "無法停止或控制擔憂", "對各種事情過度擔憂", "很難放鬆",
+            "坐立不安，難以靜坐", "變得容易生氣或煩躁", "感到害怕，好像有什麼可怕的事會發生"
+        ],
+        getLevel: t => t <= 4 ? "極輕微焦慮 (Minimal)" : t <= 9 ? "輕度焦慮 (Mild)"
+                     : t <= 14 ? "中度焦慮 (Moderate)" : "重度焦慮 (Severe)"
+    }),
+
+    bdi: {
+        name: 'BDI 憂鬱', icon: '📋', desc: '共 21 題，每題請選出最能描述您近兩週（含今天）心情的敘述。',
+        items: bdiQuestions.map(q => ({ title: q.title, options: lbl(q.options) })),
+        score(a) {
+            const total = sumTo(a, 21);
+            const level = total <= 13 ? "無或極輕微憂鬱狀況" : total <= 19 ? "輕度憂鬱狀況"
+                        : total <= 28 ? "中度憂鬱狀況" : "重度憂鬱狀況";
+            return { total, max: 63, level, lines: [], crisis: a[8] >= 1, details: {} };
+        }
+    },
+
+    bai: {
+        name: 'BAI 焦慮', icon: '📋', desc: '共 21 題，評估您近一週（含今天）受焦慮症狀困擾的程度。',
+        items: baiQuestions.map(t => ({
+            title: t,
+            options: lbl(["0 - 完全沒有", "1 - 輕度（不太受困擾）", "2 - 中度（相當受困擾）", "3 - 重度（非常受困擾）"])
+        })),
+        score(a) {
+            const total = sumTo(a, 21);
+            const level = total <= 7 ? "極輕微焦慮 (Minimal)" : total <= 15 ? "輕度焦慮 (Mild)"
+                        : total <= 25 ? "中度焦慮 (Moderate)" : "重度焦慮 (Severe)";
+            return { total, max: 63, level, lines: [], details: {} };
+        }
+    },
+
+    psqi: {
+        name: 'PSQI 睡眠', icon: '🌙', desc: '評估您過去一個月的睡眠品質與習慣，含入睡時間、睡眠時長與睡眠困擾。',
+        items: psqiQuestions.map(q => ({
+            key: q.key, type: q.type, title: q.title, desc: q.desc, placeholder: q.placeholder, max: q.max,
+            options: q.type === 'choice' ? lbl(q.customOptions || PSQI_FREQ) : null
+        })),
+        validate(item, val, a) {
+            psqiAnswers = a; // calcTimeInBedHours 讀這個全域陣列
+            if (item.key === 'sleepHrs') {
+                const inBed = calcTimeInBedHours();
+                if (inBed !== null && val > inBed + 0.01)
+                    return `您填的實際睡眠（${val} 小時）超過躺在床上的時間（約 ${inBed.toFixed(1)} 小時），請修正，或按「上一題」修改上床／起床時間。`;
+            }
+            return null;
+        },
+        score(a) {
+            psqiAnswers = a;
+            const r = calcPsqiScores(), c = r.components;
+            return {
+                total: r.total, max: 21,
+                level: r.total > 5 ? "睡眠品質不佳 (Poor Sleeper，總分 > 5)" : "睡眠品質良好 (Good Sleeper，總分 ≤ 5)",
+                lines: [
+                    `七大成分（各 0~3）：主觀品質 ${c.quality}｜入睡時間 ${c.latency}｜睡眠時數 ${c.duration}｜睡眠效率 ${c.efficiency}｜睡眠困擾 ${c.disturbance}｜助眠藥物 ${c.medication}｜日間功能 ${c.daytime}`,
+                    `躺在床上約 ${r.timeInBed.toFixed(1)} 小時，實際睡眠 ${r.sleepHours} 小時，睡眠效率 ${r.efficiencyPct.toFixed(0)}%`
+                ],
+                details: {
+                    version: 'v2', components: c,
+                    sleep_efficiency_pct: Math.round(r.efficiencyPct * 10) / 10,
+                    time_in_bed_hours: Math.round(r.timeInBed * 10) / 10,
+                    sleep_hours: r.sleepHours
+                }
+            };
+        }
+    },
+
+    dhi: {
+        name: 'DHI 眩暈', icon: '🌀', desc: '共 25 題，約 5 分鐘。請依您最近的眩暈狀況作答。',
+        items: dhiQuestions.map(q => ({
+            title: q.text,
+            options: [{ label: "是（4 分）", score: 4 }, { label: "有時（2 分）", score: 2 }, { label: "否（0 分）", score: 0 }]
+        })),
+        score(a) {
+            const sub = { P: 0, F: 0, E: 0 };
+            dhiQuestions.forEach((q, i) => { sub[q.cat] += a[i] || 0; });
+            const total = sub.P + sub.F + sub.E;
+            const level = total <= 30 ? "輕度障礙 (Mild)" : total <= 60 ? "中度障礙 (Moderate)" : "重度障礙 (Severe)";
+            return {
+                total, max: 100, level,
+                lines: [`生理 (P)：${sub.P} / 28｜功能 (F)：${sub.F} / 36｜情緒 (E)：${sub.E} / 36`],
+                details: { physical: sub.P, functional: sub.F, emotional: sub.E }
+            };
+        }
+    },
+
+    pssi: {
+        name: 'PSS-I 創傷', icon: '🛡️',
+        desc: '共 17 題，請針對過去兩週與創傷事件相關的感受作答。',
+        noteLabel: '請先想一件讓您感到嚴重創傷的事件，可簡短寫下事件類型（選填，可留白）',
+        items: pssiQuestions.map(q => ({ title: q.text, options: lbl(pssiOptions) })),
+        score(a) {
+            const sub = { B: 0, C: 0, D: 0 };
+            pssiQuestions.forEach((q, i) => { sub[q.cat] += a[i] || 0; });
+            const total = sub.B + sub.C + sub.D;
+            return {
+                total, max: 51,
+                level: total >= PSSI_CUTOFF ? `達篩檢切點 (≥ ${PSSI_CUTOFF})，建議尋求專業評估` : `未達篩檢切點 (< ${PSSI_CUTOFF})`,
+                lines: [`重新經驗 (B)：${sub.B} / 15｜逃避與麻木 (C)：${sub.C} / 21｜過度警覺 (D)：${sub.D} / 15`],
+                details: { reexperiencing: sub.B, avoidance: sub.C, arousal: sub.D, trauma_note: Q ? Q.note : '' }
+            };
+        }
+    }
+};
+
+// ---------- 狀態與外框 ----------
+let Q = null; // { key, cfg, idx, answers, note, result }
+const rootEl = () => document.getElementById('quiz-root');
+const curItem = () => Q.idx < Q.cfg.items.length ? Q.cfg.items[Q.idx] : Q.cfg.followUp;
+
+function buildPicker() {
+    document.getElementById('quiz-picker').innerHTML = Object.entries(QUIZZES).map(([k, c]) =>
+        `<button type="button" class="btn" data-quiz-btn="${k}" onclick="openQuiz('${k}')">${c.name}</button>`
+    ).join('');
+}
+
+function highlightPicker() {
+    document.querySelectorAll('[data-quiz-btn]').forEach(b => {
+        const on = Q && Q.key === b.dataset.quizBtn;
+        b.style.background = on ? '#3f51b5' : '';
+        b.style.color = on ? '#fff' : '';
+    });
+}
+
+function openQuiz(key) {
+    if (Q && Q.key === key) return closeQuiz(); // 再點一次 → 收起
+    Q = { key, cfg: QUIZZES[key], idx: 0, answers: [], note: '', result: null };
+    renderIntro();
+    highlightPicker();
+}
+
+function closeQuiz() {
+    Q = null;
+    rootEl().innerHTML = '';
+    rootEl().style.display = 'none';
+    highlightPicker();
+}
+
+// ---------- 畫面 ----------
+function renderIntro() {
+    const c = Q.cfg;
+    rootEl().style.display = 'block';
+    rootEl().innerHTML = `
+    <div class="card" style="padding:20px; text-align:center;">
+        <h3>${c.icon} ${c.name}</h3>
+        <p style="font-size:14px; color:#666;">${c.desc}</p>
+        ${c.noteLabel ? `<textarea id="quiz-note" rows="2" placeholder="${c.noteLabel}" style="width:100%; margin:8px 0; box-sizing:border-box;"></textarea>` : ''}
+        <button type="button" onclick="quizStart()" style="${PRIMARY_STYLE}">開始評估</button>
+        <button type="button" onclick="closeQuiz()" style="padding:8px 16px; margin-left:8px;">取消</button>
+    </div>`;
+}
+
+function quizStart() {
+    const note = document.getElementById('quiz-note');
+    Q.note = note ? note.value.trim() : '';
+    Q.idx = 0;
+    Q.answers = [];
+    renderQuestion();
+}
+
+function renderQuestion() {
+    const { cfg, idx, answers } = Q;
+    const n = cfg.items.length;
+    const item = curItem();
+    const isFollow = idx >= n;
+    const pct = isFollow ? 100 : Math.round(((idx + 1) / n) * 100);
+    const cur = answers[idx];
+    const isLast = idx === n - 1 && !cfg.followUp;
+
+    let body;
+    if (item.type === 'time' || item.type === 'number') {
+        body = `
+        <input id="quiz-input" type="text" inputmode="${item.type === 'number' ? 'decimal' : 'text'}"
+            placeholder="${item.placeholder || ''}" value="${cur ?? ''}"
+            onkeydown="if(event.key==='Enter') quizSubmitInput()"
+            style="width:100%; padding:10px; font-size:16px; box-sizing:border-box;">
+        <div style="margin-top:12px; text-align:right;">
+            <button type="button" onclick="quizSubmitInput()" style="${PRIMARY_STYLE}">${isLast ? '完成' : '下一題 →'}</button>
+        </div>`;
+    } else {
+        body = `<div style="display:flex; flex-direction:column; gap:10px;">` +
+            item.options.map(o =>
+                `<button type="button" onclick="quizAnswer(${o.score})" style="${OPT_STYLE}${cur === o.score ? ' outline:3px solid #3f51b5;' : ''}">${o.label}</button>`
+            ).join('') + `</div>`;
+    }
+
+    rootEl().style.display = 'block';
+    rootEl().innerHTML = `
+    <div class="card" style="padding:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:14px; margin-bottom:8px;">
+            <span>${cfg.icon} ${cfg.name}　${isFollow ? '補充題' : `問題 ${idx + 1} / ${n}`}</span>
+            <span>${pct}% <button type="button" onclick="closeQuiz()" title="關閉" style="border:none; background:none; cursor:pointer; font-size:16px;">✕</button></span>
+        </div>
+        <div style="width:100%; background:#e0e0e0; height:8px; border-radius:4px; overflow:hidden; margin-bottom:20px;">
+            <div style="width:${pct}%; background:#3f51b5; height:100%; transition:width .3s;"></div>
+        </div>
+        ${!isFollow && cfg.stem ? `<p style="font-size:13px; color:#666; margin-bottom:8px;">${cfg.stem}</p>` : ''}
+        <h3 style="margin-bottom:${item.desc ? 6 : 20}px; font-size:18px;">${item.title}</h3>
+        ${item.desc ? `<p style="font-size:13px; color:#666; margin-bottom:16px;">${item.desc}</p>` : ''}
+        ${body}
+        <div id="quiz-msg" style="color:#c62828; font-size:13px; margin-top:10px;"></div>
+        <div style="margin-top:16px;">
+            ${idx > 0 ? `<button type="button" onclick="quizPrev()" style="padding:6px 12px;">← 上一題</button>` : ''}
+        </div>
+    </div>`;
+
+    const input = document.getElementById('quiz-input');
+    if (input) input.focus();
+}
+
+const quizToast = m => { const el = document.getElementById('quiz-msg'); if (el) el.textContent = m; };
+
+// ---------- 作答流程 ----------
+function quizAnswer(score) {
+    Q.answers[Q.idx] = score;
+    quizNext();
+}
+
+function quizSubmitInput() {
+    const item = curItem();
+    const raw = document.getElementById('quiz-input').value;
+    let val;
+
+    if (item.type === 'time') {
+        const m = parseClockToMinutes(raw);
+        if (m === null) return quizToast("請輸入有效的時間（24 小時制），例如 23:30 或 07:00。");
+        val = formatMinutes(m);
+    } else {
+        const num = parseFloat(raw);
+        if (!isFinite(num) || num < 0 || num > item.max) return quizToast(`請輸入 0 ~ ${item.max} 之間的數字。`);
+        val = num;
+    }
+
+    const old = Q.answers[Q.idx];
+    Q.answers[Q.idx] = val;
+    const err = Q.cfg.validate ? Q.cfg.validate(item, val, Q.answers) : null;
+    if (err) { Q.answers[Q.idx] = old; return quizToast(err); }
+    quizNext();
+}
+
+function quizNext() {
+    const n = Q.cfg.items.length;
+    if (Q.idx < n - 1) {
+        Q.idx++;
+    } else if (Q.idx === n - 1 && Q.cfg.followUp && sumTo(Q.answers, n) > 0) {
+        Q.idx = n; // 補充題（總分 > 0 才出現）
+    } else {
+        return quizFinish();
+    }
+    renderQuestion();
+}
+
+function quizPrev() {
+    if (Q.idx > 0) { Q.idx--; renderQuestion(); }
+}
+
+// ---------- 結果與存檔 ----------
+function quizFinish() {
+    const r = Q.cfg.score(Q.answers);
+    Q.result = r;
+    rootEl().innerHTML = `
+    <div class="card" style="padding:20px; text-align:center;">
+        <h3>${Q.cfg.icon} ${Q.cfg.name} 評估已完成</h3>
+        <p style="font-size:34px; font-weight:bold; margin:8px 0;">${r.total} <span style="font-size:16px; color:#666;">/ ${r.max}</span></p>
+        <p>評估結果：<b>${r.level}</b></p>
+        ${(r.lines || []).map(l => `<p style="font-size:14px; color:#444;">${l}</p>`).join('')}
+        ${r.crisis ? `<p style="white-space:pre-wrap; text-align:left; color:#b71c1c; background:#fdecea; padding:12px; border-radius:6px; font-size:14px;">${CRISIS_NOTICE.trim()}</p>` : ''}
+        <p style="font-size:12px; color:#888;">此量表為篩檢工具，不等同診斷。</p>
+        <div id="quiz-msg" style="font-size:13px; margin:10px 0; min-height:18px;"></div>
+        <button type="button" id="quiz-save-btn" onclick="quizSave()" style="${PRIMARY_STYLE}">儲存紀錄</button>
+        <button type="button" onclick="openQuizAgain()" style="padding:8px 16px; margin-left:8px;">重新作答</button>
+        <button type="button" onclick="closeQuiz()" style="padding:8px 16px; margin-left:8px;">關閉</button>
+    </div>`;
+}
+
+function openQuizAgain() {
+    const key = Q.key;
+    Q = null;
+    openQuiz(key);
+}
+
+async function quizSave() {
+    const btn = document.getElementById('quiz-save-btn');
+    const msg = document.getElementById('quiz-msg');
+    const r = Q.result;
+    btn.disabled = true;
+    msg.style.color = '#666';
+    msg.textContent = '儲存中…';
+
+    try {
+        const { error } = await supabase.from('quiz_results').insert([{
+            user_id: window.appState?.userId ?? undefined, // 沒有就交給資料庫的 default auth.uid()
+            quiz: Q.key,
+            total_score: r.total,
+            level: r.level,
+            details: r.details || {},
+            answers: Q.answers,
+            created_at: new Date().toISOString()
+        }]);
+        if (error) throw error;
+        msg.style.color = '#2e7d32';
+        msg.textContent = '✅ 已成功儲存';
+        btn.textContent = '已儲存'; // 保持 disabled，避免重複寫入
+    } catch (err) {
+        console.error(`❌ ${Q.cfg.name} 存檔失敗：`, err);
+        msg.style.color = '#c62828';
+        msg.textContent = `儲存失敗：${err.message || err}${err.code ? `（${err.code}）` : ''}`;
+        btn.disabled = false;
+    }
+}
+
+// 初始化
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', buildPicker);
+else buildPicker();
