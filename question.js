@@ -505,8 +505,11 @@ function renderQuestion(root) {
     let body;
     if (type === 'choice') {
         const opts = q.options || cfg.options;
-        body = `<div style="display:flex; flex-direction:column; gap:10px;">` + opts.map(o =>
-            `<button type="button" onclick="Quiz.pick(${o.score})" style="${STYLE.opt}${cur === o.score ? ' outline:3px solid #3f51b5;' : ''}">${esc(tx(o.label))}</button>`).join('') + `</div>`;
+            body = `<div style="display:flex; flex-direction:column; gap:10px;">` + opts.map(o => {
+            const on = cur === o.score;
+            return `<button type="button" data-score="${o.score}" onclick="Quiz.pick(${o.score})"
+                style="${STYLE.opt}${on ? ' background:#3f51b5; color:#fff; border-color:#3f51b5;' : ''}">${esc(tx(o.label))}</button>`;
+                }).join('') + `</div>`;
     } else {
         body = `
         <input id="quiz-input" type="text" inputmode="${type === 'number' ? 'decimal' : 'text'}" placeholder="${esc(tx(q.placeholder || ''))}"
@@ -544,8 +547,26 @@ function advance() {
     const qs = visible();
     if (Q.idx < qs.length - 1) { Q.idx++; render(); } else finish();
 }
-function pick(score) { Q.answers[visible()[Q.idx].key] = score; advance(); }
-function prev() { if (Q.idx > 0) { Q.idx--; render(); } }
+let locked = false;
+function pick(score) {
+    if (locked) return;
+    const ref = Q, idx = Q.idx;
+    ref.answers[visible()[idx].key] = score;
+    locked = true;
+
+    document.querySelectorAll('#quiz-root [data-score]').forEach(b => {
+        const on = +b.dataset.score === score;
+        b.style.background = on ? '#3f51b5' : '#fff';
+        b.style.color = on ? '#fff' : '';
+        b.style.borderColor = on ? '#3f51b5' : '#ccc';
+    });
+
+    setTimeout(() => {
+        locked = false;
+        if (Q === ref && Q.idx === idx) advance();   // 這段時間內若關閉或換題就不動作
+    }, 250);
+}
+function prev() { if (!locked && Q.idx > 0) { Q.idx--; render(); } }
 function skip() { delete Q.answers[visible()[Q.idx].key]; advance(); }
 
 function submit() {
@@ -627,15 +648,19 @@ async function save() {
     try {
         const db = getDb();
         if (!db) throw new Error(tx(UI.noClient));
+
+        const { data: { session } } = await db.auth.getSession();
+        if (!session) throw new Error(lang() === 'en' ? 'Please sign in first.' : '請先登入後再儲存。');
+
         const r = q.result;
         const { error } = await db.from('quiz_results').insert([{
-            user_id: window.appState?.userId ?? undefined, // 沒有就交給資料庫 default auth.uid()
+            user_id: session.user.id,          // 一定等於 auth.uid()
             quiz: q.cfg.id,
             total_score: r.total,
             level: r.level.zh,
             details: { ...(r.extra || {}), level_en: r.level.en, lang: lang(), max: r.max },
-            answers: q.answers,
-            created_at: new Date().toISOString()
+            answers: q.answers
+            // created_at 交給資料庫 default now()，避免用客戶端時間
         }]);
         if (error) throw error;
         q.saveState = 'saved';
