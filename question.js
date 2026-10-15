@@ -29,6 +29,8 @@ const UI = {
     badTime: T('請輸入有效的時間（24 小時制），例如 23:30 或 07:00。', 'Please enter a valid time in 24-hour format, e.g. 23:30 or 07:00.'),
     badNum: m => T(`請輸入 0 ~ ${m} 之間的數字。`, `Please enter a number between 0 and ${m}.`),
     noClient: T('找不到 Supabase client（請在 config.js 設定 window.supabaseClient）', 'Supabase client not found (set window.supabaseClient in config.js)')
+    viewScore: T('查看分數', 'View my score'),
+    doneMsg: T('您已完成此問卷，感謝作答。', 'You have answered all questions. Thank you.'),
 };
 
 const HOTLINE = T(
@@ -474,7 +476,7 @@ function render() {
     if (!root) return;
     if (!Q) { root.innerHTML = ''; root.style.display = 'none'; return; }
     root.style.display = 'block';
-    ({ intro: renderIntro, question: renderQuestion, result: renderResult })[Q.view](root);
+    ({ intro: renderIntro, question: renderQuestion, done: renderDone, result: renderResult })[Q.view](root);
 }
 
 function renderIntro(root) {
@@ -605,7 +607,7 @@ function finish() {
         if (q.cat) byCat[q.cat] = (byCat[q.cat] || 0) + v;
     });
     Q.result = Q.cfg.score(Q.answers, { total, byCat });
-    Q.view = 'result';
+    Q.view = 'done';
     render();
     save(); // ← 自動存檔
 }
@@ -621,11 +623,8 @@ function statusHTML() {
 function updateStatus() { const e = el('quiz-save-status'); if (e && Q) e.innerHTML = statusHTML(); }
 
 function renderResult(root) {
-    const { cfg, result: r, answers } = Q;
-    let crisis = '';
-    if (cfg.crisis && (answers[cfg.crisis.key] || 0) >= cfg.crisis.min) {
-        crisis = `<p style="white-space:pre-wrap; text-align:left; color:#b71c1c; background:#fdecea; padding:12px; border-radius:6px; font-size:14px;">${esc(tx(cfg.crisis.text(answers[cfg.crisis.key])))}\n\n${esc(tx(HOTLINE))}</p>`;
-    }
+    const { cfg, result: r } = Q;
+    const crisis = crisisHTML();
     root.innerHTML = `
     <div class="card" style="padding:20px; text-align:center;">
         <h3>${cfg.icon} ${esc(tx(cfg.name))} — ${tx(UI.done)}</h3>
@@ -671,15 +670,33 @@ async function save() {
     }
     if (Q === q) updateStatus();
 }
+function crisisHTML() {
+    const { cfg, answers } = Q;
+    if (!(cfg.crisis && (answers[cfg.crisis.key] || 0) >= cfg.crisis.min)) return '';
+    return `<p style="white-space:pre-wrap; text-align:left; color:#b71c1c; background:#fdecea; padding:12px; border-radius:6px; font-size:14px;">${esc(tx(cfg.crisis.text(answers[cfg.crisis.key])))}\n\n${esc(tx(HOTLINE))}</p>`;
+}
 
+function renderDone(root) {
+    const { cfg } = Q;
+    root.innerHTML = `
+    <div class="card" style="padding:20px; text-align:center;">
+        <h3>${cfg.icon} ${esc(tx(cfg.name))} — ${tx(UI.done)}</h3>
+        <p style="font-size:15px; color:#555; margin:12px 0;">${tx(UI.doneMsg)}</p>
+        ${crisisHTML()}
+        <div id="quiz-save-status" style="font-size:13px; margin:10px 0; min-height:18px;">${statusHTML()}</div>
+        <button type="button" onclick="Quiz.showResult()" style="${STYLE.primary}">${tx(UI.viewScore)}</button>
+        <button type="button" onclick="Quiz.close()" style="${STYLE.plain} margin-left:8px;">${tx(UI.close)}</button>
+    </div>`;
+}
+
+function showResult() { if (Q && Q.result) { Q.view = 'result'; render(); } }
 // ---------- 語言切換時即時重繪 ----------
 function refreshLang() { buildPicker(); if (Q) render(); }
 document.addEventListener('click', e => {
     if (e.target.closest && e.target.closest('.lang-btn[data-lang]')) setTimeout(refreshLang, 80);
 });
 
-window.Quiz = { open, close, start, pick, submit, skip, prev, retake, retry: () => save(), refreshLang };
-
+window.Quiz = { open, close, start, pick, submit, skip, prev, retake, retry: () => save(), showResult, refreshLang };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', buildPicker);
 else buildPicker();
 
