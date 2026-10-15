@@ -658,7 +658,8 @@ async function save() {
             total_score: r.total,
             level: r.level.zh,
             details: { ...(r.extra || {}), level_en: r.level.en, lang: lang(), max: r.max },
-            answers: q.answers
+            answers: q.answers,
+            user_email: window.appState?.email   
             // created_at 交給資料庫 default now()，避免用客戶端時間
         }]);
         if (error) throw error;
