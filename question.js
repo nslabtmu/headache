@@ -471,17 +471,14 @@ function close() { Q = null; render(); highlight(); }
 function retake() { const id = Q.cfg.id; Q = null; open(id); }
 function start() { Q.answers = {}; Q.idx = 0; Q.view = 'question'; render(); }
 
-function render1016() {
+function render() {
     const root = el('quiz-root');
     if (!root) return;
     if (!Q) { root.innerHTML = ''; root.style.display = 'none'; return; }
     root.style.display = 'block';
     ({ intro: renderIntro, question: renderQuestion, done: renderDone, result: renderResult })[Q.view](root);
 }
-function render() {
-  renderChart();
-  window.myCalendar?.refetchEvents();
-}
+
 function renderIntro(root) {
     const c = Q.cfg;
     root.innerHTML = `
