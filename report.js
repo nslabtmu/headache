@@ -75,7 +75,7 @@ function buildReportHtml(records, chartImg, userEmail) {
   }).join('');
 
   // 問卷（取最新一筆有值的）
-  const qRows = Object.keys(QUESTIONNAIRE_GETTERS).map(name => {
+ /* const qRows = Object.keys(QUESTIONNAIRE_GETTERS).map(name => {
     const hit = [...records].reverse().find(r => {
       const v = QUESTIONNAIRE_GETTERS[name](r);
       return v !== undefined && v !== null && v !== '';
@@ -84,8 +84,13 @@ function buildReportHtml(records, chartImg, userEmail) {
     const v = QUESTIONNAIRE_GETTERS[name](hit);
     return `<tr><td>${name}</td><td>${rptEsc(v)}</td><td>${rptInterpret(name, v)}</td>` +
            `<td>${hit.created_at.split('T')[0]}</td></tr>`;
-  }).join('');
-
+  }).join('');*/
+const latest = window.QuizTrend?.latest() || {};
+const qRows = Object.values(latest).map(r =>
+  `<tr><td>${rptEsc(r.name)}</td><td>${r.total} / ${r.max}</td>` +
+  `<td>${rptEsc(r.level)}</td><td>${r.date}</td></tr>`).join('')
+  || '<tr><td colspan="4">無資料</td></tr>';
+  
   // 逐日明細
   const detailRows = records.map(r => {
     const h = r.headache_data || {}, w = r.weather_data || {};
