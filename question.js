@@ -664,6 +664,7 @@ async function save() {
         }]);
         if (error) throw error;
         q.saveState = 'saved';
+        window.QuizTrend?.load();
     } catch (err) {
         console.error(`❌ ${q.cfg.id} 存檔失敗：`, err);
         q.saveState = 'error';
