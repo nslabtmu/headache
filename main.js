@@ -961,7 +961,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     extendedProps: record
                 };
             });
-            successCallback(events);
+            const quizEvents = window.QuizTrend ? window.QuizTrend.events() : [];
+            successCallback([...events, ...quizEvents]);
         },
         // 👆 點擊月曆某一天時彈跳出該日資料
 dateClick: function(info) {
