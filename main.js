@@ -295,6 +295,7 @@ function showMainApp(user) {
     loadUserProfile(user.id);
     loadUserHistory(user.id);
     setupRealtimeListener(user.id);   // ✅ 加這行，用真實 user.id
+    window.QuizTrend?.load();
 }
 async function loadCalendarRecords(userId) {
     const { data, error } = await supabase
@@ -975,6 +976,9 @@ dateClick: function(info) {
                 return; // 直接中斷，不執行後續動作
             }
             // 檢查這一天是否有紀錄
+            const quizToday = (window.QuizTrend?.byDate()[clickedDate]) || [];
+            const quizText = quizToday.map(r =>
+            `🧠 ${r.name}：${r.total}/${r.max}（${window.QuizTrend.labelOf(r)}）`).join('\n');
             const matchedRecord = (window.allUserRecords || []).find(r => {
                 const rDate = r.created_at ? r.created_at.split('T')[0] : '';
                 return rDate === clickedDate;
@@ -989,8 +993,11 @@ dateClick: function(info) {
                       `🔥 疼痛指數：${hData.pain_score} / 10\n` +
                       `📍 痛點部位：${(hData.locations || []).join(', ') || '未記錄'}\n` +
                       `💊 服藥狀況：${hData.medication_used ? '有 (' + (hData.medication_name || '未填藥名') + ')' : '無'}\n` +
-                      `🌡️ 當時氣壓：${wData.pressure || '無'} hPa`);
-            } else {
+                      `🌡️ 當時氣壓：${wData.pressure || '無'} hPa`+ (quizText ? `\n\n${quizText}` : '')
+                     );
+                    } else if (quizText) {
+                        alert(`📅 ${clickedDate}\n${quizText}\n\n這天尚無頭痛紀錄。`);
+                    } else {
                 // 📅 狀況 B：這天沒有記錄，詢問是否要補填
             const confirmAdd = confirm(`📅 日期 ${clickedDate}\n這天尚無頭痛紀錄，是否要切換至填寫頁面進行補填？`);
             if (confirmAdd) {
