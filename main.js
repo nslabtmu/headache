@@ -819,13 +819,40 @@ function switchMainTab(name) {
   document.querySelectorAll('.top-tab').forEach(b =>
     b.classList.toggle('active', b.dataset.main === name));
 }
-function switchLevel2Tab(name) {
+function switchLevel2Tab1015(name) {
   document.querySelectorAll('.l2-pane').forEach(p => p.style.display = 'none');
   document.getElementById('l2-' + name).style.display = 'block';
   document.querySelectorAll('.level2-tab').forEach(b =>
     b.classList.toggle('active', b.dataset.l2 === name));
   if (name === 'trend' && window.myCalendar) calendar.render(); // 月曆隱藏時需重繪
 }
+function switchLevel2Tab(name) {
+  document.querySelectorAll('.l2-pane').forEach(p => p.style.display = 'none');
+  document.getElementById('l2-' + name).style.display = 'block';
+  document.querySelectorAll('.level2-tab').forEach(b =>
+    b.classList.toggle('active', b.dataset.l2 === name));
+  if (name === 'trend') {
+    window.myCalendar?.render();      // 原本寫成 calendar.render()
+    window.myCalendar?.updateSize();
+    window.QuizTrend?.load();         // 切到趨勢頁時重新讀取量表
+  }
+function db() {
+  const c = window.supabaseClient || window.sb || window.db || window.supabase;
+  return (c && typeof c.from === 'function') ? c : null;
+}
+
+function events() {
+  return rows.map(r => ({
+    title: `🧠 ${NAMES[r.quiz] || r.quiz} ${r.total}`,
+    start: r.date,
+    allDay: true,
+    color: COLOR[r.sev],
+    extendedProps: { isQuiz: true, quiz: r.quiz, total: r.total, max: r.max, sev: r.sev }
+  }));
+}
+function labelOf(sev) { return LABEL[isEn() ? 'en' : 'zh'][sev]; }
+
+
 function switchTab(id) { // 只管第三層
   document.querySelectorAll('#attack-form .tab-pane').forEach(p =>
     p.classList.toggle('active', p.id === id));
