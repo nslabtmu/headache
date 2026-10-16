@@ -835,7 +835,7 @@ function switchLevel2Tab(name) {
     window.myCalendar?.render();      // 原本寫成 calendar.render()
     window.myCalendar?.updateSize();
     window.QuizTrend?.load();         // 切到趨勢頁時重新讀取量表
-  }
+  }}
 function db() {
   const c = window.supabaseClient || window.sb || window.db || window.supabase;
   return (c && typeof c.from === 'function') ? c : null;
