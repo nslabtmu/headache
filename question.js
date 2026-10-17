@@ -515,7 +515,7 @@ function renderQuestion(root) {
     } else {
         body = `
         <input id="quiz-input" type="text" inputmode="${type === 'number' ? 'decimal' : 'text'}" placeholder="${esc(tx(q.placeholder || ''))}"
-            value="${esc(cur ?? '')}" onkeydown="if(event.key==='Enter') Quiz.submit()"
+            value="${esc(cur ?? '')}" onkeydown="if(event.key==='Enter'){event.preventDefault();Quiz.submit();}"
             style="width:100%; padding:10px; font-size:16px; box-sizing:border-box;">
         <div style="margin-top:12px; text-align:right;">
             ${q.required === false ? `<button type="button" onclick="Quiz.skip()" style="${STYLE.plain} margin-right:8px;">${tx(UI.skip)}</button>` : ''}
