@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const now = new Date();
     // 格式化成 YYYY-MM-DD
-    const todayStr = now.toISOString().split('T')[0];
+    const todayStr = now.toLocaleDateString('sv-SE');
     // 格式化成 HH:MM
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -160,7 +160,7 @@ if (targetIndex >= 0 && targetIndex < pageOrder.length) {
     }
 }
 
-function toggleLanguage() {
+/*function toggleLanguage() {
     currentLang = (currentLang === 'zh-TW') ? 'en' : 'zh-TW';
     document.documentElement.lang = currentLang;
     
@@ -173,7 +173,7 @@ function toggleLanguage() {
             }
         });
     }
-}
+} toggleLanguage*/
 
 // ==================== 身份驗證與頁面跳轉 ====================
 function agreeConsent() {
@@ -183,45 +183,8 @@ function agreeConsent() {
     document.getElementById('consent-card')?.classList.add('hidden');
     document.getElementById('auth-card')?.classList.remove('hidden');
 }
-/*function agreeConsent() {
-    // 1. 先暫存在瀏覽器，代表這個人已經點過同意了
-    localStorage.setItem('has_agreed', 'true');
 
-    // 2. 切換畫面：隱藏同意書，顯示登入卡片
-    const consentCard = document.getElementById('consent-card');
-    const authCard = document.getElementById('auth-card');
-    if (consentCard) consentCard.classList.add('hidden');
-    if (authCard) authCard.classList.remove('hidden');
 
-    console.log('✅ 已記錄暫存同意狀態');
-}*/
-
-// 假設這是你登入成功後取得 user 物件的地方
-/*async function handleLoginSuccess(user) {
-    try {
-        // 檢查瀏覽器有沒有剛剛暫存的同意狀態
-        const hasAgreedLocal = localStorage.getItem('has_agreed');
-
-        if (hasAgreedLocal === 'true') {
-            // 將同意紀錄正式寫入 Supabase 的同意書 Table
-            const { error } = await supabase
-                .from('consents_records') // ⬅️ 換成你的同意書 Table 名稱
-                .upsert({
-                    user_id: user.id,          // 帶入登入後的真實 user.id
-                    agreed: true,
-                    agreed_at: new Date().toISOString()
-                });
-
-            if (error) throw error;
-
-            // 寫入 Supabase 成功後，就可以把瀏覽器的暫存清掉了
-            localStorage.removeItem('has_agreed');
-            console.log('✅ 同意書已成功連動並寫入 Supabase！');
-        }
-    } catch (error) {
-        console.error('❌ 同步同意書到資料庫失敗：', error);
-    }
-}*/
 async function handleLoginSuccess(user) {
     try {
         if (localStorage.getItem('has_agreed') !== 'true') return;
@@ -820,13 +783,7 @@ function switchMainTab(name) {
   document.querySelectorAll('.top-tab').forEach(b =>
     b.classList.toggle('active', b.dataset.main === name));
 }
-function switchLevel2Tab1015(name) {
-  document.querySelectorAll('.l2-pane').forEach(p => p.style.display = 'none');
-  document.getElementById('l2-' + name).style.display = 'block';
-  document.querySelectorAll('.level2-tab').forEach(b =>
-    b.classList.toggle('active', b.dataset.l2 === name));
-  if (name === 'trend' && window.myCalendar) calendar.render(); // 月曆隱藏時需重繪
-}
+
 function switchLevel2Tab(name) {
   document.querySelectorAll('.l2-pane').forEach(p => p.style.display = 'none');
   document.getElementById('l2-' + name).style.display = 'block';
@@ -837,22 +794,6 @@ function switchLevel2Tab(name) {
     window.myCalendar?.updateSize();
     window.QuizTrend?.load();         // 切到趨勢頁時重新讀取量表
   }}
-function db() {
-  const c = window.supabaseClient || window.sb || window.db || window.supabase;
-  return (c && typeof c.from === 'function') ? c : null;
-}
-
-function events() {
-  return rows.map(r => ({
-    title: `🧠 ${NAMES[r.quiz] || r.quiz} ${r.total}`,
-    start: r.date,
-    allDay: true,
-    color: COLOR[r.sev],
-    extendedProps: { isQuiz: true, quiz: r.quiz, total: r.total, max: r.max, sev: r.sev }
-  }));
-}
-function labelOf(sev) { return LABEL[isEn() ? 'en' : 'zh'][sev]; }
-
 
 function switchTab(id) { // 只管第三層
   document.querySelectorAll('#attack-form .tab-pane').forEach(p =>
@@ -952,7 +893,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (score >= 7) color = '#ff6b6b';      // 紅色（重度）
                 else if (score >= 4) color = '#ffd43b'; // 黃色（中度）
 
-                const dateStr = record.created_at ? record.created_at.split('T')[0] : '';
+            const dateStr = record.created_at ? new Date(record.created_at).toLocaleDateString('sv-SE') : '';
 
                 return {
                     title: `痛: ${score}`,
@@ -968,11 +909,9 @@ document.addEventListener('DOMContentLoaded', function() {
 dateClick: function(info) {
             const clickedDate = info.dateStr; // 例如 "2026-09-05"
             // 🛑 1. 檢查是不是未來的日期（還沒到的日期不能選）
-            const clicked = new Date(clickedDate);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // 將今天時間歸零，只比對日期年月日
+            const todayStr = new Date().toLocaleDateString('sv-SE');
 
-            if (clicked > today) {
+            if (clickedDate > todayStr) {
                 alert("⚠️ 不能選擇尚未到的日期（未來日期）！");
                 return; // 直接中斷，不執行後續動作
             }
@@ -981,7 +920,7 @@ dateClick: function(info) {
             const quizText = quizToday.map(r =>
             `🧠 ${r.name}：${r.total}/${r.max}（${window.QuizTrend.labelOf(r)}）`).join('\n');
             const matchedRecord = (window.allUserRecords || []).find(r => {
-                const rDate = r.created_at ? r.created_at.split('T')[0] : '';
+                const rDate = r.created_at ? new Date(r.created_at).toLocaleDateString('sv-SE') : '';
                 return rDate === clickedDate;
             });
 
@@ -1010,7 +949,7 @@ dateClick: function(info) {
 
     // 🔴 關鍵修復：先激活主頁籤 pane-form
     console.log('🔴 先激活 pane-form（主頁籤）');
-    switchTab('pane-form');
+        switchLevel2Tab('diary');
     
     // 延遲 100ms 再激活子頁籤，確保 DOM 更新完成
     setTimeout(() => {
@@ -1232,3 +1171,27 @@ function showQuiz(name) {
   document.querySelectorAll('.quiz-wrap').forEach(el => el.style.display = 'none');
   document.getElementById('quiz-' + name).style.display = 'block';
 }
+function setLang(code) {
+  const en = (code === 'en');
+  currentLang = en ? 'en' : 'zh-TW';
+  document.documentElement.lang = currentLang;
+  const dict = langDict.en;
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    if (el.dataset.zh === undefined) el.dataset.zh = el.innerHTML;
+    const v = dict[el.dataset.i18n];
+    el.innerHTML = en ? (v ?? el.dataset.zh) : el.dataset.zh;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    if (el.dataset.zhPh === undefined) el.dataset.zhPh = el.placeholder;
+    const v = dict[el.dataset.i18nPh];
+    el.placeholder = en ? (v ?? el.dataset.zhPh) : el.dataset.zhPh;
+  });
+  document.querySelectorAll('.lang-switch .lang-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.lang === (en ? 'en' : 'zh')));
+
+  window.myCalendar?.setOption('locale', en ? 'en' : 'zh-tw');
+  window.QuizTrend?.render();
+  window.Quiz?.refreshLang();
+}
+window.setLang = setLang;
