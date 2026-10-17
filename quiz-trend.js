@@ -1,3 +1,4 @@
+//quiz-trend.js
 (function () {
 'use strict';
 const isEn = () => /^en/i.test(document.querySelector('.lang-btn.active[data-lang]')?.dataset.lang || document.documentElement.lang || 'zh');
