@@ -135,9 +135,10 @@ async function saveAllResearchData() {
     if (error) {
         alert(tr('save_fail','❌ 儲存失敗：') + error.message);
     } else {
-        alert(tr('save_ok','✅ 該筆頭痛日誌已成功儲存！'));
+        alert(tr('save_ok', '✅ 該筆頭痛日誌已成功儲存！'));
         // 🌟 儲存成功後，清空音樂累積陣列，準備迎接下一次紀錄
         window.sessionMusicLogs = [];
+        if (typeof loadCalendarRecords === 'function') loadCalendarRecords(user.id);
         if (typeof loadUserHistory === 'function') {
             loadUserHistory(user.id);
         }
