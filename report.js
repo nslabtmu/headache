@@ -8,11 +8,11 @@
 const REPORT_DAYS = 30;
 
 // 問卷分數放在哪個欄位？請改成你 save.js 實際寫入的位置
-const QUESTIONNAIRE_GETTERS = {
+/*const QUESTIONNAIRE_GETTERS = {
   BAI:  r => r.questionnaire_data?.bai_score,
   BDI:  r => r.questionnaire_data?.bdi_score,
   PSQI: r => r.questionnaire_data?.psqi_score
-};
+};*/
 
 const REPORT_SYMPTOM_LABELS = {
   sym_1: '持續性頭痛', sym_2: '頭暈、失去平衡', sym_3: '噁心、想吐',
@@ -125,7 +125,7 @@ const qRows = Object.values(latest).map(r =>
       <div class="box">記錄筆數<b>${records.length}</b></div>
       <div class="box">頭痛發作天數<b>${attackDays}</b></div>
       <div class="box">平均疼痛<b>${rptFmt(rptAvg(scores))} / 10</b></div>
-      <div class="box">最高疼痛<b>${Math.max(...scores)}</b></div>
+      <div class="box">最高疼痛<b>${scores.length ? Math.max(...scores) : '-'}</b></div>
       <div class="box">用藥比例<b>${medCount} / ${records.length}</b></div>
       <div class="box">常見部位<b style="font-size:13px">${topLoc}</b></div>
     </div>
@@ -160,12 +160,13 @@ async function exportMedicalReport() {
     alert('PDF 元件尚未載入，請確認已加入 html2canvas。');
     return;
   }
+  await window.QuizTrend?.load();
   const since = Date.now() - REPORT_DAYS * 86400000;
   const records = (window.allUserRecords || [])
     .filter(r => r.created_at && new Date(r.created_at).getTime() >= since)
     .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
-  if (records.length === 0) {
+  if (records.length === 0 && !Object.keys(window.QuizTrend?.latest() || {}).length) {
     alert(`近 ${REPORT_DAYS} 天沒有紀錄可匯出`);
     return;
   }
