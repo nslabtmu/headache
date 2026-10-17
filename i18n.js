@@ -70,6 +70,18 @@ const langDict = {
         warning_text: '🚨 偵測到重大危險徵象！請勿填表，請立即前往最近的急診室就醫評估！'
     },
 'en': {
+    pts:"pts", cal_pain:"Pain", cal_future:"⚠️ You can't pick a future date.",
+  cal_norecord:"No headache record for this day.",
+  cal_confirm:"No headache record for this day. Go to the diary to add one?",
+  cal_score:"Pain score", cal_loc:"Location", cal_med:"Medication", cal_pressure:"Pressure",
+  wx_loading2:"⏳ Loading weather & air quality...", wx_fail:"⚠️ Failed to get weather data",
+  gps_req:"📍 Requesting GPS permission...", ip_try:"🌐 Trying IP-based location...",
+  loc_fail:"❌ Location unavailable, please choose manually",
+  gps_ok:"GPS location OK", ip_ok:"IP location OK", manual_suffix:" (manual)",
+  aq_wait:"Loading", aq_good:"Good", aq_ok:"Moderate", aq_bad:"Poor", aq_worst:"Very poor",
+  need_login:"Please sign in first.", need_loc:"⚠️ Location not available yet.",
+  save_fail:"❌ Save failed: ", save_ok:"✅ Record saved.",
+  med_name_ph:"e.g. Tylenol Extra, EVE Quick", eff_ph:"Select how it helped",
   form_title: "🩺 Symptom Diary", quiz_trend_title: "🧠 Questionnaire Trends",
   nav_symptoms: "🩺 Symptoms", nav_music: "🎵 Music",
   nav_diary: "📝 Diary", nav_trend: "📊 Trends",
