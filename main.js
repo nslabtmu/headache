@@ -257,6 +257,7 @@ function showMainApp(user) {
     getLocationAndWeather();
     loadUserProfile(user.id);
     loadUserHistory(user.id);
+    loadCalendarRecords(user.id);
     setupRealtimeListener(user.id);   // ✅ 加這行，用真實 user.id
     window.QuizTrend?.load();
 }
@@ -821,21 +822,6 @@ window.addEventListener('click', function(event) {
   }
 });
 
-// 5. 語系按鈕切換效果 (配合 toggleLanguage 或 i18n 系統)
-document.addEventListener('DOMContentLoaded', () => {
-  const langBtns = document.querySelectorAll('.lang-switch .lang-btn');
-  langBtns.forEach(btn => {
-    btn.addEventListener('click', function() {
-      langBtns.forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      
-      if (typeof toggleLanguage === 'function') {
-        toggleLanguage(this.textContent.trim().toLowerCase());
-      }
-    });
-  });
-});
-
 // 免責聲明
 function openDisclaimerModal() {
     const modal = document.getElementById('disclaimer-modal');
@@ -1005,6 +991,14 @@ function selectPainPart(partName) {
     }
     console.log("目前選中的部位：", selectedParts);
 }
+function selectPain(score, label) {
+  const KEY = {0:'pain_0',2:'pain_2',4:'pain_4',6:'pain_6',8:'pain_8',10:'pain_10'};
+  document.getElementById('input-pain').value = score;
+  document.getElementById('pain-val-display').innerText =
+    `${score} ${tr('pts','分')} - ${tr(KEY[score], label)}`;
+  document.querySelectorAll('.face-btn').forEach(btn =>
+    btn.classList.toggle('active', parseInt(btn.dataset.value) === score));
+}
 // 低氣壓等預警?
 /*function checkBarometricPressureAlert(pressure) {
     const alertBox = document.getElementById('weather-alert-box');
@@ -1150,7 +1144,7 @@ async function checkWeatherRisk(lat, lon) {
         console.error("無法取得氣象預報資料", error);
     }
 }
-function selectPain(score, label) {
+function selectPain1015(score, label) {
   // 1. 更新隱藏的 input 欄位數值
   document.getElementById('input-pain').value = score;
 
@@ -1171,6 +1165,8 @@ function showQuiz(name) {
   document.querySelectorAll('.quiz-wrap').forEach(el => el.style.display = 'none');
   document.getElementById('quiz-' + name).style.display = 'block';
 }
+function tr(key, zh) { return currentLang === 'en' ? (langDict.en[key] ?? zh) : zh; }
+window.tr = tr;
 function setLang(code) {
   const en = (code === 'en');
   currentLang = en ? 'en' : 'zh-TW';
