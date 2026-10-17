@@ -8,7 +8,7 @@ const langDict = {
         google_login_btn: '使用 Google 帳號快速登入', other_login_btn: '🔐 其他方式',
 
         // 標題與主頁籤
-        form_title: '🩺 症狀與音樂',
+                form_title: '🩺 症狀日記', quiz_trend_title: '🧠 量表趨勢',
         main_record: '📝 記錄區', main_music: '🎵 音樂區', main_chart: '📊 趨勢圖', main_info: '新知區',
 
         // 帳戶選單
@@ -70,6 +70,7 @@ const langDict = {
         warning_text: '🚨 偵測到重大危險徵象！請勿填表，請立即前往最近的急診室就醫評估！'
     },
 'en': {
+  form_title: "🩺 Symptom Diary", quiz_trend_title: "🧠 Questionnaire Trends",
   nav_symptoms: "🩺 Symptoms", nav_music: "🎵 Music",
   nav_diary: "📝 Diary", nav_trend: "📊 Trends",
   tab_headache: "🤕 Headache", tab_mood: "💙  Mood",
