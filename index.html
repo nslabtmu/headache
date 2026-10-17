@@ -45,7 +45,7 @@
         <div style="display: flex; gap: 10px; margin-top: 15px;">
             <!-- 不同意按鈕 -->
             <button type="button"    class="btn"      style="background-color: #8b0000; color: #ffffff; flex: 1; border: none; cursor: pointer;" 
-                    onclick="alert('您已拒絕參與研究')" data-i18n="consent_disagree_btn">  不同意參與   </button>
+                    onclick="alert(tr('consent_declined','您已拒絕參與研究'))" data-i18n="consent_disagree_btn">  不同意參與   </button>
             
             <!-- 同意按鈕 -->
             <button type="button"   class="btn"  style="background-color: #a8e6cf; color: #2d572c; flex: 2; border: none; cursor: pointer; font-weight: bold;" 
@@ -80,15 +80,15 @@
           <!-- Email 登入 -->
           <form id="email-tab" style="display: none;" onsubmit="event.preventDefault(); handleEmailLogin();">
             <input type="email" id="login-email" placeholder="Email" class="form-control" style="margin-bottom: 8px; width: 100%; padding: 8px;">
-            <input type="password" id="login-password" placeholder="密碼" class="form-control" style="margin-bottom: 8px; width: 100%; padding: 8px;">
-            <button type="submit" class="btn" style="width: 100%; background: #27ae60; color: white;">登入</button>
+            <input type="password" data-i18n-ph="password" id="login-password" placeholder="密碼" class="form-control" style="margin-bottom: 8px; width: 100%; padding: 8px;">
+            <button type="submit" class="btn" style="width: 100%; background: #27ae60; color: white;" data-i18n="login_btn">登入</button>
           </form>
 
           <!-- 帳號密碼登入 -->
           <form id="account-tab" style="display: none;" onsubmit="event.preventDefault(); handleAccountLogin();">
-            <input type="text" id="login-account" placeholder="帳號 (例: 0912345678)" class="form-control" style="margin-bottom: 8px; width: 100%; padding: 8px;">
-            <input type="password" id="login-account-pw" placeholder="密碼" class="form-control" style="margin-bottom: 8px; width: 100%; padding: 8px;">
-            <button type="submit" class="btn" style="width: 100%; background: #27ae60; color: white;">登入</button>
+            <input type="text" id="login-account" placeholder="帳號 (例: 0912345678)" data-i18n-ph="account_ph" class="form-control" style="margin-bottom: 8px; width: 100%; padding: 8px;">
+            <input type="password" data-i18n-ph="password" id="login-account-pw" placeholder="密碼" class="form-control" style="margin-bottom: 8px; width: 100%; padding: 8px;">
+            <button type="submit" class="btn" style="width: 100%; background: #27ae60; color: white;" data-i18n="login_btn">登入</button>
           </form>
         </div>
     </div>
@@ -627,13 +627,13 @@
 <!-- 免責聲明彈窗 Modal -->
 <div id="disclaimer-modal" class="modal-overlay hidden" onclick="closeDisclaimerModal(event)">
   <div class="modal-card" onclick="event.stopPropagation()">
-    <h3>⚠️ 免責與醫療聲明</h3>
+    <h3 data-i18n="disclaimer_title">⚠️ 免責與醫療聲明</h3>
     <div class="modal-body">
-      <p>本應用程式（包含頭痛日記與氣象健康數據分析）僅供個人健康紀錄與研究參考，<strong>不具備醫療診斷、處方或治療功能</strong>。</p>
-      <p>若您感到極度不適或出現發燒、劇烈頭痛、言語不清等異常症狀，請儘速前往急診或就近醫療院所就醫。</p>
+      <p data-i18n="disclaimer_p1">本應用程式（包含頭痛日記與氣象健康數據分析）僅供個人健康紀錄與研究參考，<strong>不具備醫療診斷、處方或治療功能</strong>。</p>
+      <p data-i18n="disclaimer_p2">若您感到極度不適或出現發燒、劇烈頭痛、言語不清等異常症狀，請儘速前往急診或就近醫療院所就醫。</p>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-primary" onclick="closeDisclaimerModal()">我已瞭解</button>
+      <button type="button" class="btn btn-primary" onclick="closeDisclaimerModal()" data-i18n="disclaimer_ok">我已瞭解</button>
     </div>
   </div>
 </div>
@@ -643,7 +643,7 @@
   </p>
         <!-- 分隔線 + 帳號管理連結（新增） -->
         <div style="border-top: 1px solid #ecf0f1; padding: 12px 0;">
-            <button 
+            <button data-i18n="account_mgmt"
                 type="button"
                 onclick="openAccountManagement()" 
                 style="
