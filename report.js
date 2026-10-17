@@ -1,4 +1,4 @@
-// export.js — 匯出記錄 (PDF)
+// report.js — 匯出記錄 (PDF)
 // 需要在 index.html 載入（放在 jsPDF 之後、main.js 之前）：
 // <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 // <script src="./export.js"></script>
@@ -51,7 +51,7 @@ function rptParseLocations(h) {
 function buildReportHtml(records, chartImg, userEmail) {
   const scores = records.map(r => r.headache_data?.pain_score ?? 0);
   const attackDays = new Set(records.filter(r => (r.headache_data?.pain_score ?? 0) > 0)
-    .map(r => r.created_at.split('T')[0])).size;
+    .map(r => new Date(r.created_at).toLocaleDateString('sv-SE'))).size;
   const medCount = records.filter(r => r.headache_data?.medication_used).length;
 
   const locCount = {};
@@ -98,7 +98,7 @@ const qRows = Object.values(latest).map(r =>
     const med = h.medication_used ? rptEsc(h.medication_name || '有') : '無';
     const note = rptEsc(h.notes || h.content || '');
     return `<tr>
-      <td>${r.created_at.split('T')[0]}</td><td>${h.pain_score ?? '-'}</td><td>${locs}</td>
+      <td>${new Date(r.created_at).toLocaleDateString('sv-SE')}</td><td>${h.pain_score ?? '-'}</td><td>${locs}</td>
       <td>${med}</td><td>${w.temperature ?? '-'}</td><td>${w.humidity ?? '-'}</td>
       <td>${w.pressure ?? '-'}</td><td>${note}</td></tr>`;
   }).join('');
