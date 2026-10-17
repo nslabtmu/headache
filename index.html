@@ -146,7 +146,7 @@
     <!-- ✅ IP 位置顯示區 - 藍色卡片 -->
     <div id="ip-location-display" style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between; background: #e3f2fd; padding: 12px; border-radius: 6px; border: 1px solid #bbdefb;">
         <div style="font-weight: 500; color: #1565c0;">
-            📍 位置：<span id="ip-location-name" style="color: #0d47a1;">取得中...</span>
+            <span data-i18n="loc_label">📍 位置：</span><span id="ip-location-name" style="color: #0d47a1;">取得中...</span>
         </div>
         <button type="button" class="btn" style="background: #3498db; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; white-space: nowrap;" onclick="toggleChangeLocation()" data-i18n="loc_change_btn">
             🔄 變更位置
@@ -158,7 +158,7 @@
         
         <div style="display: flex; gap: 8px; margin-bottom: 10px;">
             <select id="select-city" class="form-control" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-                <option value="">請選擇縣市...</option>
+                <option value="" data-i18n="loc_city_ph">請選擇縣市...</option>
             </select>
             <select id="select-district" class="form-control" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
                 <option value="">請先選擇縣市</option>
@@ -182,25 +182,25 @@
 <!-- ✅ 氣象資料顯示區 - 白色卡片 -->
     <div id="weather-data-display"  style="margin-top: 12px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; background: #fff; padding: 12px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
        <div style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: #2c3e50; font-size: 14px;">
-            🌡️ 氣溫：<span id="wx-temp" style="color: #e74c3c; font-size: 16px; font-weight: bold;">-</span><span style="color: #7f8c8d;">°C</span>
+            <span data-i18n="wx_temp">🌡️ 氣溫：</span><span id="wx-temp" style="color: #e74c3c; font-size: 16px; font-weight: bold;">-</span><span style="color: #7f8c8d;">°C</span>
         </div>
         <div style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: #2c3e50; font-size: 14px;">
-            💧 濕度：<span id="wx-humidity" style="color: #3498db; font-size: 16px; font-weight: bold;">-</span><span style="color: #7f8c8d;">%</span>
+            <span data-i18n="wx_humidity">💧 濕度：</span><span id="wx-humidity" style="color: #3498db; font-size: 16px; font-weight: bold;">-</span><span style="color: #7f8c8d;">%</span>
         </div>
         <div style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: #2c3e50; font-size: 14px;">
-            🧭 氣壓：<span id="wx-pressure" style="color: #27ae60; font-size: 16px; font-weight: bold;">-</span><span style="color: #7f8c8d;">hPa</span> </div>
+            <span data-i18n="wx_pressure">🧭 氣壓：</span><span id="wx-pressure" style="color: #27ae60; font-size: 16px; font-weight: bold;">-</span><span style="color: #7f8c8d;">hPa</span> </div>
         <div style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: #2c3e50; font-size: 14px;">
-            😷 PM2.5: <span id="wx-pm25" style="font-weight: bold;" >--</span> µg/m³<span id="wx-pm25-status" style="font-weight: 500; font-size: 13px; margin-left: 4px;"></span></div>
+            <span data-i18n="wx_pm25">😷 PM2.5: </span><span id="wx-pm25" style="font-weight: bold;" >--</span> µg/m³<span id="wx-pm25-status" style="font-weight: 500; font-size: 13px; margin-left: 4px;"></span></div>
     </div>
   </div>
         <!-- ⚠️ 氣象警報動態提示框 -->
 <div id="weather-alert-box" class="alert alert-warning" style="display: none; margin-top: 12px; border-radius: 10px; background-color: #fff3cd; border-color: #ffeeba; color: #856404; padding: 12px;">
-    <strong>⚠️ 氣象偏頭痛預警：</strong> <span id="alert-message">偵測到目前氣壓偏低，今日偏頭痛發作機率可能升高，請多加注意！</span>
+    <strong data-i18n="wx_alert_title">⚠️ 氣象偏頭痛預警：</strong> <span id="alert-message">偵測到目前氣壓偏低，今日偏頭痛發作機率可能升高，請多加注意！</span>
 </div>
 <!-- 🌡️ 氣壓與頭痛風險預警卡片 -->
 <div id="weather-risk-card" class="card card-left hidden" style="background: var(--color-danger-bg); border-color: #ecd3cd;">
     <div class="card-body">
-        <h3 class="card-title" style="font-size: 1.1rem; margin-bottom: 8px;">⚠️ 氣象頭痛風險提示</h3>
+        <h3 class="card-title" style="font-size: 1.1rem; margin-bottom: 8px;" data-i18n="wx_risk_title">⚠️ 氣象頭痛風險提示</h3>
         <p id="weather-risk-text" style="font-size: 0.95rem; margin: 0; color: var(--color-text-main);">
             正在檢測當地氣壓變化...
         </p>
@@ -351,20 +351,20 @@
 <div class="form-card" style="margin-top: 16px;">
     <label class="card-label" data-i18n="med_q">💊 本次頭痛發作是否已服用藥物？</label>
     <select id="input-medication" onchange="toggleMedicationSection()">
-  <option value="no">否</option>
-  <option value="yes">是</option>
+  <option value="no" data-i18n="no">否</option>
+  <option value="yes" data-i18n="yes">是</option>
 </select>
 
 <!-- 被控制顯示/隱藏的區塊 -->
   <!-- 服藥詳細資訊區塊 -->
                         <div id="medication-details" style="display: none; margin-top: 16px;">
                             <div class="sub-field">
-                                <label class="sub-label">止痛藥類別 (可複選)：</label>
+                                	<label class="sub-label" data-i18n="med_category">止痛藥類別 (可複選)：</label>
                                 <div class="checkbox-group">
-                                    <label class="checkbox-item"><input type="checkbox" name="med-category" value="acetaminophen"> 乙醯胺酚類 (如：普拿疼)</label>
-                                    <label class="checkbox-item"><input type="checkbox" name="med-category" value="nsaid"> 非類固醇消炎藥 (如：布洛芬、EVE、服他寧)</label>
-                                    <label class="checkbox-item"><input type="checkbox" name="med-category" value="opioid"> 鴉片類 / 處方強效止痛藥 (如：處方可待因、嗎啡)</label>
-                                    <label class="checkbox-item"><input type="checkbox" name="med-category" value="unknown"> 不清楚藥物類別</label>
+                                    <label class="checkbox-item"><input type="checkbox" name="med-category" value="acetaminophen"><span data-i18n="med_acetaminophen">乙醯胺酚類 (如：普拿疼)</span></label>
+                                    <label class="checkbox-item"><input type="checkbox" name="med-category" value="nsaid"><span data-i18n="med_nsaid"非類固醇消炎藥 (如：布洛芬、EVE、服他寧)</span></label>
+                                    <label class="checkbox-item"><input type="checkbox" name="med-category" value="opioid"> <span data-i18n="med_opioid">鴉片類 / 處方強效止痛藥 (如：處方可待因、嗎啡)</span></label>
+                                    <label class="checkbox-item"><input type="checkbox" name="med-category" value="unknown"><span data-i18n="med_unknown">不清楚藥物類別</span></label>
                                 </div>
                             </div>
 
@@ -374,14 +374,14 @@
                             </div>
 
                             <div class="sub-field" style="margin-top: 12px;">
-                                <label for="input-medication-effect" class="sub-label">服藥後效果評估：</label>
+                                <label for="input-medication-effect" class="sub-label" data-i18n="med_effect">服藥後效果評估：</label>
                                 <select id="input-medication-effect" class="form-select">
-                                    <option value="" disabled selected>請選擇服藥後的改善狀況</option>
-                                    <option value="complete">完全緩解（不再疼痛）</option>
-                                    <option value="partial">部分緩解（症狀減輕但仍不適）</option>
-                                    <option value="none">完全無效</option>
-                                    <option value="worse">症狀加重</option>
-                                    <option value="too_early">剛服用（尚在觀察中）</option>
+                                    <option value="" disabled selected data-i18n="eff_ph">請選擇服藥後的改善狀況</option>
+                                    <option value="complete" data-i18n="eff_complete">完全緩解（不再疼痛）</option>
+                                    <option value="partial" data-i18n="eff_partial">部分緩解（症狀減輕但仍不適）</option>
+                                    <option value="none" data-i18n="eff_none">完全無效</option>
+                                    <option value="worse" data-i18n="eff_worse">症狀加重</option>
+                                    <option value="too_early" data-i18n="eff_too_early">剛服用（尚在觀察中）</option>
                                 </select>
                             </div>
                         </div>
@@ -482,7 +482,7 @@
         <h3 data-i18n="chart_title" style="margin: 0; color: #2980b9;">📈 頭痛指數與發作頻率趨勢圖</h3>
         
         <!-- 💡 新增：範例資料提示標籤（預設隱藏） -->
-        <span id="mock-data-badge" style="display: none; background: #fff3cd; color: #856404; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid #ffeeba;">
+        <span id="mock-data-badge" style="display: none; background: #fff3cd; color: #856404; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; border: 1px solid #ffeeba;" data-i18n="mock_badge">
             💡 目前為示範數據 (近 7 天)
         </span>
     </div>
@@ -499,16 +499,16 @@
        
 <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
   <!-- 第一層：症狀類別選單 -->
-  <label for="categorySelect">類別：</label>
+  <label for="categorySelect" data-i18n="cat_label">類別：</label>
   <select id="categorySelect" onchange="onCategoryChange()">
-    <option value="all">全部症狀</option>
-    <option value="digestive">消化系統</option>
-    <option value="sensory">感官與神經</option>
-    <option value="other">其他感受</option>
+    <option value="all" data-i18n="cat_all">全部症狀</option>
+    <option value="digestive" data-i18n="cat_digestive">消化系統</option>
+    <option value="sensory" data-i18n="cat_sensory">感官與神經</option>
+    <option value="other" data-i18n="cat_other">其他感受</option>
   </select>
 
   <!-- 第二層：具體症狀選單 -->
-  <label for="symptomSelect">症狀：</label>
+  <label for="symptomSelect" data-i18n="sym_label">症狀：</label>
   <select id="symptomSelect" onchange="updateSymptomMetric()">
     <!-- 由 JS 動態繪製 -->
   </select>
