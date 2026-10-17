@@ -5,9 +5,9 @@
 // 1️⃣ 音樂設定檔
 const musicConfigs = {
     piano: {
-        name: '🎹 鋼琴',
+        name: '🎹 鋼琴', nameEn: '🎹 Piano',
         url: 'https://www.youtube.com/watch?v=uNDsZz2vaOQ',
-        description: '拍速緩慢、留白較多，引導大腦放鬆。'
+        description: '拍速緩慢、留白較多，引導大腦放鬆。',descEn: 'Slow tempo with space to help the brain relax.'
     },
     forest: {
         name: '🌲 森林',
