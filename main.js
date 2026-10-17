@@ -367,7 +367,7 @@ async function fetchWeather(lat, lon, statusMessage) {
     const pm25StatusEl = document.getElementById('wx-pm25-status');
 
     try {
-        if (statusEl) statusEl.innerText = "⏳ 正在載入氣象與空污資料...";
+        if (statusEl) statusEl.innerText = tr('wx_loading2','⏳ 正在載入氣象與空污資料...');
 
         // 1. 定義氣象與空污的參數
         const weatherParams = 'temperature_2m,relative_humidity_2m,surface_pressure';
@@ -408,7 +408,7 @@ async function fetchWeather(lat, lon, statusMessage) {
 
     // 2. 帶入評估文字與標準說明，也套用相同顏色
     if (pm25StatusEl) {
-        pm25StatusEl.innerText = `(${aq.text}，以台灣與世界衛生組織常用的 PM2.5 濃度級距為標準)`;
+        pm25StatusEl.innerText = `(${aq.text}`;
         pm25StatusEl.style.color = aq.color;
     }
 }
@@ -431,7 +431,7 @@ async function fetchWeather(lat, lon, statusMessage) {
 
     } catch (err) {
         console.error("Fetch weather error:", err);
-        if (statusEl) statusEl.innerText = "⚠️ 取得氣象與空污資料失敗";
+        if (statusEl) statusEl.innerText = tr('wx_fail','⚠️ 取得氣象與空污資料失敗');
         locationReady = false;
     }
 }
@@ -441,19 +441,19 @@ async function fetchWeather(lat, lon, statusMessage) {
  */
 function getAirQualityStatus(pm25) {
     if (pm25 === null || pm25 === undefined || isNaN(pm25)) {
-        return { text: "資料讀取中", color: "#7f8c8d" };
+        return { text: tr('aq_wait','資料讀取中'), color: "#7f8c8d" };
     }
 
     const val = Number(pm25);
 
     if (val <= 15.4) {
-        return { text: "優", color: "#27ae60" };      // 綠色
+        return { text: tr('aq_good','優'), color: "#27ae60" };      // 綠色
     } else if (val <= 35.4) {
-        return { text: "普通", color: "#f39c12" };   // 黃色 / 橘色
+        return { text:  tr('aq_ok','普通'), color: "#f39c12" };   // 黃色 / 橘色
     } else if (val <= 54.4) {
-        return { text: "差", color: "#e67e22" };     // 橘紅色
+        return { text: tr('aq_bad','差'), color: "#e67e22" };     // 橘紅色
     } else {
-        return { text: "極差", color: "#e74c3c" };   // 紅色
+        return { text: tr('aq_worst','極差'), color: "#e74c3c" };   // 紅色
     }
 }
 
@@ -473,7 +473,7 @@ function updateLocationDisplay(country, city, district, isManual = false) {
 
 // 2. 更換並優化 IP 定位邏輯 (改用 ipwho.is 備用 ip-api.com)
 async function fetchIpLocation(statusEl) {
-    if (statusEl) statusEl.innerText = "🌐 嘗試透過 IP 取得大致位置...";
+    if (statusEl) statusEl.innerText = tr('ip_try','🌐 嘗試透過 IP 取得大致位置...');
     
     let data = null;
 
@@ -522,11 +522,11 @@ async function fetchIpLocation(statusEl) {
         setTaiwanLocationMode(data.country_code === 'TW'); 
         
         // 抓取氣象資料
-        fetchWeather(data.latitude, data.longitude, "IP 定位成功");
+        fetchWeather(data.latitude, data.longitude, tr('ip_ok','IP 定位成功'));
     } else {
         // ❌ 完全無法取得 IP 定位
         console.error("IP Location Error: 無法取得有效的 IP 座標");
-        if (statusEl) statusEl.innerText = "❌ 無法定位，請手動選擇";
+        if (statusEl) statusEl.innerText = tr('loc_fail','❌ 無法定位，請手動選擇');
         
         updateLocationDisplay("未知", "無法取得", "請變更位置重試");
         
@@ -544,7 +544,7 @@ async function fetchIpLocation(statusEl) {
     const ipLocationName = document.getElementById('ip-location-name');
     
     if (ipLocationDisplay && ipLocationName) {
-        const suffix = isManual ? ' (手動選擇)' : '';
+        const suffix = isManual ? tr('manual_suffix',' (手動選擇)') : '';
         ipLocationName.innerText = `${country} - ${city} - ${district}${suffix}`;
         ipLocationDisplay.classList.remove('hidden');
     }
@@ -583,7 +583,7 @@ async function fetchIpLocation(statusEl) {
 }*/
 async function getLocationAndWeather() {
     const statusEl = document.getElementById('weather-status');
-    if (statusEl) statusEl.innerText = "📍 正在請求 GPS 定位權限...";
+    if (statusEl) statusEl.innerText = tr('gps_req','📍 正在請求 GPS 定位權限...');
 
     if (!navigator.geolocation) {
         fetchIpLocation(statusEl);
@@ -615,7 +615,7 @@ async function getLocationAndWeather() {
             }
             
             // ✅ 取氣象
-            await fetchWeather(lat, lon, "GPS 定位成功");
+            await fetchWeather(lat, lon,tr('gps_ok','GPS 定位成功'));
         },
         (err) => {
             console.warn("GPS 失敗，轉用 IP：", err.message);
@@ -882,7 +882,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const dateStr = record.created_at ? new Date(record.created_at).toLocaleDateString('sv-SE') : '';
 
                 return {
-                    title: `痛: ${score}`,
+                    title: `${tr('cal_pain','痛')}: ${score}`,
                     start: dateStr,
                     color: color,
                     extendedProps: record
@@ -898,7 +898,7 @@ dateClick: function(info) {
             const todayStr = new Date().toLocaleDateString('sv-SE');
 
             if (clickedDate > todayStr) {
-                alert("⚠️ 不能選擇尚未到的日期（未來日期）！");
+                alert(tr('cal_future','⚠️ 不能選擇尚未到的日期（未來日期）！'));
                 return; // 直接中斷，不執行後續動作
             }
             // 檢查這一天是否有紀錄
@@ -914,19 +914,18 @@ dateClick: function(info) {
                 // 📅 狀況 A：這天有紀錄，彈出視窗顯示詳細內容
                 const hData = matchedRecord.headache_data || {};
                 const wData = matchedRecord.weather_data || {};
-                
-                alert(`📅 記錄日期：${clickedDate}\n` +
-                      `🔥 疼痛指數：${hData.pain_score} / 10\n` +
-                      `📍 痛點部位：${(hData.locations || []).join(', ') || '未記錄'}\n` +
-                      `💊 服藥狀況：${hData.medication_used ? '有 (' + (hData.medication_name || '未填藥名') + ')' : '無'}\n` +
-                      `🌡️ 當時氣壓：${wData.pressure || '無'} hPa`+ (quizText ? `\n\n${quizText}` : '')
-                     );
+        alert(`📅 ${clickedDate}\n` +
+    `🔥 ${tr('cal_score','疼痛指數')}：${hData.pain_score} / 10\n` +
+    `📍 ${tr('cal_loc','痛點部位')}：${(hData.locations || []).join(', ') || '-'}\n` +
+    `💊 ${tr('cal_med','服藥狀況')}：${hData.medication_used ? (hData.medication_name || tr('yes','是')) : tr('no','否')}\n` +
+    `🌡️ ${tr('cal_pressure','當時氣壓')}：${wData.pressure || '-'} hPa` +
+     (quizText ? `\n\n${quizText}` : ''));
                     } else if (quizText) {
-                        alert(`📅 ${clickedDate}\n${quizText}\n\n這天尚無頭痛紀錄。`);
+                        alert(`📅 ${clickedDate}\n${quizText}\n\n${tr('cal_norecord','這天尚無頭痛紀錄。')}`);
                     } else {
                 // 📅 狀況 B：這天沒有記錄，詢問是否要補填
-            const confirmAdd = confirm(`📅 日期 ${clickedDate}\n這天尚無頭痛紀錄，是否要切換至填寫頁面進行補填？`);
-            if (confirmAdd) {
+                const confirmAdd = confirm(`📅 ${clickedDate}\n${tr('cal_confirm','這天尚無頭痛紀錄，是否要切換至填寫頁面進行補填？')}`);
+                if (confirmAdd) {
     const dateInput = document.getElementById('record-date');
     if (dateInput) {
         dateInput.value = clickedDate;
@@ -1000,18 +999,6 @@ function selectPain(score, label) {
     btn.classList.toggle('active', parseInt(btn.dataset.value) === score));
 }
 // 低氣壓等預警?
-/*function checkBarometricPressureAlert(pressure) {
-    const alertBox = document.getElementById('weather-alert-box');
-    const alertMsg = document.getElementById('alert-message');
-    
-    // 一般標準大氣壓力約在 1013 hPa。若氣壓低於 1005 hPa，通常是低氣壓或天氣轉壞
-    if (pressure && pressure < 1005) {
-        alertBox.style.display = 'block';
-        alertMsg.innerText = `目前氣壓為 ${pressure} hPa（低氣壓狀態），氣壓驟降是常見的偏頭痛誘因，建議隨身攜帶備用藥物與水！`;
-    } else {
-        alertBox.style.display = 'none'; // 氣壓正常則隱藏警報
-    }
-}*/
 // 假設這是你原本獲取並更新氣象數據的函數
 function updateWeatherUI(data) {
     // 1. 更新畫面上的數值
@@ -1041,64 +1028,7 @@ function checkBarometricPressureAlert(pressure) {
     }
 }
 // 匯出資料
-/*async function exportMedicalReport() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
 
-    // 設定標題
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text("Headache & Weather Clinical Report", 14, 20);
-    
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "normal");
-    doc.text("Generated by Personal Headache Tracker System", 14, 28);
-    doc.text(`Report Date: ${new Date().toLocaleDateString()}`, 14, 34);
-
-    // 畫一條分隔線
-    doc.setLineWidth(0.5);
-    doc.line(14, 40, 196, 40);
-
-    // 填入摘要資訊（可以從你的資料庫或全域變數撈取近期數據）
-    doc.setFont("helvetica", "bold");
-    doc.text("1. Patient Summary (Last 30 Days)", 14, 50);
-    
-    doc.setFont("helvetica", "normal");
-    doc.text("- Total Attack Days: 5 days", 18, 58);
-    doc.text("- Average Pain Scale: 6.5 / 10", 18, 66);
-    doc.text("- Most Frequent Location: Left Temple, Forehead", 18, 74);
-    doc.text("- Medication Usage Rate: 80% (Mainly NSAIDs)", 18, 82);
-
-    doc.setFont("helvetica", "bold");
-    doc.text("2. Clinical Notes & Weather Correlation", 14, 96);
-    doc.setFont("helvetica", "normal");
-    doc.text("Patient reports strong correlation between barometric pressure drops", 18, 104);
-    doc.text("and migraine onset. Recommended for neurological evaluation.", 18, 112);
-
-    // 儲存 PDF 檔案
-    doc.save("Headache_Medical_Report.pdf");
-}*/
-
-
-/*document.addEventListener('DOMContentLoaded', function() {
-    // 1. 自動取得使用者所在位置（經緯度）
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            position => {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                checkWeatherRisk(lat, lon);
-            },
-            error => {
-                console.log("無法取得定位，預設使用台北氣象資料", error);
-                // 如果用戶拒絕定位，預設帶入台北的經緯度 (25.03, 121.56)
-                checkWeatherRisk(25.03, 121.56);
-            }
-        );
-    } else {
-        checkWeatherRisk(25.03, 121.56);
-    }
-});*/
 
 async function checkWeatherRisk(lat, lon) {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=pressure_msl,temperature_2m`;
