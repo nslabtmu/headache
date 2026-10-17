@@ -255,7 +255,7 @@
         <!-- 1. 疼痛程度選擇（臉譜表） -->
 <div class="form-card">
   <label class="card-label">
-    <span>疼痛程度</span>
+        <span data-i18n="pain_level">疼痛程度</span>
     <span id="pain-val-display" class="score-badge">5 分 - 中度疼痛</span>
   </label>
 
@@ -267,44 +267,44 @@
     <button type="button" class="face-btn" data-value="0" onclick="selectPain(0, '不痛')">
       <span class="face-emoji">😄</span>
       <span class="face-score">0</span>
-      <span class="face-desc">不痛</span>
+      <span class="face-desc" data-i18n="pain_0">不痛</span>
     </button>
     
     <button type="button" class="face-btn" data-value="2" onclick="selectPain(2, '輕微疼痛')">
       <span class="face-emoji">🙂</span>
       <span class="face-score">2</span>
-      <span class="face-desc">輕微</span>
+      <span class="face-desc" data-i18n="pain_2">輕微</span>
     </button>
     
     <button type="button" class="face-btn" data-value="4" onclick="selectPain(4, '稍微疼痛')">
       <span class="face-emoji">😐</span>
       <span class="face-score">4</span>
-      <span class="face-desc">稍微</span>
+      <span class="face-desc" data-i18n="pain_4">稍微</span>
     </button>
     
     <button type="button" class="face-btn active" data-value="6" onclick="selectPain(6, '中度疼痛')">
       <span class="face-emoji">😣</span>
       <span class="face-score">6</span>
-      <span class="face-desc">中度</span>
+      <span class="face-desc" data-i18n="pain_6">中度</span>
     </button>
     
     <button type="button" class="face-btn" data-value="8" onclick="selectPain(8, '嚴重疼痛')">
       <span class="face-emoji">😭</span>
       <span class="face-score">8</span>
-      <span class="face-desc">嚴重</span>
+      <span class="face-desc" data-i18n="pain_8">嚴重</span>
     </button>
     
     <button type="button" class="face-btn" data-value="10" onclick="selectPain(10, '劇烈疼痛')">
       <span class="face-emoji">😱</span>
       <span class="face-score">10</span>
-      <span class="face-desc">劇痛</span>
+      <span class="face-desc" data-i18n="pain_10">劇痛</span>
     </button>
   </div>
 </div>
 
         <!--9/8 new 3D -->
 <div class="form-card" style="text-align: center;">
-    <label class="card-label" style="margin-bottom: 12px; display: block;">📍 點擊頭部圖形或下方按鈕記錄痛點</label>
+    <label class="card-label" style="margin-bottom: 12px; display: block;" data-i18n="head_hint">📍 點擊頭部圖形或下方按鈕記錄痛點</label>
     
     <!-- SVG 互動頭部圖容器 -->
     <div class="head-svg-wrapper" style="display: inline-block; position: relative; background: #fdfdfe; padding: 10px; border-radius: 50%; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
@@ -338,10 +338,10 @@
 
     <!-- 下方同步按鈕 -->
     <div class="checkbox-group" style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 18px;">
-        <button type="button" id="btn-forehead" class="head-chip-btn" onclick="selectPainPart('forehead')">前額</button>
-        <button type="button" id="btn-left" class="head-chip-btn" onclick="selectPainPart('left')">左側</button>
-        <button type="button" id="btn-right" class="head-chip-btn" onclick="selectPainPart('right')">右側</button>
-        <button type="button" id="btn-back" class="head-chip-btn" onclick="selectPainPart('back')">後腦勺</button>
+        <button type="button" id="btn-forehead" class="head-chip-btn" onclick="selectPainPart('forehead')" data-i18n="head_forehead">前額</button>
+        <button type="button" id="btn-left" class="head-chip-btn" onclick="selectPainPart('left')" data-i18n="head_left">左側</button>
+        <button type="button" id="btn-right" class="head-chip-btn" onclick="selectPainPart('right')" data-i18n="head_right">右側</button>
+        <button type="button" id="btn-back" class="head-chip-btn" onclick="selectPainPart('back')" data-i18n="head_back">後腦勺</button>
     </div>
 
     <!-- 隱藏欄位 -->
@@ -349,7 +349,7 @@
 </div>
 <!-- 9/7~ 3. 是否使用藥物 (新增觸發問答) -->
 <div class="form-card" style="margin-top: 16px;">
-    <label class="card-label">💊 本次頭痛發作是否已服用藥物？</label>
+    <label class="card-label" data-i18n="med_q">💊 本次頭痛發作是否已服用藥物？</label>
     <select id="input-medication" onchange="toggleMedicationSection()">
   <option value="no">否</option>
   <option value="yes">是</option>
@@ -388,8 +388,8 @@
                     </div>
     <!-- 4. 補充備註 -->
     <div class="form-card">
-      <label for="input-content" class="card-label">詳細備註或特殊狀況</label>
-      <textarea id="input-content" class="form-textarea" rows="3" placeholder="記錄發作前發生的事或誘因..."></textarea>
+      <label for="input-content" class="card-label" data-i18n="notes_label">詳細備註或特殊狀況</label>
+      <textarea id="input-content" class="form-textarea" rows="3" data-i18n-ph="notes_ph" placeholder="記錄發作前發生的事或誘因..."></textarea>
     </div>
   
                 <div class="button-group">
@@ -426,7 +426,7 @@
 
                     <div class="form-group">
                         <label for="triggers" data-i18n="triggers_label">記錄日常誘因（如：使用3C、特定活動會使症狀加重嗎？）：</label>
-                        <textarea id="triggers" name="triggers" rows="3" placeholder="請描述使您感到不舒服的活動或環境..."></textarea>
+                        <textarea id="triggers" name="triggers" rows="3" data-i18n-ph="triggers_ph" placeholder="請描述使您感到不舒服的活動或環境..."></textarea>
                     </div>
                     <div class="button-group" style="display: flex; gap: 10px; margin-top: 15px;">
                         <button type="button" class="btn" onclick="switchTab('pane-mood') " data-i18n="btn_prev_step">⬅️ 上一步</button>
@@ -454,7 +454,7 @@
                     </div>
                     <div class="button-group" style="display: flex; gap: 10px; margin-top: 15px;">
                         <button type="button" class="btn" onclick="switchTab('pane-symptom')" data-i18n="btn_prev_step">⬅️ 上一步</button>
-                        <button type="button" class="btn" style="background:#27ae60; color:white;" onclick="saveFullRecord()">💾 儲存當前紀錄</button>
+                        <button type="button" class="btn" style="background:#27ae60; color:white;" onclick="saveFullRecord()" data-i18n="save_record_btn">💾 儲存當前紀錄</button>
                     </div>
                 </div>
             </form>
@@ -491,7 +491,12 @@
     <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: relative;">
         <canvas id="painChart" style="max-height: 400px;"></canvas>
     </div>
-
+        <div class="card mb-4 shadow-sm"><div class="card-body">
+          <h3 class="card-title" data-i18n="quiz_trend_title">🧠 量表趨勢</h3>
+          <select id="quizTrendSelect" onchange="QuizTrend.render()"></select>
+          <div style="position:relative; margin-top:12px;"><canvas id="quizChart" style="max-height:320px;"></canvas></div>
+    </div></div>
+       
 <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
   <!-- 第一層：症狀類別選單 -->
   <label for="categorySelect">類別：</label>
