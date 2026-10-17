@@ -1,12 +1,12 @@
 // ==================== 統一整合資料儲存 (核心) ====================
 async function saveAllResearchData() {
     if (REQUIRE_LOCATION_FOR_SUBMIT && !locationReady) {
-        alert("⚠️ 尚未取得定位資訊，無法送出！");
+        alert(tr('need_loc','⚠️ 尚未取得定位資訊，無法送出！'));
         return;
     }
     
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { alert("請先登入！"); return; }
+    if (!user) { alert(tr('need_login','請先登入！')); return; }
     
     let painLocations = [];
     let painScore = 0;
@@ -133,9 +133,9 @@ async function saveAllResearchData() {
     const { error } = await supabase.from('user_data').insert([payload]);
 
     if (error) {
-        alert("❌ 儲存失敗：" + error.message);
+        alert(tr('save_fail','❌ 儲存失敗：') + error.message);
     } else {
-        alert("✅ 該筆頭痛日誌已成功儲存！");
+        alert(tr('save_ok','✅ 該筆頭痛日誌已成功儲存！'));
         // 🌟 儲存成功後，清空音樂累積陣列，準備迎接下一次紀錄
         window.sessionMusicLogs = [];
         if (typeof loadUserHistory === 'function') {
