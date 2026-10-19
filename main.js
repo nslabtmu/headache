@@ -1119,5 +1119,6 @@ function setLang(code) {
   window.myCalendar?.setOption('locale', en ? 'en' : 'zh-tw');
   window.QuizTrend?.render();
   window.Quiz?.refreshLang();
+      if (typeof renderMusicCards === 'function') renderMusicCards();
 }
 window.setLang = setLang;
