@@ -334,7 +334,7 @@ function enableProfileEdit() {
 
 async function saveUserProfile() {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return alert("請先登入！");
+    if (!user) return alert(tr('need_login','請先登入！'));
 
     const profileData = {
         user_id: user.id,
@@ -350,7 +350,7 @@ async function saveUserProfile() {
     if (error) {
         alert("儲存個人資料失敗：" + error.message);
     } else {
-        alert("個人資料已更新！");
+        alert(tr('profile_ok','個人資料已更新！'));
         enterProfileViewMode();
     }
 }
@@ -463,7 +463,7 @@ function updateLocationDisplay(country, city, district, isManual = false) {
     const ipLocationName = document.getElementById('ip-location-name');
     
     if (ipLocationDisplay && ipLocationName) {
-        const suffix = isManual ? ' (手動選擇)' : '';
+        const suffix = isManual ? tr('manual_suffix',' (手動選擇)') : '';
         // 過濾掉空值的欄位，並用 " - " 連接
         const locationParts = [country, city, district].filter(Boolean);
         ipLocationName.innerText = `${locationParts.join(' - ')}${suffix}`;
@@ -629,7 +629,7 @@ async function applyTaiwanManualLocation() {
     const district = document.getElementById('select-district')?.value;
 
     if (!city || !district) {
-        alert('請選擇縣市與鄉鎮區！');
+        alert(tr('pick_city','請選擇縣市與鄉鎮區！'));
         return;
     }
 
@@ -704,7 +704,7 @@ function saveFullRecord() {
 // ✅ 新增：切換變更位置面板
 function toggleChangeLocation() {
         if (!isTaiwanLocation) {
-        alert('目前手動選擇位置僅支援台灣地區。');
+        alert(tr('tw_only','目前手動選擇位置僅支援台灣地區。'));
         return;
     }
     const manualBox = document.getElementById('manual-location-box');
@@ -1053,7 +1053,9 @@ async function checkWeatherRisk(lat, lon) {
         // --- 狀況 A：檢查當前氣壓是否偏低（例如低於標準大氣壓 1013 hPa 太多，或小於 1005 hPa） ---
         if (currentPressure < 1008) {
             if (alertBox && alertMsg) {
-                alertMsg.innerHTML = `偵測到目前氣壓偏低（<strong>${currentPressure.toFixed(1)} hPa</strong>），今日低氣壓環境可能增加偏頭痛發作機率，請多加注意！`;
+                alertMsg.innerHTML = currentLang === 'en'
+                  ? `Low pressure detected (<strong>${currentPressure.toFixed(1)} hPa</strong>). Migraine risk may be higher today.`
+                  : `偵測到目前氣壓偏低（<strong>${currentPressure.toFixed(1)} hPa</strong>），今日低氣壓環境可能增加偏頭痛發作機率，請多加注意！`;
                 alertBox.style.display = 'block'; // 顯示動態提示框
             }
         } else {
@@ -1063,7 +1065,9 @@ async function checkWeatherRisk(lat, lon) {
         // --- 狀況 B：檢查未來幾小時是否有「氣壓驟降」的風險 ---
         if (drop > 4) {
             if (riskCard && riskText) {
-                riskText.innerHTML = `當前氣壓 <strong>${currentPressure.toFixed(1)} hPa</strong>，預計未來幾小時內將急遽下降約 <strong>${drop.toFixed(1)} hPa</strong>。<br>氣壓快速變動是引發偏頭痛的高風險因子！`;
+                riskText.innerHTML = currentLang === 'en'
+                  ? `Pressure <strong>${currentPressure.toFixed(1)} hPa</strong>, expected to drop about <strong>${drop.toFixed(1)} hPa</strong> in the next hours.<br>Rapid pressure changes are a common migraine trigger.`
+                  : `當前氣壓 <strong>${currentPressure.toFixed(1)} hPa</strong>，預計未來幾小時內將急遽下降約 <strong>${drop.toFixed(1)} hPa</strong>。<br>氣壓快速變動是引發偏頭痛的高風險因子！`;
                 riskCard.classList.remove('hidden'); // 顯示風險卡片
             }
         } else {
