@@ -900,7 +900,18 @@ window.toggleAccountMenu = toggleAccountMenu;
 
 // 宣告在全域，確保 HTML 的 onclick 隨時找得到它
 let selectedParts = [];
-
+function moodHint() {
+  const last = Object.values(window.QuizTrend?.latest() || {})
+    .map(r => new Date(r.date)).sort((a, b) => b - a)[0];
+  const days = last ? Math.floor((Date.now() - last) / 86400000) : null;
+  const el = document.getElementById('mood-hint');
+  if (!el) return;
+  el.textContent = days === null
+    ? tr('mood_first','還沒做過量表，建議先做一份（例如 PHQ-9 或 GAD-7）。')
+    : days >= 7
+      ? tr('mood_due','距離上次已超過 7 天，可以再做一次追蹤變化。')
+      : tr('mood_recent','最近已做過量表，今天可以略過。');
+}
 function selectPainPart(partName) {
     const svgEl = document.getElementById(`svg-${partName}`);
     const btnEl = document.getElementById(`btn-${partName}`);
