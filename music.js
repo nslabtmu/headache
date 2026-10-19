@@ -1,7 +1,9 @@
 // ==========================================
 // 🎵 彈性 YouTube 音樂治療管理模組 (music.js) - 方案 C 升級版
 // ==========================================
-
+const isEn = () => document.documentElement.lang === 'en';
+const mName = c => isEn() ? (c.nameEn || c.name) : c.name;
+const mDesc = c => isEn() ? (c.descEn || c.description) : c.description;
 // 1️⃣ 音樂設定檔
 const musicConfigs = {
     piano: {
@@ -59,8 +61,8 @@ function renderMusicCards() {
 
         let cardHTML = `
             <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;" onmouseenter="prefetchPlayer('${key}')">
-                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;">${config.name}</h3>
-                <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">${config.description}</p>
+                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;">${mName(config)}</h3>
+                <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">${mDesc(config)}</p>
 
                 <!-- YouTube 播放器隱藏容器 -->
                 <div id="yt-player-${key}" style="display: none;"></div>
@@ -68,11 +70,11 @@ function renderMusicCards() {
                 <!-- 播放控制按鈕 -->
                 <button id="btn-${key}" onclick="toggleYouTubeMusic('${key}')"
                     style="width: 100%; padding: 8px; background: #A5D6A7; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                    ▶️ 播放${config.name}
+                    ▶️ 播放${mName(config)}
                 </button>
 
                 <!-- 狀態顯示 -->
-                <div id="status-${key}" style="margin-top: 8px; font-size: 12px; font-weight: bold; color: #007bff;">狀態：尚未開始</div>
+                <div id="status-${key}" style="margin-top: 8px; font-size: 12px; font-weight: bold; color: #007bff;">${tr('m_idle','狀態：尚未開始')}</div>
             </div>
         `;
         container.innerHTML += cardHTML;
@@ -109,7 +111,7 @@ function ensurePlayer(key) {
         let videoId = extractYouTubeId(config.url || config.videoId);
 
         if (!videoId || !document.getElementById(containerId)) {
-            reject(new Error(`${config.name} 缺少有效的影片 ID 或容器`));
+            reject(new Error(`${mName(config)} 缺少有效的影片 ID 或容器`));
             return;
         }
 
@@ -121,10 +123,10 @@ function ensurePlayer(key) {
             events: {
                 'onReady': () => {
                     playersMap[key] = player;
-                    console.log(`✅ ${config.name} 播放器建立完成`);
+                    console.log(`✅ ${mName(config)} 播放器建立完成`);
                     resolve(player);
                 },
-                'onError': (e) => reject(new Error(`${config.name} 播放器載入失敗（code: ${e.data}）`)),
+                'onError': (e) => reject(new Error(`${mName(config)} 播放器載入失敗（code: ${e.data}）`)),
                 'onStateChange': (event) => handlePlayerStateChange(key, event)
             }
         });
@@ -171,7 +173,7 @@ async function toggleYouTubeMusic(key) {
 
         // 2. 更新 UI 按鈕與狀態
         if (btn) {
-            btn.innerText = `▶️ 繼續播放${config.name}`;
+            btn.innerText = `▶️ ${tr('m_resume','繼續播放')} ${mName(config)}`;
             btn.style.background = '#A5D6A7';
         }
         if (statusEl) {
@@ -181,7 +183,7 @@ async function toggleYouTubeMusic(key) {
         // 3. ⏰ 啟動 10 分鐘超時自動結算（防止使用者暫停後忘記回來）
         clearTimeout(pauseTimeoutTimer);
         pauseTimeoutTimer = setTimeout(() => {
-            console.log(`⏰ [${config.name}] 暫停超過 10 分鐘未恢復播放，自動結算存檔...`);
+            console.log(`⏰ [${mName(config)}] 暫停超過 10 分鐘未恢復播放，自動結算存檔...`);
             finalizeAndPushLog(key, 'user_paused_timeout');
         }, 10 * 60 * 1000);
 
@@ -221,7 +223,7 @@ async function toggleYouTubeMusic(key) {
             if (statusEl) statusEl.innerText = "狀態：載入失敗，請稍後重試";
             if (btn) {
                 btn.disabled = false;
-                btn.innerText = `▶️ 播放${config.name}`;
+                btn.innerText = `▶️ ${tr('m_play','播放')} ${mName(config)}`;
                 btn.style.background = '#A5D6A7';
             }
             return;
@@ -236,7 +238,7 @@ async function toggleYouTubeMusic(key) {
 
     // 更新按鈕樣式
     if (btn) {
-        btn.innerText = `⏸️ 暫停${config.name}`;
+        btn.innerText = `⏸️ ${tr('m_pause','暫停')} ${mName(config)}`;
         btn.style.background = "#A9C0D6";
     }
 
@@ -284,7 +286,7 @@ function finalizeAndPushLog(key, endType = 'completed') {
     const isCompleted = (endType === 'completed') || (progressPercentage >= 80);
 
     const logItem = {
-        protocol: `U-Sequence: ${config.name}`,
+        protocol: `U-Sequence: ${mName(config)}`,
         start_time: currentSessionStartTime || new Date().toISOString(),
         end_time: new Date().toISOString(),
         duration_seconds: sessionAccumulatedSeconds, // 真正累積聆聽的總秒數
@@ -307,7 +309,7 @@ function finalizeAndPushLog(key, endType = 'completed') {
     let btn = document.getElementById(`btn-${key}`);
     if (statusEl) statusEl.innerText = `狀態：已結算存檔 (${endType})`;
     if (btn) {
-        btn.innerText = `▶️ 播放${config.name}`;
+        btn.innerText = `▶️ 播放${mName(config)}`;
         btn.style.background = '#A5D6A7';
     }
 }
