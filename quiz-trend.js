@@ -52,7 +52,9 @@ async function load() {
     sel.innerHTML = used.map(q => `<option value="${q}">${NAMES[q] || q}</option>`).join('');
     if (used.includes(keep)) sel.value = keep;
   }
-  render();
+   render();
+  window.Quiz?.refreshPicker?.();   // 更新按鈕上的 🔔 與提示文字
+  window.Quiz?.remindIfDue?.();     // 超過建議間隔才提醒（每天最多一次）
 }
 
 function renderChart() {
