@@ -216,13 +216,13 @@ async function handleGoogleLogin() {
             }
         }
     });
-    if (error) alert("Google 登入失敗：" + error.message);
+    if (error) alert(tr('google_fail','Google 登入失敗：') + error.message);
 }
 
 async function handleLogout() {
     const { error } = await supabase.auth.signOut();
     if (error) {
-        alert("登出失敗：" + error.message);
+        alert(tr('logout_fail','登出失敗：') + error.message);
     } else {
         window.location.href = window.location.origin + window.location.pathname;
     }
@@ -347,7 +347,7 @@ async function saveUserProfile() {
 
     const { error } = await supabase.from('profiles').upsert([profileData]);
     if (error) {
-        alert("儲存個人資料失敗：" + error.message);
+        alert(tr('profile_fail','儲存個人資料失敗：') + error.message);
     } else {
         alert(tr('profile_ok','個人資料已更新！'));
         enterProfileViewMode();
@@ -634,7 +634,7 @@ async function applyTaiwanManualLocation() {
     }
 
     const statusEl = document.getElementById('weather-status');
-    if (statusEl) statusEl.innerHTML = `⏳ 正在查詢 ${city}${district} 的氣象...`;
+    if (statusEl) statusEl.innerHTML = `⏳ statusEl.innerHTML = `⏳ ${tr('wx_query','正在查詢')} ${city}${district}...`;;
 
     try {
         // 取座標並查氣象
@@ -650,7 +650,7 @@ async function applyTaiwanManualLocation() {
         locationReady = true;
     } catch (err) {
         console.error("查詢失敗：", err);
-        if (statusEl) statusEl.innerHTML = `❌ 查詢失敗，請重試。`;
+        if (statusEl) statusEl.innerHTML = `❌ ${tr('query_fail','查詢失敗，請重試。')}`;
     }
 }
 
