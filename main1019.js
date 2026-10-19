@@ -857,7 +857,7 @@ async function checkMigraineWeatherRisk(lat, lon) {
     } catch (error) {
         console.error("無法取得氣象資料", error);
     }
-}
+ }
 
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('headacheCalendar'); // 請確認你的 HTML 容器 ID
@@ -999,7 +999,7 @@ function selectPain(score, label) {
     btn.classList.toggle('active', parseInt(btn.dataset.value) === score));
 }
 // 低氣壓等預警?
-// 假設這是你原本獲取並更新氣象數據的函數
+/* 1019 刪 假設這是你原本獲取並更新氣象數據的函數
 function updateWeatherUI(data) {
     // 1. 更新畫面上的數值
     document.getElementById('wx-temp').innerText = data.temp;
@@ -1008,9 +1008,9 @@ function updateWeatherUI(data) {
     
     // 2. 🟢 加上這行：自動檢查氣壓並觸發警報！
     checkBarometricPressureAlert(data.pressure);
-}
+}  updateWeatherUI*/
 
-// 檢查氣壓的判定函數
+/* 1019 刪  檢查氣壓的判定函數
 function checkBarometricPressureAlert(pressure) {
     const alertBox = document.getElementById('weather-alert-box');
     const alertMsg = document.getElementById('alert-message');
@@ -1026,7 +1026,7 @@ function checkBarometricPressureAlert(pressure) {
         // 氣壓正常，隱藏警告框
         alertBox.style.display = 'none';
     }
-}
+} checkBarometricPressureAlert*/
 // 匯出資料
 
 
