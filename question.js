@@ -446,6 +446,9 @@ function getDb() {
     if (typeof supabase !== 'undefined' && supabase && typeof supabase.from === 'function') return supabase;
     return null;
 }
+    // ---------- 暫時隱藏的量表（要重新開啟就從這裡移除）----------
+const HIDDEN = ['bai', 'bdi'];
+const ACTIVE = () => CONFIGS.filter(c => !HIDDEN.includes(c.id));
 // ---------- 追蹤提醒（可每天測，超過建議間隔才提醒）----------
 const INTERVAL = { phq9: 14, gad7: 14, bdi: 14, bai: 7, psqi: 30, ess: 30, dhi: 30, pssi: 14 };
 const todayStr = () => new Date().toLocaleDateString('sv-SE');
@@ -457,7 +460,7 @@ function quizStatus(id) {
     const days = daysSince(last.date), iv = INTERVAL[id] || 14;
     return days >= iv ? { state: 'due', days, iv } : { state: 'ok', days, iv };
 }
-const dueList = () => CONFIGS.filter(c => quizStatus(c.id).state === 'due');
+const dueList = () => ACTIVE().filter(c => quizStatus(c.id).state === 'due');
 
 function statusText(id) {
     const s = quizStatus(id), en = lang() === 'en';
@@ -472,7 +475,7 @@ function updateMoodHint() {
     if (!box) return;
     const en = lang() === 'en';
     const due = dueList();
-    const anyDone = CONFIGS.some(c => quizStatus(c.id).state !== 'never');
+    const anyDone = ACTIVE().some(c => quizStatus(c.id).state !== 'never');
     if (due.length) {
         box.style.color = '#b26a00';
         box.innerHTML = '🔔 ' + (en ? 'Follow-up due: ' : '已超過建議追蹤時間：') +
@@ -503,7 +506,7 @@ function remindIfDue() {
 function buildPicker() {
     const box = el('quiz-picker');
     if (!box) return;
-    box.innerHTML = CONFIGS.map(c => {
+    box.innerHTML = ACTIVE().map(c => {
         const mark = quizStatus(c.id).state === 'due' ? ' 🔔' : '';
         return `<button type="button" class="btn" data-quiz-btn="${c.id}" title="${esc(statusText(c.id))}" onclick="Quiz.open('${c.id}')">${esc(tx(c.label))}${mark}</button>`;
     }).join('');
@@ -526,6 +529,7 @@ function highlight() {
 }
 
 function open(id) {
+    if (HIDDEN.includes(id)) return;
     if (Q && Q.cfg.id === id) return close();
     Q = { cfg: CONFIGS.find(c => c.id === id), answers: {}, idx: 0, view: 'intro', result: null, saveState: 'idle', saveError: '' };
     render(); highlight();
