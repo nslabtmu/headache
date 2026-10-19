@@ -160,7 +160,7 @@
                 <option value="" data-i18n="loc_city_ph">請選擇縣市...</option>
             </select>
             <select id="select-district" class="form-control" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-                <option value="">請先選擇縣市</option>
+                <option value="" data-i18n="loc_district_ph">請先選擇縣市</option>
             </select>
         </div> 
         <div style="display: flex; gap: 8px;">
@@ -175,7 +175,7 @@
     </div>    
     <!-- ==================== 2. 氣象資料卡片 ==================== -->
     <div id="weather-card" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef;">
-        <div id="weather-status" style="font-weight: 500; font-size: 15px; color: #2c3e50;">
+        <div id="weather-status" style="font-weight: 500; font-size: 15px; color: #2c3e50;" data-i18n="wx_loading">
         ⏳ 正在取得氣象數據...
     </div>
 <!-- ✅ 氣象資料顯示區 - 白色卡片 -->
@@ -200,7 +200,7 @@
 <div id="weather-risk-card" class="card card-left hidden" style="background: var(--color-danger-bg); border-color: #ecd3cd;">
     <div class="card-body">
         <h3 class="card-title" style="font-size: 1.1rem; margin-bottom: 8px;" data-i18n="wx_risk_title">⚠️ 氣象頭痛風險提示</h3>
-        <p id="weather-risk-text" style="font-size: 0.95rem; margin: 0; color: var(--color-text-main);">
+        <p id="weather-risk-text" style="font-size: 0.95rem; margin: 0; color: var(--color-text-main);"  data-i18n="wx_risk_checking">
             正在檢測當地氣壓變化...
         </p>
     </div>
@@ -392,7 +392,7 @@
     </div>
   
                 <div class="button-group">
-                <button type="button" class="btn" onclick="switchTab('pane-mood')">下一頁</button>
+                <button type="button" class="btn" onclick="switchTab('pane-mood')" data-i18n="next_btn">下一頁</button>
                 </div>
               </div>
             </div>
