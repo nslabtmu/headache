@@ -29,7 +29,6 @@
     <!-- 引入 FullCalendar 的 CSS 與 JS -->
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css' rel='stylesheet' />
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
-    <script src="./report.js"></script>
 </head>
 <body>
 
@@ -362,15 +361,15 @@
                                 	<label class="sub-label" data-i18n="med_category">止痛藥類別 (可複選)：</label>
                                 <div class="checkbox-group">
                                     <label class="checkbox-item"><input type="checkbox" name="med-category" value="acetaminophen"><span data-i18n="med_acetaminophen">乙醯胺酚類 (如：普拿疼)</span></label>
-                                    <label class="checkbox-item"><input type="checkbox" name="med-category" value="nsaid"><span data-i18n="med_nsaid"非類固醇消炎藥 (如：布洛芬、EVE、服他寧)</span></label>
+                                    <label class="checkbox-item"><input type="checkbox" name="med-category" value="nsaid"><span data-i18n="med_nsaid">非類固醇消炎藥 (如：布洛芬、EVE、服他寧)</span></label>
                                     <label class="checkbox-item"><input type="checkbox" name="med-category" value="opioid"> <span data-i18n="med_opioid">鴉片類 / 處方強效止痛藥 (如：處方可待因、嗎啡)</span></label>
                                     <label class="checkbox-item"><input type="checkbox" name="med-category" value="unknown"><span data-i18n="med_unknown">不清楚藥物類別</span></label>
                                 </div>
                             </div>
 
                             <div class="sub-field" style="margin-top: 12px;">
-                                <label for="input-medication-name" class="sub-label">具體藥品名稱 (選填)：</label>
-                                <input type="text" id="input-medication-name" class="form-input text-input" placeholder="例如：普拿疼加強錠、EVE Quick"/>
+                                <label for="input-medication-name" class="sub-label" data-i18n="med_name">具體藥品名稱 (選填)：</label>
+                                <input type="text" id="input-medication-name" class="form-input text-input" data-i18n-ph="med_name_ph" placeholder="例如：普拿疼加強錠、EVE Quick"/>
                             </div>
 
                             <div class="sub-field" style="margin-top: 12px;">
@@ -534,7 +533,7 @@
 
             <!-- 框 1：純鋼琴 -->
             <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
-                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;" data-i18n="music_desc">🎹 純鋼琴</h3>
+                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;" data-i18n="music_piano">🎹 純鋼琴</h3>
                 <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;" data-i18n="music_piano_d">拍速緩慢、留白較多，引導大腦放鬆。</p>
                 <audio id="audioPiano" controls style="width: 100%;">
                 
