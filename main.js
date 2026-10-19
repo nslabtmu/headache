@@ -416,6 +416,7 @@ async function fetchWeather(lat, lon, statusMessage) {
             lat, 
             lon, 
             fetched_at: new Date().toISOString(), 
+            location: document.getElementById('ip-location-name')?.innerText || null,
             data: {
                 ...currentWx,    // 包含 temperature_2m, relative_humidity_2m 等
                 ...currentAir    // 包含 pm2_5, pm10, us_aqi 等
