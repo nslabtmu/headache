@@ -177,6 +177,7 @@ const langDict = {
   disclaimer_p2: "If you feel severely unwell or have fever, severe headache or slurred speech, go to an emergency room or nearest hospital immediately.",
   disclaimer_ok: "I understand",
   footer_disclaimer: "⚠️ Disclaimer: For health tracking and research only; not a medical diagnosis. Seek care immediately for acute symptoms.",
+  m_play:"Play", m_pause:"Pause", m_resume:"Resume", m_idle:"Status: not started",
   account_mgmt: "🔐 Account management"
 }
 };
