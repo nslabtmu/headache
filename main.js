@@ -1015,6 +1015,28 @@ async function checkWeatherRisk(lat, lon) {
         console.error("無法取得氣象預報資料", error);
     }
 }
+function updateStepBadges() {
+  const done = {
+    'pane-headache': !!window.currentDiaryId || window.painTouched,
+    'pane-mood':     (window.sessionQuizLogs || []).length > 0,
+    'pane-symptom':  [...document.querySelectorAll('#pane-symptom input[type=range]')].some(r => r.value !== '1')
+                     || !!document.getElementById('triggers')?.value.trim(),
+    'pane-band':     ['band_heart_rate','band_spo2','band_steps','band_avg_steps']
+                     .some(id => document.getElementById(id)?.value)
+  };
+  Object.entries(done).forEach(([id, ok]) => {
+    document.querySelectorAll(`[data-badge="${id}"]`).forEach(b => {
+      b.textContent = ok ? '✓' : '○';
+      b.classList.toggle('done', ok);
+    });
+  });
+  const n = Object.values(done).filter(Boolean).length;
+  const info = document.getElementById('step-progress');
+  if (info) info.textContent = `${n}/4`;
+}
+window.updateStepBadges = updateStepBadges;
+document.addEventListener('input', updateStepBadges);
+document.addEventListener('click', () => setTimeout(updateStepBadges, 50));
 
 function tr(key, zh) { return currentLang === 'en' ? (langDict.en[key] ?? zh) : zh; }
 window.tr = tr;
