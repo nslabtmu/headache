@@ -453,10 +453,13 @@
                     </div>
                     <div class="button-group" style="display: flex; gap: 10px; margin-top: 15px;">
                         <button type="button" class="btn" onclick="switchTab('pane-symptom')" data-i18n="btn_prev_step">⬅️ 上一步</button>
-                        <button type="button" class="btn" style="background:#27ae60; color:white;" onclick="saveFullRecord()" data-i18n="save_record_btn">💾 儲存當前紀錄</button>
                     </div>
                 </div>
-            </form>
+          <div id="save-bar" style="position:sticky;bottom:0;background:#fff;border-top:1px solid #e2e8f0;padding:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+          <span style="font-size:13px;color:#666;">已填 <b id="step-progress">0/4</b>・最少只要填「頭痛」就能儲存</span>
+          <button type="button" class="btn" id="save-diary-btn" style="background:#27ae60;color:#fff;" onclick="saveFullRecord()"" data-i18n="save_record_btn">💾 儲存</button>
+            </div>
+            </form>    
         </div> <!-- l2-diary 結束 -->
               
 <!-- ==================== 主頁籤 2: 趨勢圖 ==================== <div id="pane-chart" class="tab-pane"> -->
