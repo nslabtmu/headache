@@ -186,6 +186,9 @@ const langDict = {
   nudge_red:"Pain is severe. If this is a sudden, worst-ever headache, or comes with one-sided weakness, slurred speech or vision changes, seek emergency care immediately.",
   nudge_saved2:"Saved. What would you like to do next?",
   nudge_music:"🎵 Listen to music", nudge_mood:"🩵 Fill in a questionnaire", nudge_later:"Later",
+  filled_label:"Filled", min_hint:"Only the headache page is required to save",
+  new_diary_btn:"＋ New record", new_confirm:"Start a new record? The form will be cleared.",
+  save_new:"💾 Save", save_update:"💾 Update record",
   account_mgmt: "🔐 Account management"
 }
 };
