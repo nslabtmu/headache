@@ -1117,8 +1117,9 @@ function setLang(code) {
     b.classList.toggle('active', b.dataset.lang === (en ? 'en' : 'zh')));
 
   window.myCalendar?.setOption('locale', en ? 'en' : 'zh-tw');
+  window.myCalendar?.refetchEvents();
   window.QuizTrend?.render();
   window.Quiz?.refreshLang();
-      if (typeof renderMusicCards === 'function') renderMusicCards();
+  if (typeof renderMusicCards === 'function' && !window.isMusicActive?.()) renderMusicCards();
 }
 window.setLang = setLang;
