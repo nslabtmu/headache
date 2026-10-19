@@ -1024,6 +1024,25 @@ function updateStepBadges() {
 window.updateStepBadges = updateStepBadges;
 document.addEventListener('input', updateStepBadges);
 document.addEventListener('click', () => setTimeout(updateStepBadges, 50));
+function askPainAfter() {
+  const box = document.createElement('div');
+  box.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  box.innerHTML = `<div style="background:#fff;padding:20px;border-radius:12px;max-width:340px;text-align:center">
+    <h3 style="margin:0 0 6px">${tr('after_title','聽完音樂，現在疼痛幾分？')}</h3>
+    <p style="font-size:12px;color:#777;margin:0 0 12px">${tr('after_hint','0 = 不痛，10 = 劇痛。可以略過。')}</p>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">
+      ${[0,1,2,3,4,5,6,7,8,9,10].map(n => `<button type="button" data-n="${n}" style="width:40px;height:40px;border-radius:50%;border:1px solid #ccc;background:#fff;cursor:pointer">${n}</button>`).join('')}
+    </div>
+    <button type="button" id="after-skip" style="margin-top:12px;border:none;background:none;color:#888;cursor:pointer">${tr('after_skip','略過')}</button>
+  </div>`;
+  document.body.appendChild(box);
+  box.querySelectorAll('[data-n]').forEach(b => b.onclick = () => {
+    window.painAfter = Number(b.dataset.n);
+    box.remove();
+    window.syncDiaryExtras?.();
+  });
+  box.querySelector('#after-skip').onclick = () => box.remove();
+}
 
 function tr(key, zh) { return currentLang === 'en' ? (langDict.en[key] ?? zh) : zh; }
 window.tr = tr;
