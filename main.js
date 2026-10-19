@@ -603,7 +603,7 @@ async function applyTaiwanManualLocation() {
     }
 
     const statusEl = document.getElementById('weather-status');
-    if (statusEl) statusEl.innerHTML = `⏳ statusEl.innerHTML = `⏳ ${tr('wx_query','正在查詢')} ${city}${district}...`;
+        if (statusEl) statusEl.innerHTML = `⏳ ${tr('wx_query','正在查詢')} ${city}${district}...`;
 
     try {
         // 取座標並查氣象
