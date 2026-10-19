@@ -227,6 +227,8 @@ function showMainApp(user) {
     loadCalendarRecords(user.id);
     setupRealtimeListener(user.id);   // ✅ 加這行，用真實 user.id
     window.QuizTrend?.load();
+    updateSaveButtonLabel?.();
+    updateStepBadges?.();
 }
 async function loadCalendarRecords(userId) {
     const { data, error } = await supabase
@@ -1089,5 +1091,7 @@ function setLang(code) {
       if (typeof initSymptomOptions === 'function') {
     initSymptomOptions(document.getElementById('categorySelect')?.value || 'all');
   }
+  if (typeof updateSaveButtonLabel === 'function') updateSaveButtonLabel();
+  if (typeof updateStepBadges === 'function') updateStepBadges();
 }
 window.setLang = setLang;
