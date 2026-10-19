@@ -5,9 +5,7 @@ let currentEditingUserId = null;
 
 // ============ 頁面載入 ============
 window.addEventListener('load', async () => {
-    console.log('account.js 頁面載入...');
-   // await loadUsers();
-    await updateStats();
+    if (document.getElementById('total-users')) await updateStats();
 });
 // 修改 2：當管理者點擊打開帳號管理 Modal 時，才去載入資料
 // 初始化 Supabase 客戶端（如果還沒有的話）
