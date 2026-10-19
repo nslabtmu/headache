@@ -231,7 +231,7 @@
             </select>
 
     <!-- 表單內容區域 -->
-    <form id="attack-form" onsubmit="event.preventDefault(); saveFullRecord();">
+    <form id="attack-form" onsubmit="event.preventDefault();">
     
     <!-- 次頁籤 1：頭痛紀錄 -->
  <div id="pane-headache" class="tab-pane active">
@@ -397,8 +397,9 @@
               </div>
             </div>
     <!-- 次頁籤 1.1：心情 -->
-    <p id="mood-hint" class="text-muted small"></p>    
+        
     <div id="pane-mood" class="tab-pane">
+    <p id="mood-hint" class="text-muted small"></p>
 
       <!-- 量表選擇器 -->
         <div id="quiz-picker" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;"></div>
@@ -456,11 +457,17 @@
                         <button type="button" class="btn" onclick="switchTab('pane-symptom')" data-i18n="btn_prev_step">⬅️ 上一步</button>
                     </div>
                 </div>
-          <div id="save-bar" style="position:sticky;bottom:0;background:#fff;border-top:1px solid #e2e8f0;padding:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
-          <span style="font-size:13px;color:#666;">已填 <b id="step-progress">0/4</b>・最少只要填「頭痛」就能儲存</span>
-          <button type="button" class="btn" id="save-diary-btn" style="background:#27ae60;color:#fff;" onclick="saveFullRecord()"" data-i18n="save_record_btn">💾 儲存</button>
-            </div>
-            </form>    
+          <div id="save-bar" style="position:sticky;bottom:0;background:#fff;border-top:1px solid #e2e8f0;padding:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="font-size:13px;color:#666;">
+              <span data-i18n="filled_label">已填</span> <b id="step-progress">0/4</b>・<span data-i18n="min_hint">最少只要填「頭痛」就能儲存</span>
+            </span>
+            <span style="display:flex;gap:6px;">
+              <button type="button" class="btn" data-i18n="new_diary_btn"
+                      onclick="if(confirm(tr('new_confirm','開始新的一筆紀錄？目前表單會清空'))) startNewDiary()">＋ 新紀錄</button>
+              <button type="button" class="btn" id="save-diary-btn" style="background:#27ae60;color:#fff;" onclick="saveFullRecord()">💾 儲存</button>
+            </span>
+          </div>
+        </form>  
         </div> <!-- l2-diary 結束 -->
               
 <!-- ==================== 主頁籤 2: 趨勢圖 ==================== <div id="pane-chart" class="tab-pane"> -->
