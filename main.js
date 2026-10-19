@@ -408,7 +408,7 @@ async function fetchWeather(lat, lon, statusMessage) {
 
     // 2. 帶入評估文字與標準說明，也套用相同顏色
     if (pm25StatusEl) {
-        pm25StatusEl.innerText = `(${aq.text}`;
+        pm25StatusEl.innerText = `(${aq.text})`;
         pm25StatusEl.style.color = aq.color;
     }
 }
