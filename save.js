@@ -6,7 +6,7 @@ async function saveAllResearchData() {
     }
     
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { alert(tr('need_login','請先登入！')); return; }
+    if (!user) {alert(tr('need_login','請先登入！')); return;}
     
     let painLocations = [];
     let painScore = 0;
