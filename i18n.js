@@ -178,8 +178,9 @@ const langDict = {
   disclaimer_ok: "I understand",
   footer_disclaimer: "⚠️ Disclaimer: For health tracking and research only; not a medical diagnosis. Seek care immediately for acute symptoms.",
   m_play:"Play", m_pause:"Pause", m_resume:"Resume", m_idle:"Status: not started",
-      m_paused:"Status: paused", m_ph1:"Status: [Entry phase] ", m_ph2:"Status: [Core relaxation] ", m_ph3:"Status: [Return phase] ",
+  m_paused:"Status: paused", m_ph1:"Status: [Entry phase] ", m_ph2:"Status: [Core relaxation] ", m_ph3:"Status: [Return phase] ",
   m_loading:"Status: loading player...", m_loadfail:"Status: failed to load, try again", m_loadingbtn:"Loading...", m_saved:"Status: session saved",
+  pick_city:"Please select city and district.", tw_only:"Manual location is only available in Taiwan.", profile_ok:"Profile updated.",
   account_mgmt: "🔐 Account management"
 }
 };
