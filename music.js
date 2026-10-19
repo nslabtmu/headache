@@ -316,7 +316,7 @@ function finalizeAndPushLog(key, endType = 'completed') {
 
     window.sessionMusicLogs.push(logItem);
     console.log("✅ 音樂紀錄已結算打包至 sessionMusicLogs：", logItem);
-
+    if (sessionAccumulatedSeconds >= 300 || endType === 'completed') askPainAfter();
     // 重置該首歌的累計狀態
     sessionAccumulatedSeconds = 0;
     sessionPauseCount = 0;
