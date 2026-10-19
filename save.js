@@ -1,4 +1,10 @@
+function updateSaveButtonLabel() {
+    const b = document.getElementById('save-diary-btn');
+    if (b) b.innerText = window.currentDiaryId ? tr('save_update', '💾 更新紀錄') : tr('save_new', '💾 儲存');
+}
+window.updateSaveButtonLabel = updateSaveButtonLabel;
 // ==================== 統一整合資料儲存 (核心) ====================
+
 async function saveAllResearchData() {
     if (REQUIRE_LOCATION_FOR_SUBMIT && !locationReady) {
         alert(tr('need_loc','⚠️ 尚未取得定位資訊，無法送出！'));
