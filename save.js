@@ -111,19 +111,20 @@ async function saveAllResearchData() {
     }
 
     // 氣象資料處理（如果是補填，會記錄當下抓到的氣象或經緯度備份）
+const today = new Date().toLocaleDateString('sv-SE');
+const isBackfilled = !!inputDate && inputDate !== today;
+    const wd = currentWeather?.data || {};
+
     const weatherData = currentWeather ? {
-        temperature: currentWeather.data?.temperature_2m || null,
-        humidity: currentWeather.data?.relative_humidity_2m || null,
-        pressure: currentWeather.data?.surface_pressure || null,
-        location: currentWeather.location || "未知位置",
-        fetched_at: currentWeather.fetched_at,
-        is_backfilled: !!inputDate // 標記這是一筆補填資料
-    } : { 
-        note: "當下無氣象(防火牆或未抓取)",  
-        latitude: window.userLocation?.lat || null,  
-        longitude: window.userLocation?.lng || null,
-        is_backfilled: true
-    };
+  temperature: wd.temperature_2m ?? null,
+  humidity:    wd.relative_humidity_2m ?? null,
+  pressure:    wd.surface_pressure ?? null,
+  pm2_5:       wd.pm2_5 ?? null,
+  us_aqi:      wd.us_aqi ?? null,
+  location:    currentWeather.location ?? null,
+  fetched_at:  currentWeather.fetched_at,
+  is_backfilled: isBackfilled
+   } : { note: 'no_weather', is_backfilled: isBackfilled };
  
     const payload = {
         user_id: user.id,
