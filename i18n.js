@@ -183,6 +183,9 @@ const langDict = {
   pick_city:"Please select city and district.", tw_only:"Manual location is only available in Taiwan.", profile_ok:"Profile updated.",
   google_fail:"Google sign-in failed: ", logout_fail:"Sign-out failed: ", profile_fail:"Failed to save profile: ",
   wx_query:"Fetching weather for", query_fail:"Lookup failed, please try again.",
+  nudge_red:"Pain is severe. If this is a sudden, worst-ever headache, or comes with one-sided weakness, slurred speech or vision changes, seek emergency care immediately.",
+  nudge_saved2:"Saved. What would you like to do next?",
+  nudge_music:"🎵 Listen to music", nudge_mood:"🩵 Fill in a questionnaire", nudge_later:"Later",
   account_mgmt: "🔐 Account management"
 }
 };
