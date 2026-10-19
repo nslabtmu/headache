@@ -633,6 +633,7 @@ function renderResult(root) {
         ${(r.lines || []).map(l => `<p style="font-size:14px; color:#444; margin:2px 0;">${esc(tx(l))}</p>`).join('')}
         ${cfg.cutoff && r.total >= cfg.cutoff ? `<p style="font-size:14px; color:#b26a00;">${tx(UI.cutoff(cfg.cutoff))}</p>` : ''}
         ${crisis}
+        ${adviceHTML()}
         <p style="font-size:12px; color:#888;">${tx(UI.disclaimer)}</p>
         <div id="quiz-save-status" style="font-size:13px; margin:10px 0; min-height:18px;">${statusHTML()}</div>
         <button type="button" onclick="Quiz.retake()" style="${STYLE.plain}">${tx(UI.retake)}</button>
@@ -672,6 +673,98 @@ async function save() {
     }
     if (Q === q) updateStatus();
 }
+
+
+// ---------- 結果建議 ----------
+const TIER_CUT = { phq9:[4,9,14], gad7:[4,9,14], bdi:[13,19,28], bai:[7,15,25], ess:[10,12,15], dhi:[0,30,60] };
+const tierOf = (id, total) => {
+    const c = TIER_CUT[id]; if (!c) return 0;
+    return total <= c[0] ? 0 : total <= c[1] ? 1 : total <= c[2] ? 2 : 3;
+};
+
+const SLEEP_TIPS = T(
+    '起床時間盡量固定（週末也一樣）；下午以後避免咖啡因；睡前 1 小時減少螢幕；床只用來睡覺；躺了約 20 分鐘還睡不著就先起來，想睡再回床上；午睡控制在 30 分鐘內。',
+    'Keep a fixed wake-up time (weekends too); avoid caffeine in the afternoon; cut screens an hour before bed; use the bed only for sleep; if awake for ~20 min, get up and return when sleepy; keep naps under 30 min.'
+);
+
+function adviceFor(cfg, r, a) {
+    const id = cfg.id, out = [];
+    const add = (zh, en) => out.push(T(zh, en));
+
+    if (id === 'psqi') {
+        const c = r.extra?.components || {};
+        const hasDaytime = c.daytime >= 2;
+        const breathing = (a['5d'] || 0) >= 2 || (a['5e'] || 0) >= 2;
+        const drowsyDriving = (a.q8 || 0) >= 2;
+        const usesMeds = (a.q7 || 0) >= 2;
+
+        if (r.total <= 5) {
+            add('睡眠品質在良好範圍，維持目前的作息即可。', 'Your sleep quality is in the good range. Keep up your current routine.');
+        } else if (r.total <= 10) {
+            add('睡眠品質偏差。可以先從生活習慣調整，並在 1～2 週後再測一次，看看是否改善。', 'Your sleep quality is below average. Start with lifestyle changes and retake this in 1–2 weeks.');
+            out.push(SLEEP_TIPS);
+        } else {
+            add('睡眠困擾較明顯，建議安排時間請醫師評估（家醫科、神經內科或睡眠門診皆可）。', 'Your sleep problems are significant. Consider seeing a doctor (family medicine, neurology, or a sleep clinic).');
+            out.push(SLEEP_TIPS);
+        }
+        if (r.total > 5 && hasDaytime) add('白天已經受到影響（想睡或提不起勁）。若持續超過 1 個月，建議就醫評估。', 'Daytime functioning is affected. If this lasts over a month, consider a medical evaluation.');
+        if (breathing) add('您提到呼吸不順或打鼾較明顯，建議跟醫師討論是否需要檢查睡眠呼吸中止症。', 'You reported breathing difficulty or loud snoring. Ask a doctor about screening for sleep apnea.');
+        if (drowsyDriving) add('⚠️ 您提到開車或活動時難以保持清醒。感到想睡時請不要開車，並盡快請醫師評估。', '⚠️ You reported trouble staying awake while driving or in activities. Do not drive when drowsy, and see a doctor soon.');
+        if (usesMeds) add('您有使用助眠藥物。請不要自行增減或停藥，調整前先與開藥的醫師討論。', 'You use sleep medication. Do not change or stop it on your own — talk to the prescribing doctor first.');
+        add('睡眠不規律和睡眠不足，是常見的頭痛誘因之一，改善睡眠也可能幫助減少發作。', 'Irregular or short sleep is a common headache trigger; improving sleep may help reduce episodes.');
+        return out;
+    }
+
+    if (id === 'ess') {
+        const t = tierOf(id, r.total);
+        if (t === 0) add('白天嗜睡程度在正常範圍。', 'Your daytime sleepiness is in the normal range.');
+        else {
+            add('白天嗜睡偏高。建議先確認夜間睡眠是否足夠，並留意是否有打鼾或呼吸中止的情形。', 'Daytime sleepiness is elevated. Check that you get enough sleep at night and watch for snoring or breathing pauses.');
+            add('分數已偏高時，建議請醫師評估。感到想睡時請不要開車或操作機械。', 'With this score, consider a medical evaluation. Do not drive or operate machinery when drowsy.');
+        }
+        return out;
+    }
+
+    if (id === 'dhi') {
+        const t = tierOf(id, r.total);
+        if (t === 0) add('眩暈對生活的影響為輕度，可持續記錄發作的時間與情境。', 'Dizziness has a mild impact. Keep noting when and in what situations it happens.');
+        else add('眩暈已影響生活，建議請醫師評估（耳鼻喉科或神經內科）。若有走路不穩、單側無力、說話困難或視力突然改變，請立即就醫。', 'Dizziness is affecting daily life. Consider seeing a doctor (ENT or neurology). If you have unsteady walking, one-sided weakness, speech difficulty, or sudden vision changes, seek care immediately.');
+        return out;
+    }
+
+    if (id === 'pssi') {
+        if (r.total >= 15) add('分數達篩檢切點，建議找心理師或精神科醫師進一步評估；創傷反應是可以被協助的。', 'Your score is at or above the screening cutoff. Consider seeing a psychologist or psychiatrist; trauma reactions can be treated.');
+        else add('目前未達篩檢切點。若症狀持續或加重，仍建議尋求專業協助。', 'You are below the screening cutoff. If symptoms persist or worsen, still consider professional support.');
+        add('可以試著維持規律作息、與信任的人聊聊，並避免用酒精來入睡或減壓。', 'Try to keep a regular routine, talk with someone you trust, and avoid using alcohol to sleep or cope.');
+        return out;
+    }
+
+    // PHQ-9 / BDI / GAD-7 / BAI
+    const t = tierOf(id, r.total);
+    const mood = (id === 'phq9' || id === 'bdi');
+    if (t === 0) add(mood ? '目前情緒狀態在低風險範圍，持續維持規律作息與運動。' : '目前焦慮程度在低範圍，持續維持規律作息與運動。',
+                     mood ? 'Your mood score is in the low range. Keep up regular sleep and activity.' : 'Your anxiety score is in the low range. Keep up regular sleep and activity.');
+    else if (t === 1) {
+        add('輕度。可以先嘗試規律運動、固定睡眠、與朋友家人聊聊，並在 2 週後再測一次。', 'Mild. Try regular exercise, steady sleep and talking with people you trust, then retake in 2 weeks.');
+        add('如果症狀持續或影響生活，建議找醫師討論。', 'If symptoms persist or affect daily life, talk to a doctor.');
+    } else {
+        add('分數已到中度以上，建議預約家醫科、身心科或精神科評估，不需要等到更嚴重才求助。', 'Your score is moderate or higher. Consider booking a visit (family medicine, psychosomatic or psychiatry); you do not have to wait until it gets worse.');
+        if (t === 3) add('重度範圍，建議盡快安排就醫，也可以請身邊的人陪同。', 'Severe range. Please arrange to see a doctor soon, and consider asking someone to go with you.');
+    }
+    if (id === 'phq9' || id === 'gad7') add('頭痛與情緒、睡眠常互相影響，兩者都值得一起追蹤。', 'Headache, mood and sleep often influence each other, so it is worth tracking them together.');
+    return out;
+}
+
+function adviceHTML() {
+    const { cfg, result: r, answers } = Q;
+    const items = adviceFor(cfg, r, answers);
+    if (!items.length) return '';
+    return `<div style="text-align:left; background:#f1f8e9; border-radius:8px; padding:12px 14px; margin:12px 0; font-size:14px;">
+        <b>💡 ${lang() === 'en' ? 'Suggestions' : '建議'}</b>
+        <ul style="margin:6px 0 0 18px; padding:0;">${items.map(i => `<li style="margin:4px 0;">${esc(tx(i))}</li>`).join('')}</ul>
+    </div>`;
+}
+    
 function crisisHTML() {
     const { cfg, answers } = Q;
     if (!(cfg.crisis && (answers[cfg.crisis.key] || 0) >= cfg.crisis.min)) return '';
