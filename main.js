@@ -1125,5 +1125,10 @@ function setLang(code) {
   window.QuizTrend?.render();
   window.Quiz?.refreshLang();
   if (typeof renderMusicCards === 'function' && !window.isMusicActive?.()) renderMusicCards();
+  const p = document.getElementById('input-pain')?.value;
+  if (p !== undefined) {
+    const lbl = {0:'不痛',2:'輕微疼痛',4:'稍微疼痛',6:'中度疼痛',8:'嚴重疼痛',10:'劇烈疼痛'}[p];
+    if (lbl) selectPain(Number(p), lbl);
+  }
 }
 window.setLang = setLang;
