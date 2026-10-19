@@ -217,7 +217,7 @@
             <!-- 第三層 -->
             <div class="tabs sub-tabs" style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
                 <button type="button" data-tab="pane-headache" class="tab-btn active" id="btn-tab-headache" onclick="switchTab('pane-headache')" data-i18n="tab_headache">🤕 頭痛</button>
-                <button type="button" data-tab="pane-mood" class="tab-btn" id="btn-tab-mood" onclick="switchTab('pane-mood')" data-i18n="tab_mood">🩵 心情</button>
+                <button type="button" data-tab="pane-mood" class="tab-btn" id="btn-tab-mood" onclick="switchTab('pane-mood')" data-i18n="tab_mood"> 心情</button>
                 <button type="button" class="tab-btn" id="btn-tab-symptom" data-tab="pane-symptom" onclick="switchTab('pane-symptom')" data-i18n="tab_symptom">📝  相關症狀</button>
                 <button type="button" class="tab-btn" id="btn-tab-band" data-tab="pane-band" onclick="switchTab( 'pane-band')" data-i18n="tab_band">⌚ 健康資料</button>
             </div>
@@ -526,48 +526,11 @@
         <h2 class="section-title" style="font-size: 18px; color: #2c3e50; margin-bottom: 5px;" data-i18n="music_title">🎧 偏頭痛 U 序列音樂治療專區</h2>
         <p style="font-size: 13px; color: #6c757d; margin-bottom: 20px;" data-i18n="music_desc">
             科學實證：請選擇適合您當下狀態的療癒音樂，進行 20 分鐘副交感神經調節。
-        </p>
-
-        <!-- 外層容器：使用 flexbox 讓三個框併排 -->
-        <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between;">
-
-            <!-- 框 1：純鋼琴 -->
-            <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
-                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;" data-i18n="music_piano">🎹 純鋼琴</h3>
-                <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;" data-i18n="music_piano_d">拍速緩慢、留白較多，引導大腦放鬆。</p>
-                <audio id="audioPiano" controls style="width: 100%;">
-                
-                    您的瀏覽器不支援音訊元素。
-                </audio>
-                <div id="statusPiano" style="margin-top: 8px; font-size: 12px; font-weight: bold; color: #007bff;">狀態：尚未開始</div>
-            </div>
-
-            <!-- 框 2：森林 -->
-            <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
-                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;" data-i18n="music_forest">🌲 森林</h3>
-                <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;" data-i18n="music_forest_d">低頻環境音，微風與輕柔鳥鳴。</p>
-                <audio id="audioForest" controls style="width: 100%;">
-                    
-                    您的瀏覽器不支援音訊元素。
-                </audio>
-                <div id="statusForest" style="margin-top: 8px; font-size: 12px; font-weight: bold; color: #007bff;">狀態：尚未開始</div>
-            </div>
-
-            <!-- 框 3：海洋 -->
-            <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;">
-                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;"data-i18n="music_ocean">🌊 海洋</h3>
-                <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;"data-i18n="music_ocean_d">深呼吸頻率的規律浪濤聲。</p>
-                <audio id="audioOcean" controls style="width: 100%;">
-                    
-                    您的瀏覽器不支援音訊元素。
-                </audio>
-                <div id="statusOcean" style="margin-top: 8px; font-size: 12px; font-weight: bold; color: #007bff;">狀態：尚未開始</div>
-            </div>
-            </div>
+        </p>  
         </div>
 
     <!-- 音樂療程動態生成容器 music.js 改-->
-<div id="music-cards-container" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+    <div id="music-cards-container" style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
     <!-- 程式會自動在這裡產生所有音樂卡片 -->
      </div>
 </section>
