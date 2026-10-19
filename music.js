@@ -1,9 +1,9 @@
 // ==========================================
 // 🎵 彈性 YouTube 音樂治療管理模組 (music.js) - 方案 C 升級版
 // ==========================================
-const isEn = () => document.documentElement.lang === 'en';
-const mName = c => isEn() ? (c.nameEn || c.name) : c.name;
-const mDesc = c => isEn() ? (c.descEn || c.description) : c.description;
+const mIsEn = () => document.documentElement.lang === 'en';
+const mName = c => mIsEn() ? (c.nameEn || c.name) : c.name;
+const mDesc = c => mIsEn() ? (c.descEn || c.description) : c.description;
 // 1️⃣ 音樂設定檔
 const musicConfigs = {
     piano: {
