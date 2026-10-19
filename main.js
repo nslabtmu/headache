@@ -935,37 +935,24 @@ function selectPain(score, label) {
   document.querySelectorAll('.face-btn').forEach(btn =>
     btn.classList.toggle('active', parseInt(btn.dataset.value) === score));
 }
-// 低氣壓等預警?
-/* 1019 刪 假設這是你原本獲取並更新氣象數據的函數
-function updateWeatherUI(data) {
-    // 1. 更新畫面上的數值
-    document.getElementById('wx-temp').innerText = data.temp;
-    document.getElementById('wx-humidity').innerText = data.humidity;
-    document.getElementById('wx-pressure').innerText = data.pressure; // 假設這是氣壓值，例如 1002
-    
-    // 2. 🟢 加上這行：自動檢查氣壓並觸發警報！
-    checkBarometricPressureAlert(data.pressure);
-}  updateWeatherUI*/
 
-/* 1019 刪  檢查氣壓的判定函數
-function checkBarometricPressureAlert(pressure) {
-    const alertBox = document.getElementById('weather-alert-box');
-    const alertMsg = document.getElementById('alert-message');
-    
-    // 將氣壓轉換成數字
-    const p = parseFloat(pressure);
-    
-    if (!isNaN(p) && p < 1005) {
-        // 氣壓偏低 (低於 1005 hPa)，顯示黃色警告框
-        alertBox.style.display = 'block';
-        alertMsg.innerText = `目前氣壓為 ${p} hPa（低氣壓狀態），氣壓驟降是常見的偏頭痛誘因，建議多加留意！`;
-    } else {
-        // 氣壓正常，隱藏警告框
-        alertBox.style.display = 'none';
-    }
-} checkBarometricPressureAlert*/
-// 匯出資料
-
+function nudge(msg, buttons) {
+  document.getElementById('nudge')?.remove();
+  const box = document.createElement('div');
+  box.id = 'nudge';
+  box.style.cssText = 'position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:#2c3e50;color:#fff;padding:12px 16px;border-radius:10px;z-index:9999;max-width:90%;box-shadow:0 4px 12px rgba(0,0,0,.25);font-size:14px;';
+  box.innerHTML = `<div style="margin-bottom:8px">${msg}</div><div style="display:flex;gap:8px;flex-wrap:wrap"></div>`;
+  buttons.forEach(([label, fn]) => {
+    const b = document.createElement('button');
+    b.textContent = label; b.type = 'button';
+    b.style.cssText = 'padding:6px 12px;border:none;border-radius:6px;cursor:pointer;';
+    b.onclick = () => { box.remove(); fn && fn(); };
+    box.lastElementChild.appendChild(b);
+  });
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 15000);
+}
+window.nudge = nudge;
 
 async function checkWeatherRisk(lat, lon) {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=pressure_msl,temperature_2m`;
