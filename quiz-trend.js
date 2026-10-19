@@ -35,8 +35,8 @@ async function load() {
     .select('quiz,total_score,level,created_at,details')
     .eq('user_id', session.user.id).order('created_at');
   if (error) { console.error('讀取量表紀錄失敗', error); return; }
-
-  rows = data.map(r => ({
+  const HIDE = ['bai', 'bdi'];
+  rows = data.filter(r => !HIDE.includes(r.quiz)).map(r => ({
     quiz: r.quiz, name: NAMES[r.quiz] || r.quiz, total: r.total_score,
     max: r.details?.max ?? MAX[r.quiz],
     level: r.level, levelEn: r.details?.level_en,
