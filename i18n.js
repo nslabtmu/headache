@@ -181,6 +181,8 @@ const langDict = {
   m_paused:"Status: paused", m_ph1:"Status: [Entry phase] ", m_ph2:"Status: [Core relaxation] ", m_ph3:"Status: [Return phase] ",
   m_loading:"Status: loading player...", m_loadfail:"Status: failed to load, try again", m_loadingbtn:"Loading...", m_saved:"Status: session saved",
   pick_city:"Please select city and district.", tw_only:"Manual location is only available in Taiwan.", profile_ok:"Profile updated.",
+  google_fail:"Google sign-in failed: ", logout_fail:"Sign-out failed: ", profile_fail:"Failed to save profile: ",
+  wx_query:"Fetching weather for", query_fail:"Lookup failed, please try again.",
   account_mgmt: "🔐 Account management"
 }
 };
