@@ -142,6 +142,7 @@ async function saveAllResearchData() {
         res = await supabase.from('user_data').update(updatable)
             .eq('id', window.currentDiaryId).select('id').single();
     } else {
+        
         res = await supabase.from('user_data').insert([payload]).select('id').single();
     }
     const error = res.error;
@@ -156,7 +157,8 @@ async function saveAllResearchData() {
     if (typeof updateStepBadges === 'function') updateStepBadges();
     if (typeof loadCalendarRecords === 'function') loadCalendarRecords(user.id);
     if (typeof loadUserHistory === 'function') loadUserHistory(user.id);
-
+    // 在 insert / update 之前加上
+    const isFirstSave = !window.currentDiaryId;
     if (isFirstSave) {
         const hi = painScore >= 8;
         window.nudge(
