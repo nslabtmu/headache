@@ -72,7 +72,7 @@ async function saveAllResearchData() {
         const slider = document.querySelector(`input[name="sym${i}"]`);
         if (slider) symptomsData[`sym_${i}`] = Number(slider.value);
     }
-    symptomsData.triggers = document.getElementById('triggers')?.value.trim() || "無";
+    symptomsData.triggers = document.getElementById('triggers')?.value.trim() || "";
 
     const healthData = {
         heart_rate: Number(document.getElementById('band_heart_rate')?.value) || null,
