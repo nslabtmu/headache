@@ -11,7 +11,7 @@ const musicConfigs = {
         url: 'https://www.youtube.com/watch?v=uNDsZz2vaOQ',
         description: '拍速緩慢、留白較多，引導大腦放鬆。',descEn: 'Slow tempo with space to help the brain relax.'
     },
-    forest: {
+   /* forest: {
         name: '🌲 森林',
         url: 'https://youtu.be/Gyy1o0o-G6I',
         description: '自然環境音，沉浸大自然頻率。'
@@ -24,6 +24,21 @@ const musicConfigs = {
     blue: {
         name: '1950 Blue',
         description: '持續性柔和頻率，幫助深度安眠。',
+        videoId: 'dQw4w9WgXcQ'
+    }*/
+        forest: {
+        name: '🌲 森林', nameEn: '🌲 Forest',
+        url: 'https://youtu.be/Gyy1o0o-G6I',
+        description: '自然環境音，沉浸大自然頻率。', descEn: 'Natural ambience, immersed in nature.'
+    },
+    ocean: {
+        name: '🐬 海洋', nameEn: '🐬 Ocean',
+        url: 'https://youtube.com/shorts/1A-pOucGHwU',
+        description: '平穩音頻，溫和舒緩緊繃神經。', descEn: 'Steady tones that gently ease tension.'
+    },
+    blue: {
+        name: '1950 Blue', nameEn: '1950 Blue',
+        description: '持續性柔和頻率，幫助深度安眠。', descEn: 'Continuous soft tones to aid deep sleep.',
         videoId: 'dQw4w9WgXcQ'
     }
 };
@@ -54,6 +69,8 @@ function renderMusicCards() {
     const container = document.getElementById('music-cards-container');
     if (!container) return;
 
+    playersMap = {};
+    pendingPlayers = {};
     container.innerHTML = ''; // 清空重新渲染
 
     for (let key in musicConfigs) {
@@ -70,7 +87,7 @@ function renderMusicCards() {
                 <!-- 播放控制按鈕 -->
                 <button id="btn-${key}" onclick="toggleYouTubeMusic('${key}')"
                     style="width: 100%; padding: 8px; background: #A5D6A7; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                    ▶️ 播放${mName(config)}
+                    ▶️ ${tr('m_play','播放')} ${mName(config)}
                 </button>
 
                 <!-- 狀態顯示 -->
@@ -177,7 +194,7 @@ async function toggleYouTubeMusic(key) {
             btn.style.background = '#A5D6A7';
         }
         if (statusEl) {
-            statusEl.innerText = `狀態：已暫停（已累計 ${sessionAccumulatedSeconds} 秒，暫停 ${sessionPauseCount} 次）`;
+            statusEl.innerText = tr('m_paused','狀態：已暫停') + ` (${sessionAccumulatedSeconds}s, ${sessionPauseCount}×)`;
         }
 
         // 3. ⏰ 啟動 10 分鐘超時自動結算（防止使用者暫停後忘記回來）
@@ -211,16 +228,16 @@ async function toggleYouTubeMusic(key) {
     if (!player) {
         if (btn) {
             btn.disabled = true;
-            btn.innerText = `⏳ 載入中...`;
+            btn.innerText = `⏳ ${tr('m_loadingbtn','載入中...')}`;
             btn.style.background = '#cccccc';
         }
-        if (statusEl) statusEl.innerText = "狀態：載入播放器中...";
+        if (statusEl) statusEl.innerText = tr('m_loading','狀態：載入播放器中...');
 
         try {
             player = await ensurePlayer(key);
         } catch (err) {
             console.error(err);
-            if (statusEl) statusEl.innerText = "狀態：載入失敗，請稍後重試";
+            if (statusEl) statusEl.innerText = tr('m_loadfail','狀態：載入失敗，請稍後重試');
             if (btn) {
                 btn.disabled = false;
                 btn.innerText = `▶️ ${tr('m_play','播放')} ${mName(config)}`;
@@ -250,11 +267,11 @@ async function toggleYouTubeMusic(key) {
 
         if (statusEl) {
             if (totalLiveSeconds < 300) {
-                statusEl.innerText = `狀態：【進入期】累計 ${totalLiveSeconds} 秒...`;
+                statusEl.innerText = `${tr('m_ph1','狀態：【進入期】')} ${totalLiveSeconds}s`;
             } else if (totalLiveSeconds < 900) {
-                statusEl.innerText = `狀態：【核心放鬆期】累計 ${totalLiveSeconds} 秒...`;
+                statusEl.innerText = `${tr('m_ph2','狀態：【核心放鬆期】')} ${totalLiveSeconds}s`;
             } else {
-                statusEl.innerText = `狀態：【回歸期】累計 ${totalLiveSeconds} 秒...`;
+                statusEl.innerText = `${tr('m_ph3','狀態：【回歸期】')} ${totalLiveSeconds}s`;
             }
         }
     }, 1000);
@@ -307,9 +324,9 @@ function finalizeAndPushLog(key, endType = 'completed') {
     // 更新 UI
     let statusEl = document.getElementById(`status-${key}`);
     let btn = document.getElementById(`btn-${key}`);
-    if (statusEl) statusEl.innerText = `狀態：已結算存檔 (${endType})`;
+    if (statusEl) statusEl.innerText = `${tr('m_saved','狀態：已結算存檔')} (${endType})`;
     if (btn) {
-        btn.innerText = `▶️ 播放${mName(config)}`;
+        btn.innerText = btn.innerText = `▶️ ${tr('m_play','播放')} ${mName(config)}`;;
         btn.style.background = '#A5D6A7';
     }
 }
@@ -354,3 +371,5 @@ window.addEventListener('DOMContentLoaded', () => {
 window.toggleYouTubeMusic = toggleYouTubeMusic;
 window.prefetchPlayer = prefetchPlayer;
 window.finalizeAndPushLog = finalizeAndPushLog;
+window.renderMusicCards = renderMusicCards;
+window.isMusicActive = () => !!activeKey;
