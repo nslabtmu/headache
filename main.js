@@ -145,34 +145,7 @@ function setTaiwanLocationMode(isTaiwan) {
         if (manualBox) manualBox.style.display = 'none';
     }
 }
-function navigate(direction) {
-    const currentPane = pageOrder.find(id => {
-        const el = document.getElementById(id);
-        return el && !el.classList.contains('hidden');
-    });
 
-    const currentIndex = pageOrder.indexOf(currentPane);
-    let targetIndex = currentIndex + direction;
-
-if (targetIndex >= 0 && targetIndex < pageOrder.length) {
-        switchTab(pageOrder[targetIndex]); // 直接傳入 'pane-symptom' 即可
-    }
-}
-
-/*function toggleLanguage() {
-    currentLang = (currentLang === 'zh-TW') ? 'en' : 'zh-TW';
-    document.documentElement.lang = currentLang;
-    
-    // 修正：檢查 langDict 是否存在
-    if (typeof langDict !== 'undefined') {
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (langDict[currentLang] && langDict[currentLang][key]) {
-                el.innerHTML = langDict[currentLang][key];
-            }
-        });
-    }
-} toggleLanguage*/
 
 // ==================== 身份驗證與頁面跳轉 ====================
 function agreeConsent() {
@@ -226,11 +199,6 @@ async function handleLogout() {
     } else {
         window.location.href = window.location.origin + window.location.pathname;
     }
-}
-
-function toggleUserDropdown() {
-    const dropdown = document.getElementById('user-dropdown');
-    if (dropdown) dropdown.classList.toggle('hidden');
 }
 
 function showMainApp(user) {
@@ -624,6 +592,7 @@ async function getLocationAndWeather() {
         { timeout: 8000 }
     );
 }
+
 async function applyTaiwanManualLocation() {
     const city = document.getElementById('select-city')?.value;
     const district = document.getElementById('select-district')?.value;
@@ -634,7 +603,7 @@ async function applyTaiwanManualLocation() {
     }
 
     const statusEl = document.getElementById('weather-status');
-    if (statusEl) statusEl.innerHTML = `⏳ statusEl.innerHTML = `⏳ ${tr('wx_query','正在查詢')} ${city}${district}...`;;
+    if (statusEl) statusEl.innerHTML = `⏳ statusEl.innerHTML = `⏳ ${tr('wx_query','正在查詢')} ${city}${district}...`;
 
     try {
         // 取座標並查氣象
@@ -662,38 +631,6 @@ function updateVal(slider) {
         slider.nextElementSibling.innerText = slider.value; 
     }
 }
-
-function toggleMedicationName() {
-    const medicationSelect = document.getElementById('input-medication');
-    const medicationNameInput = document.getElementById('input-medication-name');
-    
-    if (medicationSelect && medicationNameInput) {
-        if (medicationSelect.value === 'yes') {
-            medicationNameInput.style.display = 'block';
-        } else {
-            medicationNameInput.style.display = 'none';
-            medicationNameInput.value = '';
-        }
-    }
-}
-
-function checkEmergency() {
-    const checkboxes = document.querySelectorAll('.emg-check');
-    const warningBox = document.getElementById('emergencyWarning');
-    const submitBtn = document.getElementById('submitBtn');
-    let isChecked = false;
-    
-    checkboxes.forEach(cb => { if (cb.checked) isChecked = true; });
-    
-    if (isChecked) { 
-        if (warningBox) warningBox.style.display = 'block'; 
-        if (submitBtn) submitBtn.disabled = true; 
-    } else { 
-        if (warningBox) warningBox.style.display = 'none'; 
-        if (submitBtn) submitBtn.disabled = false; 
-    }
-}
-
 
 
 function saveFullRecord() {
@@ -1078,27 +1015,7 @@ async function checkWeatherRisk(lat, lon) {
         console.error("無法取得氣象預報資料", error);
     }
 }
-function selectPain1015(score, label) {
-  // 1. 更新隱藏的 input 欄位數值
-  document.getElementById('input-pain').value = score;
 
-  // 2. 更新頂部徽章文字
-  document.getElementById('pain-val-display').innerText = `${score} 分 - ${label}`;
-
-  // 3. 切換按鈕 active 樣式
-  const buttons = document.querySelectorAll('.face-btn');
-  buttons.forEach(btn => {
-    if (parseInt(btn.getAttribute('data-value')) === score) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
-  });
-}
-function showQuiz(name) {
-  document.querySelectorAll('.quiz-wrap').forEach(el => el.style.display = 'none');
-  document.getElementById('quiz-' + name).style.display = 'block';
-}
 function tr(key, zh) { return currentLang === 'en' ? (langDict.en[key] ?? zh) : zh; }
 window.tr = tr;
 function setLang(code) {
@@ -1129,6 +1046,9 @@ function setLang(code) {
   if (p !== undefined) {
     const lbl = {0:'不痛',2:'輕微疼痛',4:'稍微疼痛',6:'中度疼痛',8:'嚴重疼痛',10:'劇烈疼痛'}[p];
     if (lbl) selectPain(Number(p), lbl);
+  }
+      if (typeof initSymptomOptions === 'function') {
+    initSymptomOptions(document.getElementById('categorySelect')?.value || 'all');
   }
 }
 window.setLang = setLang;
