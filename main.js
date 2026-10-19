@@ -4,7 +4,6 @@ const REQUIRE_LOCATION_FOR_SUBMIT = false;
 // 全域變數
 
 let currentWeather = null;
-chartInstance = null;
 let currentLang = 'zh-TW';
 let locationReady = false;
 let appStarted = false;
