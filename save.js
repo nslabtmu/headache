@@ -130,21 +130,39 @@ async function saveAllResearchData() {
         created_at: targetDateTime // 🌟 精準寫入你指定的補填日期與時間！
     };
 
-    const { error } = await supabase.from('user_data').insert([payload]);
+   let res;
+    if (window.currentDiaryId) {
+        const { user_id, ...updatable } = payload;   // 更新時不改 user_id
+        res = await supabase.from('user_data').update(updatable)
+            .eq('id', window.currentDiaryId).select('id').single();
+    } else {
+        res = await supabase.from('user_data').insert([payload]).select('id').single();
+    }
+    const error = res.error;
 
     if (error) {
-        alert(tr('save_fail','❌ 儲存失敗：') + error.message);
+        alert(tr('save_fail', '❌ 儲存失敗：') + error.message);
+        return;
+    }
+
+    window.currentDiaryId = res.data.id;
+    if (typeof updateSaveButtonLabel === 'function') updateSaveButtonLabel();
+    if (typeof updateStepBadges === 'function') updateStepBadges();
+    if (typeof loadCalendarRecords === 'function') loadCalendarRecords(user.id);
+    if (typeof loadUserHistory === 'function') loadUserHistory(user.id);
+
+    if (isFirstSave) {
+        const hi = painScore >= 8;
+        window.nudge(
+            (hi ? tr('nudge_red', '疼痛很強烈。若是突然發生的最劇烈頭痛，或伴隨單側無力、說話不清、視力改變，請立即就醫。') + '<br>' : '')
+            + tr('nudge_saved2', '已儲存。接下來想做什麼？'),
+            [
+                [tr('nudge_music', '🎵 聽音樂放鬆'), () => switchMainTab('music')],
+                [tr('nudge_mood', '🩵 填心情量表'), () => switchTab('pane-mood')],
+                [tr('nudge_later', '稍後再說')]
+            ]
+        );
     } else {
-        nudge(tr('nudge_saved','已儲存。想聽音樂放鬆一下嗎？'), [
-          [tr('nudge_music','去聽音樂'), () => switchMainTab('music')],
-          [tr('nudge_later','稍後再說')]
-            ]);
-        //alert(tr('save_ok', '✅ 該筆頭痛日誌已成功儲存！'));
-        // 🌟 儲存成功後，清空音樂累積陣列，準備迎接下一次紀錄
-        window.sessionMusicLogs = [];
-        if (typeof loadCalendarRecords === 'function') loadCalendarRecords(user.id);
-        if (typeof loadUserHistory === 'function') {
-            loadUserHistory(user.id);
-        }
+        alert(tr('save_ok', '✅ 已更新'));
     }
 }
