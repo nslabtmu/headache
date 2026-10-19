@@ -1,7 +1,7 @@
 // report.js — 匯出記錄 (PDF)
 // 需要在 index.html 載入（放在 jsPDF 之後、main.js 之前）：
 // <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-// <script src="./export.js"></script>
+// <script src="./report.js"></script>
 // 並刪除 main.js 裡舊的 exportMedicalReport()。
 
 // ====== 依你的資料庫調整這一區 ======
@@ -88,8 +88,8 @@ function buildReportHtml(records, chartImg, userEmail) {
 const latest = window.QuizTrend?.latest() || {};
 const qRows = Object.values(latest).map(r =>
   `<tr><td>${rptEsc(r.name)}</td><td>${r.total} / ${r.max}</td>` +
-  `<td>${rptEsc(r.level)}</td><td>${r.date}</td></tr>`).join('')
-  || '<tr><td colspan="4">無資料</td></tr>';
+  `<td>${rptEsc(window.QuizTrend.labelOf(r))}</td><td>${r.date}</td></tr>`).join('')
+  || '<tr><td colspan="4">-</td></tr>';
   
   // 逐日明細
   const detailRows = records.map(r => {
