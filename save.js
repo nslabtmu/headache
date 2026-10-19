@@ -135,7 +135,11 @@ async function saveAllResearchData() {
     if (error) {
         alert(tr('save_fail','❌ 儲存失敗：') + error.message);
     } else {
-        alert(tr('save_ok', '✅ 該筆頭痛日誌已成功儲存！'));
+        nudge(tr('nudge_saved','已儲存。想聽音樂放鬆一下嗎？'), [
+          [tr('nudge_music','去聽音樂'), () => switchMainTab('music')],
+          [tr('nudge_later','稍後再說')]
+            ]);
+        //alert(tr('save_ok', '✅ 該筆頭痛日誌已成功儲存！'));
         // 🌟 儲存成功後，清空音樂累積陣列，準備迎接下一次紀錄
         window.sessionMusicLogs = [];
         if (typeof loadCalendarRecords === 'function') loadCalendarRecords(user.id);
