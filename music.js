@@ -47,6 +47,7 @@ const musicConfigs = {
 window.sessionMusicLogs = window.sessionMusicLogs || [];
 
 let playersMap = {};     
+let pendingPlayers = {};
 let activeKey = null;    
 let activeTimer = null;  
 let pauseTimeoutTimer = null; // 10 分鐘暫停超時計時器
@@ -107,7 +108,7 @@ function onYouTubeIframeAPIReady() {
 }
 window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
 
-let pendingPlayers = {};
+
 
 function ensurePlayer(key) {
     if (playersMap[key]) {
@@ -326,7 +327,7 @@ function finalizeAndPushLog(key, endType = 'completed') {
     let btn = document.getElementById(`btn-${key}`);
     if (statusEl) statusEl.innerText = `${tr('m_saved','狀態：已結算存檔')} (${endType})`;
     if (btn) {
-        btn.innerText = btn.innerText = `▶️ ${tr('m_play','播放')} ${mName(config)}`;;
+        btn.innerText = `▶️ ${tr('m_play','播放')} ${mName(config)}`;;
         btn.style.background = '#A5D6A7';
     }
 }
