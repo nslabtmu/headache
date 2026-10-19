@@ -396,20 +396,21 @@
                 </div>
               </div>
             </div>
-            <!-- 次頁籤 1.1：心情 -->
+    <!-- 次頁籤 1.1：心情 -->
+    <p id="mood-hint" class="text-muted small"></p>    
+    <div id="pane-mood" class="tab-pane">
+
+      <!-- 量表選擇器 -->
+        <div id="quiz-picker" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;"></div>
+        <div id="quiz-root" style="display:none"></div>
+          <!-- 上一步 / 下一頁 -->
+          <div class="button-group">
+            <button type="button" class="btn" onclick="switchTab('pane-headache')" data-i18n="btn_prev_step">⬅️ 上一步</button>
+            <button type="button" class="btn" onclick="switchTab('pane-symptom')" data-i18n="next_btn">下一頁</button>
+          </div>
+        </div><!-- pane-mood 結束 -->
+   
         
-<div id="pane-mood" class="tab-pane">
-
-  <!-- 量表選擇器 -->
-<div id="quiz-picker" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;"></div>
-<div id="quiz-root" style="display:none"></div>
-  <!-- 上一步 / 下一頁 -->
-  <div class="button-group">
-    <button type="button" class="btn" onclick="switchTab('pane-headache')" data-i18n="btn_prev_step">⬅️ 上一步</button>
-    <button type="button" class="btn" onclick="switchTab('pane-symptom')" data-i18n="next_btn">下一頁</button>
-  </div>
-
-</div><!-- pane-mood 結束 -->
     <!-- 次頁籤 2：相關症狀 -->
                 <div id="pane-symptom" class="tab-pane">
                     <div class="form-group"><label data-i18n="sym_1">1. 持續性頭痛</label><div class="slider-container"><input type="range" name="sym1" min="1" max="10" value="1" oninput="updateVal(this)"><span class="slider-val">1</span></div></div>
