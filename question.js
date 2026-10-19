@@ -446,14 +446,77 @@ function getDb() {
     if (typeof supabase !== 'undefined' && supabase && typeof supabase.from === 'function') return supabase;
     return null;
 }
+// ---------- 追蹤提醒（可每天測，超過建議間隔才提醒）----------
+const INTERVAL = { phq9: 14, gad7: 14, bdi: 14, bai: 7, psqi: 30, ess: 30, dhi: 30, pssi: 14 };
+const todayStr = () => new Date().toLocaleDateString('sv-SE');
+const daysSince = d => Math.round((new Date(todayStr()) - new Date(d)) / 86400000);
+
+function quizStatus(id) {
+    const last = window.QuizTrend?.latest?.()[id];
+    if (!last) return { state: 'never' };
+    const days = daysSince(last.date), iv = INTERVAL[id] || 14;
+    return days >= iv ? { state: 'due', days, iv } : { state: 'ok', days, iv };
+}
+const dueList = () => CONFIGS.filter(c => quizStatus(c.id).state === 'due');
+
+function statusText(id) {
+    const s = quizStatus(id), en = lang() === 'en';
+    if (s.state === 'never') return en ? 'Not done yet' : '尚未做過';
+    if (s.state === 'due') return en ? `Last done ${s.days} days ago — due for a follow-up (every ${s.iv} days)` : `上次是 ${s.days} 天前，已超過建議間隔（每 ${s.iv} 天），建議再做一次`;
+    if (s.days === 0) return en ? 'Done today — you can retake any time' : '今天已完成，仍可隨時再做';
+    return en ? `Last done ${s.days} days ago (suggested every ${s.iv} days; you can retake any time)` : `上次是 ${s.days} 天前（建議每 ${s.iv} 天，隨時可再做）`;
+}
+
+function updateMoodHint() {
+    const box = el('mood-hint');
+    if (!box) return;
+    const en = lang() === 'en';
+    const due = dueList();
+    const anyDone = CONFIGS.some(c => quizStatus(c.id).state !== 'never');
+    if (due.length) {
+        box.style.color = '#b26a00';
+        box.innerHTML = '🔔 ' + (en ? 'Follow-up due: ' : '已超過建議追蹤時間：') +
+            due.map(c => `${esc(tx(c.label))}（${en ? quizStatus(c.id).days + ' days ago' : quizStatus(c.id).days + ' 天前'}）`).join('、');
+    } else if (anyDone) {
+        box.style.color = '#2e7d32';
+        box.textContent = en ? '✅ Nothing is due. You can still take any questionnaire at any time, even every day.' : '✅ 目前沒有需要追蹤的量表。想做隨時都可以，每天測也沒問題。';
+    } else {
+        box.style.color = '#666';
+        box.textContent = en ? 'No questionnaire yet. Consider starting with PHQ-9 or GAD-7.' : '還沒做過量表，可以先從 PHQ-9 或 GAD-7 開始。';
+    }
+}
+
+function remindIfDue() {
+    const due = dueList();
+    if (!due.length) return;
+    let key = 'quizRemind_' + todayStr();
+    try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, '1'); } catch (e) { /* ignore */ }
+    const en = lang() === 'en';
+    const names = due.map(c => esc(tx(c.label))).join('、');
+    window.nudge?.(
+        `🔔 ${names} ${en ? 'is due for a follow-up. Take it now?' : '已超過建議追蹤時間，要現在做嗎？'}`,
+        [[en ? 'Go' : '現在去做', () => { switchMainTab('symptoms'); switchLevel2Tab('diary'); switchTab('pane-mood'); }],
+         [en ? 'Later' : '稍後再說']]
+    );
+}
 
 function buildPicker() {
+    const box = el('quiz-picker');
+    if (!box) return;
+    box.innerHTML = CONFIGS.map(c => {
+        const mark = quizStatus(c.id).state === 'due' ? ' 🔔' : '';
+        return `<button type="button" class="btn" data-quiz-btn="${c.id}" title="${esc(statusText(c.id))}" onclick="Quiz.open('${c.id}')">${esc(tx(c.label))}${mark}</button>`;
+    }).join('');
+    highlight();
+    updateMoodHint();
+}
+/*function buildPicker() {
     const box = el('quiz-picker');
     if (!box) return;
     box.innerHTML = CONFIGS.map(c =>
         `<button type="button" class="btn" data-quiz-btn="${c.id}" onclick="Quiz.open('${c.id}')">${esc(tx(c.label))}</button>`).join('');
     highlight();
-}
+}*/
 function highlight() {
     document.querySelectorAll('[data-quiz-btn]').forEach(b => {
         const on = Q && Q.cfg.id === b.dataset.quizBtn;
@@ -485,6 +548,7 @@ function renderIntro(root) {
     <div class="card" style="padding:20px; text-align:center;">
         <h3>${c.icon} ${esc(tx(c.name))}</h3>
         <p style="font-size:14px; color:#666;">${tx(c.intro)}</p>
+        <p style="font-size:13px; color:#2e7d32;">${esc(statusText(c.id))}</p>
         <button type="button" onclick="Quiz.start()" style="${STYLE.primary}">${tx(UI.start)}</button>
         <button type="button" onclick="Quiz.close()" style="${STYLE.plain} margin-left:8px;">${tx(UI.cancel)}</button>
     </div>`;
@@ -791,7 +855,8 @@ document.addEventListener('click', e => {
     if (e.target.closest && e.target.closest('.lang-btn[data-lang]')) setTimeout(refreshLang, 80);
 });
 
-window.Quiz = { open, close, start, pick, submit, skip, prev, retake, retry: () => save(), showResult, refreshLang };
+window.Quiz = { open, close, start, pick, submit, skip, prev, retake, retry: () => save(), showResult, refreshLang,
+                refreshPicker: buildPicker, remindIfDue };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', buildPicker);
 else buildPicker();
 
