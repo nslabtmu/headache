@@ -1327,3 +1327,5 @@ input[type="range"] {
 @media (max-width: 600px) {
   .level2-tab { font-size: 13px; padding: 8px 4px; }
 }
+.tab-btn .badge { margin-left:4px; font-size:12px; color:#bbb; }
+.tab-btn .badge.done { color:#27ae60; }
