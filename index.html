@@ -255,12 +255,11 @@
 <div class="form-card">
   <label class="card-label">
         <span data-i18n="pain_level">疼痛程度</span>
-    <span id="pain-val-display" class="score-badge">6 分 - 中度疼痛</span>
+      <span id="pain-val-display" class="score-badge">尚未選擇</span>
+   <input type="hidden" id="input-pain" name="pain_level" value="" />
+   <button type="button" class="face-btn" data-value="6" ...>   <!-- 拿掉 active -->
   </label>
-
-  <!-- 隱藏的 input，方便後續表單提交或 JS 讀取數值 -->
-  <input type="hidden" id="input-pain" name="pain_level" value="6" />
-
+    
   <!-- 臉譜選擇區域 -->
   <div class="faces-container">
     <button type="button" class="face-btn" data-value="0" onclick="selectPain(0, '不痛')">
@@ -281,7 +280,7 @@
       <span class="face-desc" data-i18n="pain_4">稍微</span>
     </button>
     
-    <button type="button" class="face-btn active" data-value="6" onclick="selectPain(6, '中度疼痛')">
+    <button type="button" class="face-btn" data-value="6" onclick="selectPain(6, '中度疼痛')">
       <span class="face-emoji">😣</span>
       <span class="face-score">6</span>
       <span class="face-desc" data-i18n="pain_6">中度</span>
