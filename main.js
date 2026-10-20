@@ -262,16 +262,19 @@ async function saveUserProfile() {
     if (!user) return alert(tr('need_login','請先登入！'));
 
     const profileData = {
-        user_id: user.id,
-        nickname: document.getElementById('prof_nickname')?.value.trim() || '',
+        nickname:   document.getElementById('prof_nickname')?.value.trim() || '',
         birth_year: Number(document.getElementById('prof_birthyear')?.value) || null,
-        gender: document.getElementById('prof_gender')?.value || '',
-        tbi_study: document.getElementById('prof_tbi')?.value || '',
+        gender:     document.getElementById('prof_gender')?.value || '',
+        tbi_study:  document.getElementById('prof_tbi')?.value || '',
         sport_freq: document.getElementById('prof_sport')?.value || '',
         updated_at: new Date().toISOString()
     };
 
-    const { error } = await supabase.from('profiles').upsert([profileData]);
+    const { error } = await supabase
+        .from('profiles')
+        .update(profileData)
+        .eq('id', user.id);          // ← 不是 user_id
+
     if (error) {
         alert(tr('profile_fail','儲存個人資料失敗：') + error.message);
     } else {
@@ -279,7 +282,6 @@ async function saveUserProfile() {
         enterProfileViewMode();
     }
 }
-
 // ==================== 定位與氣象資訊 API ====================
 async function fetchWeather(lat, lon, statusMessage) {
     const statusEl = document.getElementById('weather-status');
