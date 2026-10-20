@@ -256,7 +256,33 @@ function enterProfileEditMode() {
 function enableProfileEdit() {
     enterProfileEditMode();
 }
+async function loadUserProfile(userId) {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('nickname, birth_year, gender, tbi_study, sport_freq')
+        .eq('id', userId)
+        .maybeSingle();
 
+    if (error) {
+        console.error('載入個人資料失敗', error);
+        return;
+    }
+
+    const set = (id, v) => {
+        const el = document.getElementById(id);
+        if (el) el.value = v ?? '';
+    };
+    set('prof_nickname',  data?.nickname);
+    set('prof_birthyear', data?.birth_year);
+    set('prof_gender',    data?.gender);
+    set('prof_tbi',       data?.tbi_study);
+    set('prof_sport',     data?.sport_freq);
+
+    // 已填過資料 → 唯讀模式；還沒填 → 編輯模式
+    if (data?.nickname || data?.birth_year) enterProfileViewMode();
+    else enterProfileEditMode();
+}
+window.loadUserProfile = loadUserProfile;
 async function saveUserProfile() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return alert(tr('need_login','請先登入！'));
