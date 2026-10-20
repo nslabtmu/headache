@@ -5,7 +5,14 @@ let currentEditingUserId = null;
 
 // ============ 頁面載入 ============
 window.addEventListener('load', async () => {
-    if (document.getElementById('total-users')) await updateStats();
+    if (!document.getElementById('users-table')) return;   // 只在 account.html 執行
+    if (!(await checkIfUserIsAdmin())) {
+        alert('需要管理者權限');
+        location.href = 'index.html';
+        return;
+    }
+    await loadUsers();
+    await updateStats();
 });
 
 // 必須與建立帳號時用的網域一致
