@@ -21,6 +21,94 @@ async function handleAccountLogin() {
   if (error) alert(tr('login_fail', '登入失敗：') + error.message);
 }
 window.handleAccountLogin = handleAccountLogin;
+async function handleEmailLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pw = document.getElementById('login-password').value;
+  if (!email || !pw) return alert(tr('need_acc_pw', '請輸入帳號與密碼'));
+  const { error } = await supabase.auth.signInWithPassword({ email, password: pw });
+  if (error) alert(tr('login_fail', '登入失敗：') + error.message);
+}
+window.handleEmailLogin = handleEmailLogin;
+
+
+// 呼叫 Edge Function，並把錯誤訊息整理成文字
+async function callAdmin(body) {
+  const { data, error } = await supabase.functions.invoke('admin-users', { body });
+  if (error) {
+    let msg = error.message;
+    try { const j = await error.context.json(); if (j?.error) msg = j.error; } catch (e) {}
+    throw new Error(msg);
+  }
+  if (data?.error) throw new Error(data.error);
+  return data;
+}
+
+async function handleAddUser(event) {
+  event.preventDefault();
+  const name = document.getElementById('add-name').value.trim();
+  const account = document.getElementById('add-account').value.trim().toLowerCase();
+  const password = document.getElementById('add-password').value;
+  const btnEl = document.getElementById('add-btn-text');
+
+  if (!name || !account || !password) return showMessage('add-message', '❌ 請填入所有必填欄位', 'error');
+  if (!/^[a-z0-9._-]+$/.test(account)) return showMessage('add-message', '❌ 帳號只能用英文、數字、. _ -', 'error');
+  if (password.length < 8) return showMessage('add-message', '❌ 密碼至少 8 碼', 'error');
+
+  try {
+    btnEl.textContent = '⏳ 新增中...';
+    btnEl.parentElement.disabled = true;
+    await callAdmin({ action: 'create', account, password, name });
+    showMessage('add-message', `✅ 帳號建立成功！帳號：${account}`, 'success');   // 不要把密碼顯示在畫面上
+    document.querySelector('.section form')?.reset();
+    await loadUsers();
+    await updateStats();
+  } catch (error) {
+    console.error('❌ 新增失敗：', error);
+    showMessage('add-message', '❌ 新增失敗：' + error.message, 'error');
+  } finally {
+    btnEl.textContent = '新增';
+    btnEl.parentElement.disabled = false;
+  }
+}
+
+async function handleEditUser(event) {
+  event.preventDefault();
+  const name = document.getElementById('edit-name').value.trim();
+  const password = document.getElementById('edit-password').value;
+  const music_mode = document.getElementById('edit-music-mode').value;
+  const preferred_music = document.getElementById('edit-preferred-music').value;
+
+  if (!name) return alert('❌ 姓名不能為空');
+  if (password && password.length < 8) return alert('❌ 新密碼至少 8 碼');
+
+  try {
+    await callAdmin({
+      action: 'update', id: currentEditingUserId,
+      name, music_mode, preferred_music,
+      password: password || undefined
+    });
+    alert('✅ 用戶資訊已更新！');
+    closeEditModal();
+    await loadUsers();
+  } catch (error) {
+    console.error('❌ 更新失敗：', error);
+    alert('❌ 更新失敗：' + error.message);
+  }
+}
+
+async function deleteUser(userId, name) {
+  if (!confirm(`確定要刪除 "${name}" 的帳號嗎？此操作無法復原！`)) return;
+  try {
+    await callAdmin({ action: 'delete', id: userId });
+    alert('✅ 帳號已刪除');
+    await loadUsers();
+    await updateStats();
+  } catch (error) {
+    console.error('❌ 刪除失敗：', error);
+    alert('❌ 刪除失敗：' + error.message);
+  }
+}
+
 // 修改 2：當管理者點擊打開帳號管理 Modal 時，才去載入資料
 // 初始化 Supabase 客戶端（如果還沒有的話）
 // import { createClient } from '@supabase/supabase-js'
