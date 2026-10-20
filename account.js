@@ -147,9 +147,11 @@ async function loadUsers() {
 
 // ============ 新增帳號 ============
 function showAlternativeLogin() {
-            const box = document.getElementById('alternative-login');
-            box.style.display = box.style.display === 'none' ? 'block' : 'none';
-        }
+  const box = document.getElementById('alternative-login');
+  const opening = box.style.display === 'none' || box.style.display === '';
+  box.style.display = opening ? 'block' : 'none';
+  if (opening) switchLoginTab('email');   // 展開時預設顯示 Email 表單
+}
 
         function switchLoginTab(tabType) {
             document.getElementById('email-tab').style.display = tabType === 'email' ? 'block' : 'none';
