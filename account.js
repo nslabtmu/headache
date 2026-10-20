@@ -513,7 +513,12 @@ function showMessage(elementId, message, type) {
     el.className = `message ${type}`;
     el.style.display = 'block';
 }
-
+function normalizeTbi(v) {
+    const s = String(v ?? '').trim();
+    if (/^na$/i.test(s)) return 'NA';
+    if (/^[mc][0-9]+$/i.test(s)) return s.toLowerCase();
+    return null;   // 格式錯誤
+}
 // ============ Modal 外部點擊關閉 ============
 document.addEventListener('click', function(event) {
     const editModal = document.getElementById('edit-modal');
