@@ -62,56 +62,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 });
-/* document.addEventListener('DOMContentLoaded', async () => {
-    // 確保 supabase 物件以及 auth 已經成功載入
-    if (window.supabase && window.supabase.auth) {
-        const authCard = document.getElementById('auth-card');
-        const consentCard = document.getElementById('consent-card');
-        const mainCard = document.getElementById('main-card');
 
-        // 1. 頁面一載入時的「初始狀態檢查」
-        try {
-            const { data: { session }, error } = await window.supabase.auth.getSession();
-            
-            if (session && !error) {
-                // 🟢 如果已經登入過：直接跳過同意書和登入，進入主系統
-                console.log("✅ 已經登入，直接進入主系統");
-                if (consentCard) consentCard.classList.add('hidden');
-                if (authCard) authCard.classList.add('hidden');
-                if (mainCard) mainCard.classList.remove('hidden');
-            } else {
-                // 🔴 如果還沒登入：按照流程，先顯示「同意書」，隱藏登入與主系統
-                console.log("📄 尚未登入，顯示同意書畫面");
-                if (consentCard) consentCard.classList.remove('hidden');
-                if (authCard) authCard.classList.add('hidden');
-                if (mainCard) mainCard.classList.add('hidden');
-            }
-        } catch (err) {
-            console.error("檢查登入狀態失敗：", err);
-        }
-
-        // 2. 監聽後續的登入 / 登出狀態改變
-        window.supabase.auth.onAuthStateChange((event, session) => {
-            console.log("Auth 狀態改變：", event, session);
-            
-            if (event === 'SIGNED_IN' && session) {
-                // 🟢 登入成功時：確保同意書和登入卡片隱藏，顯示主系統
-                if (consentCard) consentCard.classList.add('hidden');
-                if (authCard) authCard.classList.add('hidden');
-                if (mainCard) mainCard.classList.remove('hidden');
-            } else if (event === 'SIGNED_OUT') {
-                // 🔴 登出時：回到同意書畫面或登入畫面（看你們需求，這裡預設回到同意書）
-                if (consentCard) consentCard.classList.remove('hidden');
-                if (authCard) authCard.classList.add('hidden');
-                if (mainCard) mainCard.classList.add('hidden');
-            }
-        });
-    } else {
-        console.error("錯誤：Supabase 尚未初始化或載入失敗！");
-    }
-});*/
-
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
+  resetRecordDateTime();   // 定義在 save.js
+  ['record-date','record-time'].forEach(id =>
+    document.getElementById(id)?.addEventListener('change', () => { window.dtTouched = true; }));
+});
+/*document.addEventListener('DOMContentLoaded', function() {
     const dateInput = document.getElementById('record-date');
     const timeInput = document.getElementById('record-time');
     
@@ -125,9 +82,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (dateInput && !dateInput.value) dateInput.value = todayStr;
     if (timeInput && !timeInput.value) timeInput.value = timeStr;
-});
+});*/
 
-
+function trf(key, zh, vars = {}) {
+  return tr(key, zh).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
+}
+window.trf = trf;
 let isTaiwanLocation = true; // 預設先當作台灣，等定位結果回來再校正
 
 function setTaiwanLocationMode(isTaiwan) {
@@ -454,9 +414,9 @@ async function fetchIpLocation(statusEl) {
             const json = await res.json();
             if (json.success) {
                 data = {
-                    country: json.country || "未知國家",
+                    country: json.country || tr('loc_unknown_country','未知國家'),
                     country_code: json.country_code,
-                    city: json.city || json.region || "未知城市",
+                    city: json.city || json.region ||tr('loc_unknown_city','未知城市'),
                     latitude: json.latitude,
                     longitude: json.longitude
                 };
@@ -473,9 +433,9 @@ async function fetchIpLocation(statusEl) {
             if (res.ok) {
                 const json = await res.json();
                 data = {
-                    country: json.country_name || "未知國家",
+                    country: json.country_name || tr('loc_unknown_country','未知國家'),
                     country_code: json.country_code,
-                    city: json.city || json.region || "未知城市",
+                    city: json.city || json.region ||tr('loc_unknown_city','未知城市'),
                     latitude: json.latitude,
                     longitude: json.longitude
                 };
@@ -498,7 +458,7 @@ async function fetchIpLocation(statusEl) {
         console.error("IP Location Error: 無法取得有效的 IP 座標");
         if (statusEl) statusEl.innerText = tr('loc_fail','❌ 無法定位，請手動選擇');
         
-        updateLocationDisplay("未知", "無法取得", "請變更位置重試");
+        updateLocationDisplay(updateLocationDisplay(tr('loc_unknown','未知'), tr('loc_unavailable','無法取得'), tr('loc_retry','請變更位置重試')));
         
         setTaiwanLocationMode(true);
         toggleChangeLocation();
@@ -509,48 +469,7 @@ async function fetchIpLocation(statusEl) {
         locationReady = false;
     }
 }
-/*function updateLocationDisplay(country, city, district, isManual = false) {
-    const ipLocationDisplay = document.getElementById('ip-location-display');
-    const ipLocationName = document.getElementById('ip-location-name');
-    
-    if (ipLocationDisplay && ipLocationName) {
-        const suffix = isManual ? tr('manual_suffix',' (手動選擇)') : '';
-        ipLocationName.innerText = `${country} - ${city} - ${district}${suffix}`;
-        ipLocationDisplay.classList.remove('hidden');
-    }
-}
-async function fetchIpLocation(statusEl) {
-    if (statusEl) statusEl.innerText = "🌐 嘗試透過 IP 取得大致位置...";
-    try {
-        const res = await fetch('https://ipapi.co/json/');
-        if (!res.ok) throw new Error("IP API 失敗");
-        const data = await res.json();
-        
-        // ✅ 顯示 IP 位置（簡單版本）
-        const cityName = data.city || data.region || "未知地區";
-        updateLocationDisplay(data.country || "未知國家", cityName, "");
-        
-        //// ✅ 新增：依 IP 判斷的國碼決定是否開放手動選台灣鄉鎮
-        setTaiwanLocationMode(data.country_code === 'TW');  
-        // ✅ 第2步：背景非同步查詢氣象（不阻塞位置顯示）
-        fetchWeather(data.latitude, data.longitude, "IP 定位成功");
-        
-    } catch (err) {
-        console.error("IP Location Error:", err);
-        if (statusEl) statusEl.innerText = "❌ 無法定位，請手動選擇";
-        // ✅ 失敗時也顯示卡片
-        updateLocationDisplay("未知", "無法取得", "請變更位置重試");
-        
-        // 展開選擇面板
-        setTaiwanLocationMode(true);
-        toggleChangeLocation();
-        if (typeof initDistrictSelector === 'function') {
-            initDistrictSelector();
-        }
-        
-        locationReady = false;
-    }
-}*/
+
 async function getLocationAndWeather() {
     const statusEl = document.getElementById('weather-status');
     if (statusEl) statusEl.innerText = tr('gps_req','📍 正在請求 GPS 定位權限...');
@@ -568,19 +487,19 @@ async function getLocationAndWeather() {
             // ✅ 反查地名
             try {
                 const geoRes = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=zh-TW`
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=${currentLang === 'en' ? 'en' : 'zh-TW'}
                 );
                 const geoData = await geoRes.json();
                 if (geoData && geoData.address) {
-                    const country = geoData.address.country || "臺灣";
-                    const city = geoData.address.city || geoData.address.county || "未知城市";
-                    const district = geoData.address.suburb || geoData.address.town || geoData.address.district || "未知區域";
+                    const country = geoData.address.country ||tr('country_tw','臺灣');
+                    const city = geoData.address.city || geoData.address.county || tr('loc_unknown_city','未知城市');
+                    const district = geoData.address.suburb || geoData.address.town || geoData.address.district || tr('loc_unknown_district','未知區域');
                     updateLocationDisplay(country, city, district);
                     setTaiwanLocationMode(geoData.address.country_code === 'tw');
                 }
             } catch (e) {
                 console.warn("反查失敗，用座標代替");
-                updateLocationDisplay("未知", `${lat.toFixed(2)}`, `${lon.toFixed(2)}`);
+                updateLocationDisplay(tr('loc_unknown','未知'), `${lat.toFixed(2)}`, `${lon.toFixed(2)}`);
                 setTaiwanLocationMode(true);
             }
             
@@ -990,9 +909,9 @@ async function checkWeatherRisk(lat, lon) {
         // --- 狀況 A：檢查當前氣壓是否偏低（例如低於標準大氣壓 1013 hPa 太多，或小於 1005 hPa） ---
         if (currentPressure < 1008) {
             if (alertBox && alertMsg) {
-                alertMsg.innerHTML = currentLang === 'en'
-                  ? `Low pressure detected (<strong>${currentPressure.toFixed(1)} hPa</strong>). Migraine risk may be higher today.`
-                  : `偵測到目前氣壓偏低（<strong>${currentPressure.toFixed(1)} hPa</strong>），今日低氣壓環境可能增加偏頭痛發作機率，請多加注意！`;
+            alertMsg.innerHTML = trf('wx_low_msg',
+              '偵測到目前氣壓偏低（<strong>{p} hPa</strong>），今日低氣壓環境可能增加偏頭痛發作機率，請多加注意！',
+              { p: currentPressure.toFixed(1) });
                 alertBox.style.display = 'block'; // 顯示動態提示框
             }
         } else {
@@ -1002,9 +921,8 @@ async function checkWeatherRisk(lat, lon) {
         // --- 狀況 B：檢查未來幾小時是否有「氣壓驟降」的風險 ---
         if (drop > 4) {
             if (riskCard && riskText) {
-                riskText.innerHTML = currentLang === 'en'
-                  ? `Pressure <strong>${currentPressure.toFixed(1)} hPa</strong>, expected to drop about <strong>${drop.toFixed(1)} hPa</strong> in the next hours.<br>Rapid pressure changes are a common migraine trigger.`
-                  : `當前氣壓 <strong>${currentPressure.toFixed(1)} hPa</strong>，預計未來幾小時內將急遽下降約 <strong>${drop.toFixed(1)} hPa</strong>。<br>氣壓快速變動是引發偏頭痛的高風險因子！`;
+                riskText.innerHTML = trf('wx_drop_msg', '當前氣壓 <strong>{p} hPa</strong>，預計未來幾小時內將急遽下降約 <strong>{d} hPa</strong>。<br>氣壓快速變動是引發偏頭痛的高風險因子！',
+                { p: currentPressure.toFixed(1), d: drop.toFixed(1) });
                 riskCard.classList.remove('hidden'); // 顯示風險卡片
             }
         } else {
