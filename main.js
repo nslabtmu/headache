@@ -782,7 +782,13 @@ dateClick: function(info) {
                 // 📅 狀況 B：這天沒有記錄，詢問是否要補填
                 const confirmAdd = confirm(`📅 ${clickedDate}\n${tr('cal_confirm','這天尚無頭痛紀錄，是否要切換至填寫頁面進行補填？')}`);
                 if (confirmAdd) {
-    const dateInput = document.getElementById('record-date');
+                    startNewDiary();
+                    document.getElementById('record-date').value = clickedDate;
+                    window.dtTouched = true;
+                    switchLevel2Tab('diary');
+                    setTimeout(() => switchTab('pane-headache'), 100);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
     if (dateInput) {
         dateInput.value = clickedDate;
         console.log('✅ 日期已設置:', clickedDate);
