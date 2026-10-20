@@ -530,7 +530,7 @@ async function applyTaiwanManualLocation() {
         await getLatLonForTaiwanDistrict(city, district);
         
         // ✅ 用統一函數顯示位置
-        updateLocationDisplay("臺灣", city, district, true);
+        updateLocationDisplay(tr('country_tw','臺灣'), city, district, true);
         
         // 隱藏選擇面板
         const manualBox = document.getElementById('manual-location-box');
@@ -944,7 +944,7 @@ function updateStepBadges() {
     'pane-mood':     (window.sessionQuizLogs || []).length > 0,
     'pane-symptom':  [...document.querySelectorAll('#pane-symptom input[type=range]')].some(r => r.value !== '1')
                      || !!document.getElementById('triggers')?.value.trim(),
-    'pane-band':     ['band_heart_rate','band_spo2','band_steps','band_avg_steps']
+    'pane-band':     ['band_heart_rate','band_spo2','band_steps','band_avg_steps','input-sleep-hours','input-caffeine','input-stress']
                      .some(id => document.getElementById(id)?.value)
   };
   Object.entries(done).forEach(([id, ok]) => {
