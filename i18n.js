@@ -217,7 +217,8 @@ rf_fever:"Fever with stiff neck", rf_trauma:"After a blow to the head", rf_cons:
 med_triptan:"Migraine-specific (triptans)", med_time:"Time taken:", med_dose:"Dose (e.g. 1 tablet, 500 mg):",
 life_sleep:"😴 Hours slept last night", life_caffeine:"☕ Caffeinated drinks today (cups)",
 life_stress:"😟 Stress today (0–10)", life_alcohol:"Had alcohol yesterday", life_skipmeal:"Skipped a meal today",
-life_mens:"🩸 Currently menstruating?"
+life_mens:"🩸 Currently menstruating?",
+need_acc_pw:"Please enter account and password.", login_fail:"Sign-in failed: ",
   account_mgmt: "🔐 Account management"
 }
 };
