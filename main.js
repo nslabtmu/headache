@@ -123,13 +123,8 @@ async function handleLoginSuccess(user) {
 
         const { error } = await supabase
             .from('consent_records')
-            .insert({
-                user_id: user.id,
-                user_email: user.email,
-                consent_version: localStorage.getItem('agreed_version') || CONSENT_VERSION,
-                agreed: true,
-                agreed_at: new Date().toISOString()
-            });
+        .insert({ user_id: user.id, consent_version: localStorage.getItem('agreed_version') || CONSENT_VERSION,
+          agreed: true, agreed_at: new Date().toISOString() });
         if (error) throw error;
 
         localStorage.removeItem('has_agreed');
