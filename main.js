@@ -453,7 +453,7 @@ async function fetchIpLocation(statusEl) {
         console.error("IP Location Error: 無法取得有效的 IP 座標");
         if (statusEl) statusEl.innerText = tr('loc_fail','❌ 無法定位，請手動選擇');
         
-        updateLocationDisplay(updateLocationDisplay(tr('loc_unknown','未知'), tr('loc_unavailable','無法取得'), tr('loc_retry','請變更位置重試')));
+        updateLocationDisplay(tr('loc_unknown','未知'), tr('loc_unavailable','無法取得'), tr('loc_retry','請變更位置重試'));
         
         setTaiwanLocationMode(true);
         toggleChangeLocation();
@@ -482,7 +482,7 @@ async function getLocationAndWeather() {
             // ✅ 反查地名
             try {
                 const geoRes = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=${currentLang === 'en' ? 'en' : 'zh-TW'}
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=${currentLang === 'en' ? 'en' : 'zh-TW'}'
                 );
                 const geoData = await geoRes.json();
                 if (geoData && geoData.address) {
