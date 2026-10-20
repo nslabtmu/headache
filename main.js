@@ -83,10 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dateInput && !dateInput.value) dateInput.value = todayStr;
     if (timeInput && !timeInput.value) timeInput.value = timeStr;
 });*/
-const { error } = await supabase.from('consent_records').upsert(
-  { user_id: user.id, consent_version: localStorage.getItem('agreed_version') || CONSENT_VERSION,
-    agreed: true, agreed_at: new Date().toISOString() },
-  { onConflict: 'user_id,consent_version', ignoreDuplicates: true });
 
 function trf(key, zh, vars = {}) {
   return tr(key, zh).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
@@ -125,10 +121,11 @@ async function handleLoginSuccess(user) {
     try {
         if (localStorage.getItem('has_agreed') !== 'true') return;
 
-        const { error } = await supabase
-            .from('consent_records')
-        .insert({ user_id: user.id, consent_version: localStorage.getItem('agreed_version') || CONSENT_VERSION,
-          agreed: true, agreed_at: new Date().toISOString() });
+        const { error } = await supabase.from('consent_records').upsert(
+          { user_id: user.id,
+            consent_version: localStorage.getItem('agreed_version') || CONSENT_VERSION,
+            agreed: true, agreed_at: new Date().toISOString() },
+          { onConflict: 'user_id,consent_version', ignoreDuplicates: true });
         if (error) throw error;
 
         localStorage.removeItem('has_agreed');
@@ -485,9 +482,9 @@ async function getLocationAndWeather() {
             
             // ✅ 反查地名
             try {
-                const geoRes = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=${currentLang === 'en' ? 'en' : 'zh-TW'}'
-                );
+            const geoRes = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=${currentLang === 'en' ? 'en' : 'zh-TW'}`
+            );
                 const geoData = await geoRes.json();
                 if (geoData && geoData.address) {
                     const country = geoData.address.country ||tr('country_tw','臺灣');
@@ -715,26 +712,29 @@ async function checkMigraineWeatherRisk(lat, lon) {
  }
 
 document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('headacheCalendar'); // 請確認你的 HTML 容器 ID
+    var calendarEl = document.getElementById('headacheCalendar');
     if (!calendarEl) return;
 
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        locale: 'zh-tw',
+        locale: currentLang === 'en' ? 'en' : 'zh-tw',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
             right: 'dayGridMonth'
         },
+
         // 渲染月曆上的紀錄標記
         events: function(fetchInfo, successCallback, failureCallback) {
             const events = (window.allUserRecords || []).map(record => {
-                let color = '#28a745'; // 綠色（輕微）
+                let color = '#28a745';                   // 綠色（輕微）
                 const score = record.headache_data?.pain_score || 0;
-                if (score >= 7) color = '#ff6b6b';      // 紅色（重度）
-                else if (score >= 4) color = '#ffd43b'; // 黃色（中度）
+                if (score >= 7) color = '#ff6b6b';       // 紅色（重度）
+                else if (score >= 4) color = '#ffd43b';  // 黃色（中度）
 
-            const dateStr = record.created_at ? new Date(record.created_at).toLocaleDateString('sv-SE') : '';
+                const dateStr = record.created_at
+                    ? new Date(record.created_at).toLocaleDateString('sv-SE')
+                    : '';
 
                 return {
                     title: `${tr('cal_pain','痛')}: ${score}`,
@@ -746,41 +746,47 @@ document.addEventListener('DOMContentLoaded', function() {
             const quizEvents = window.QuizTrend ? window.QuizTrend.events() : [];
             successCallback([...events, ...quizEvents]);
         },
-        // 👆 點擊月曆某一天時彈跳出該日資料
-dateClick: function(info) {
-            const clickedDate = info.dateStr; // 例如 "2026-09-05"
-            // 🛑 1. 檢查是不是未來的日期（還沒到的日期不能選）
-            const todayStr = new Date().toLocaleDateString('sv-SE');
 
+        // 點擊月曆某一天
+        dateClick: function(info) {
+            const clickedDate = info.dateStr;
+
+            // 1. 不能選未來日期
+            const todayStr = new Date().toLocaleDateString('sv-SE');
             if (clickedDate > todayStr) {
-                alert(tr('cal_future','⚠️ 不能選擇尚未到的日期（未來日期）！'));
-                return; // 直接中斷，不執行後續動作
+                alert(tr('cal_future', '⚠️ 不能選擇尚未到的日期（未來日期）！'));
+                return;
             }
-            // 檢查這一天是否有紀錄
+
+            // 2. 當天的量表紀錄
             const quizToday = (window.QuizTrend?.byDate()[clickedDate]) || [];
             const quizText = quizToday.map(r =>
-            `🧠 ${r.name}：${r.total}/${r.max}（${window.QuizTrend.labelOf(r)}）`).join('\n');
-           // const matchedRecord = (window.allUserRecords || []).find(r => {
-           //     const rDate = r.created_at ? new Date(r.created_at).toLocaleDateString('sv-SE') : '';
-           //     return rDate === clickedDate;
-           // });
-    const dayRecords = (window.allUserRecords || []).filter(r =>
-    r.created_at && new Date(r.created_at).toLocaleDateString('sv-SE') === clickedDate);
+                `🧠 ${r.name}：${r.total}/${r.max}（${window.QuizTrend.labelOf(r)}）`).join('\n');
 
-    if (dayRecords.length) {
-    const lines = dayRecords.map(r => {
-        const h = r.headache_data || {};
-        const t = new Date(r.created_at).toTimeString().slice(0, 5);
-        const med = h.medication_used ? (h.medication_name || tr('yes','是')) : tr('no','否');
-        return `⏰ ${t}　${tr('cal_score','疼痛指數')} ${h.pain_score ?? '-'}/10　💊 ${med}`;
-    });
-    alert(`📅 ${clickedDate}\n${lines.join('\n')}` + (quizText ? `\n\n${quizText}` : ''));
+            // 3. 當天的頭痛紀錄（可能有多筆）
+            const dayRecords = (window.allUserRecords || []).filter(r =>
+                r.created_at &&
+                new Date(r.created_at).toLocaleDateString('sv-SE') === clickedDate);
 
-                    } else if (quizText) {
-                        alert(`📅 ${clickedDate}\n${quizText}\n\n${tr('cal_norecord','這天尚無頭痛紀錄。')}`);
-                    } else {
-                // 📅 狀況 B：這天沒有記錄，詢問是否要補填
-                const confirmAdd = confirm(`📅 ${clickedDate}\n${tr('cal_confirm','這天尚無頭痛紀錄，是否要切換至填寫頁面進行補填？')}`);
+            if (dayRecords.length) {
+                const lines = dayRecords.map(r => {
+                    const h = r.headache_data || {};
+                    const t = new Date(r.created_at).toTimeString().slice(0, 5);
+                    const med = h.medication_used
+                        ? (h.medication_name || tr('yes', '是'))
+                        : tr('no', '否');
+                    return `⏰ ${t}　${tr('cal_score', '疼痛指數')} ${h.pain_score ?? '-'}/10　💊 ${med}`;
+                });
+                alert(`📅 ${clickedDate}\n${lines.join('\n')}` +
+                      (quizText ? `\n\n${quizText}` : ''));
+
+            } else if (quizText) {
+                alert(`📅 ${clickedDate}\n${quizText}\n\n${tr('cal_norecord', '這天尚無頭痛紀錄。')}`);
+
+            } else {
+                const confirmAdd = confirm(
+                    `📅 ${clickedDate}\n${tr('cal_confirm', '這天尚無頭痛紀錄，是否要切換至填寫頁面進行補填？')}`);
+
                 if (confirmAdd) {
                     startNewDiary();
                     document.getElementById('record-date').value = clickedDate;
@@ -788,31 +794,13 @@ dateClick: function(info) {
                     switchLevel2Tab('diary');
                     setTimeout(() => switchTab('pane-headache'), 100);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-    if (dateInput) {
-        dateInput.value = clickedDate;
-        console.log('✅ 日期已設置:', clickedDate);
-    }
-
-    // 🔴 關鍵修復：先激活主頁籤 pane-form
-    console.log('🔴 先激活 pane-form（主頁籤）');
-        switchLevel2Tab('diary');
-    
-    // 延遲 100ms 再激活子頁籤，確保 DOM 更新完成
-    setTimeout(() => {
-        console.log('🔴 再激活 pane-headache（子頁籤）');
-        switchTab('pane-headache');
-        console.log('✅ 已呼叫 switchTab("pane-headache")');
-    }, 100);
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+                }
             }
-        }
-    });
+        }   // ← dateClick 結尾（只要這一個）
+    });     // ← 結束 new FullCalendar.Calendar
 
     calendar.render();
-    window.myCalendar = calendar; // 掛載到全域變數
+    window.myCalendar = calendar;
 });
 // 記得掛載至 window
 window.openDisclaimerModal = openDisclaimerModal;
