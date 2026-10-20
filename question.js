@@ -721,20 +721,20 @@ async function save() {
         if (!session) throw new Error(lang() === 'en' ? 'Please sign in first.' : '請先登入後再儲存。');
 
         const r = q.result;
-        const { error } = await db.from('quiz_results').insert([{
-            user_id: session.user.id,          // 一定等於 auth.uid()
+        const { data: row, error } = await db.from('quiz_results').insert([{
+            user_id: session.user.id,
             quiz: q.cfg.id,
             total_score: r.total,
             level: r.level.zh,
             details: { ...(r.extra || {}), level_en: r.level.en, lang: lang(), max: r.max },
             answers: q.answers,
-            user_email: session.user.email ?? null
-            // created_at 交給資料庫 default now()，避免用客戶端時間
-        }]);
+            diary_id: window.currentDiaryId ?? null      // 已有日記就直接關聯
+            }]).select('id').single();                       // 拿回 id，不再送 user_email
         if (error) throw error;
+        (window.sessionQuizLogs ||= []).push({ id: row.id, quiz: q.cfg.id, total: r.total, linked: !!window.currentDiaryId });
         q.saveState = 'saved';
-        window.QuizTrend?.load();
-    } catch (err) {
+            window.QuizTrend?.load();
+        } catch (err) {
         console.error(`❌ ${q.cfg.id} 存檔失敗：`, err);
         q.saveState = 'error';
         q.saveError = `${err.message || err}${err.code ? ` (${err.code})` : ''}`;
