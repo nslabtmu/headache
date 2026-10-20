@@ -363,12 +363,21 @@
                                     <label class="checkbox-item"><input type="checkbox" name="med-category" value="nsaid"><span data-i18n="med_nsaid">非類固醇消炎藥 (如：布洛芬、EVE、服他寧)</span></label>
                                     <label class="checkbox-item"><input type="checkbox" name="med-category" value="opioid"> <span data-i18n="med_opioid">鴉片類 / 處方強效止痛藥 (如：處方可待因、嗎啡)</span></label>
                                     <label class="checkbox-item"><input type="checkbox" name="med-category" value="unknown"><span data-i18n="med_unknown">不清楚藥物類別</span></label>
+                                    <label class="checkbox-item"><input type="checkbox" name="med-category" value="triptan"><span data-i18n="med_triptan">偏頭痛專用藥（如：曲普坦類 Triptan）</span></label>
                                 </div>
                             </div>
 
                             <div class="sub-field" style="margin-top: 12px;">
                                 <label for="input-medication-name" class="sub-label" data-i18n="med_name">具體藥品名稱 (選填)：</label>
                                 <input type="text" id="input-medication-name" class="form-input text-input" data-i18n-ph="med_name_ph" placeholder="例如：普拿疼加強錠、EVE Quick"/>
+                            </div>
+                            <div class="sub-field" style="margin-top:12px;">
+                              <label for="input-medication-time" class="sub-label" data-i18n="med_time">服藥時間：</label>
+                              <input type="time" id="input-medication-time" class="form-input">
+                            </div>
+                            <div class="sub-field" style="margin-top:12px;">
+                              <label for="input-medication-dose" class="sub-label" data-i18n="med_dose">劑量（例如 1 顆、500 mg）：</label>
+                              <input type="text" id="input-medication-dose" class="form-input text-input" maxlength="40">
                             </div>
 
                             <div class="sub-field" style="margin-top: 12px;">
@@ -384,6 +393,59 @@
                             </div>
                         </div>
                     </div>
+        <!-- 持續時間 / 先兆 / 性質 / 影響 -->
+<div class="form-card">
+  <label class="card-label" data-i18n="dur_label">⏱️ 這次頭痛持續多久？</label>
+  <select id="input-duration">
+    <option value="" data-i18n="dur_ph">請選擇</option>
+    <option value="lt1h"  data-i18n="dur_lt1h">少於 1 小時</option>
+    <option value="1to4h" data-i18n="dur_1to4h">1–4 小時</option>
+    <option value="4to24h" data-i18n="dur_4to24h">4–24 小時</option>
+    <option value="1to3d" data-i18n="dur_1to3d">1–3 天</option>
+    <option value="gt3d"  data-i18n="dur_gt3d">超過 3 天</option>
+  </select>
+  <label class="checkbox-item"><input type="checkbox" id="input-ongoing"><span data-i18n="ongoing">目前還在痛</span></label>
+
+  <label class="card-label" style="margin-top:12px" data-i18n="aura_label">✨ 頭痛前有出現先兆嗎？（可複選）</label>
+  <div class="checkbox-group">
+    <label class="checkbox-item"><input type="checkbox" name="aura" value="none"><span data-i18n="aura_none">沒有</span></label>
+    <label class="checkbox-item"><input type="checkbox" name="aura" value="visual"><span data-i18n="aura_visual">視覺（閃光、鋸齒線、盲點）</span></label>
+    <label class="checkbox-item"><input type="checkbox" name="aura" value="sensory"><span data-i18n="aura_sensory">感覺（麻、刺）</span></label>
+    <label class="checkbox-item"><input type="checkbox" name="aura" value="speech"><span data-i18n="aura_speech">說話困難</span></label>
+  </div>
+
+  <label class="card-label" style="margin-top:12px" data-i18n="quality_label">疼痛性質</label>
+  <select id="input-pain-quality">
+    <option value="" data-i18n="dur_ph">請選擇</option>
+    <option value="throbbing" data-i18n="q_throb">搏動、跳痛</option>
+    <option value="pressing"  data-i18n="q_press">壓迫、緊繃</option>
+    <option value="stabbing"  data-i18n="q_stab">刺痛</option>
+    <option value="other"     data-i18n="q_other">其他</option>
+  </select>
+
+  <label class="card-label" style="margin-top:12px" data-i18n="impact_label">對日常活動的影響</label>
+  <select id="input-impact">
+    <option value="" data-i18n="dur_ph">請選擇</option>
+    <option value="0" data-i18n="impact_0">沒影響</option>
+    <option value="1" data-i18n="impact_1">稍有影響，仍可正常活動</option>
+    <option value="2" data-i18n="impact_2">活動明顯受限</option>
+    <option value="3" data-i18n="impact_3">無法上班／上學，需要躺著休息</option>
+  </select>
+</div>
+
+<!-- 警訊（紅旗） -->
+<div class="form-card">
+  <label class="card-label" data-i18n="rf_label">🚨 這次頭痛是否有以下情況？</label>
+  <div class="checkbox-group">
+    <label class="checkbox-item"><input type="checkbox" name="red-flag" value="thunderclap"><span data-i18n="rf_thunder">突然發生、有生以來最劇烈</span></label>
+    <label class="checkbox-item"><input type="checkbox" name="red-flag" value="weakness"><span data-i18n="rf_weak">單側無力或麻木</span></label>
+    <label class="checkbox-item"><input type="checkbox" name="red-flag" value="speech"><span data-i18n="rf_speech">說話不清</span></label>
+    <label class="checkbox-item"><input type="checkbox" name="red-flag" value="vision"><span data-i18n="rf_vision">視力突然改變或複視</span></label>
+    <label class="checkbox-item"><input type="checkbox" name="red-flag" value="fever_neck"><span data-i18n="rf_fever">發燒加上頸部僵硬</span></label>
+    <label class="checkbox-item"><input type="checkbox" name="red-flag" value="after_trauma"><span data-i18n="rf_trauma">頭部撞擊後</span></label>
+    <label class="checkbox-item"><input type="checkbox" name="red-flag" value="consciousness"><span data-i18n="rf_cons">抽搐或意識改變</span></label>
+  </div>
+</div>
     <!-- 4. 補充備註 -->
     <div class="form-card">
       <label for="input-content" class="card-label" data-i18n="notes_label">詳細備註或特殊狀況</label>
@@ -438,20 +500,38 @@
                 <div id="pane-band" class="tab-pane">
                     <div class="form-group">
                         <label data-i18n="band_hr">❤️ 即時心跳 (bpm)</label>
-                        <input type="number" id="band_heart_rate" placeholder="例如: 75">
+                        <input type="number" id="band_heart_rate" min="30"  max="220"    step="1" inputmode="numeric" placeholder="例如: 75">
                     </div>
                     <div class="form-group">
-                        <label data-i18n="band_spo2">🩸 血氧飽和度 SpO2 (%)</label>
-                        <input type="number" id="band_spo2" placeholder="例如: 98">
+                        <label data-i18n="band_spo2">🩸 血氧飽和度 SpO2 (%)</label>                     
+                        <input type="number" id="band_spo2"       min="50"  max="100"    step="1" inputmode="numeric" placeholder="例如: 98">
                     </div>
                     <div class="form-group">
-                        <label data-i18n="band_steps">👟 今日步數 (步)</label>
-                        <input type="number" id="band_steps" placeholder="例如: 6500">
+                        <label data-i18n="band_steps">👟 今日步數 (步)</label>                       
+                        <input type="number" id="band_steps"      min="0"   max="100000" step="1" inputmode="numeric" placeholder="例如: 6500">
                     </div>
                     <div class="form-group">
                         <label data-i18n="band_avg_steps">📊 近期平均步數 (步/日)</label>
                         <input type="number" id="band_avg_steps" placeholder="例如: 7200">
+                        <input type="number" id="band_avg_steps"  min="0"   max="100000" step="1" inputmode="numeric" placeholder="例如: 7200">
                     </div>
+                    <div class="form-group"><label data-i18n="life_sleep">😴 昨晚睡了幾小時</label>
+                      <input type="number" id="input-sleep-hours" min="0" max="24" step="0.5" inputmode="decimal"></div>
+                    <div class="form-group"><label data-i18n="life_caffeine">☕ 今天咖啡因飲料（杯）</label>
+                      <input type="number" id="input-caffeine" min="0" max="20" step="1" inputmode="numeric"></div>
+                    <div class="form-group"><label data-i18n="life_stress">😟 今天壓力程度 (0–10)</label>
+                      <input type="number" id="input-stress" min="0" max="10" step="1" inputmode="numeric"></div>
+                    <div class="form-group">
+                      <label class="checkbox-item"><input type="checkbox" id="input-alcohol"><span data-i18n="life_alcohol">昨天有喝酒</span></label>
+                      <label class="checkbox-item"><input type="checkbox" id="input-skipmeal"><span data-i18n="life_skipmeal">今天有漏餐</span></label>
+                    </div>
+                    <div class="form-group"><label data-i18n="life_mens">🩸 目前是否在月經期間</label>
+                      <select id="input-menstruation">
+                        <option value="" data-i18n="dur_ph">請選擇</option>
+                        <option value="yes" data-i18n="yes">是</option>
+                        <option value="no" data-i18n="no">否</option>
+                        <option value="na" data-i18n="na">不適用</option>
+                      </select></div>
                     <div class="button-group" style="display: flex; gap: 10px; margin-top: 15px;">
                         <button type="button" class="btn" onclick="switchTab('pane-symptom')" data-i18n="btn_prev_step">⬅️ 上一步</button>
                     </div>
