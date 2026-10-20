@@ -83,6 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dateInput && !dateInput.value) dateInput.value = todayStr;
     if (timeInput && !timeInput.value) timeInput.value = timeStr;
 });*/
+const { error } = await supabase.from('consent_records').upsert(
+  { user_id: user.id, consent_version: localStorage.getItem('agreed_version') || CONSENT_VERSION,
+    agreed: true, agreed_at: new Date().toISOString() },
+  { onConflict: 'user_id,consent_version', ignoreDuplicates: true });
 
 function trf(key, zh, vars = {}) {
   return tr(key, zh).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
@@ -756,21 +760,22 @@ dateClick: function(info) {
             const quizToday = (window.QuizTrend?.byDate()[clickedDate]) || [];
             const quizText = quizToday.map(r =>
             `🧠 ${r.name}：${r.total}/${r.max}（${window.QuizTrend.labelOf(r)}）`).join('\n');
-            const matchedRecord = (window.allUserRecords || []).find(r => {
-                const rDate = r.created_at ? new Date(r.created_at).toLocaleDateString('sv-SE') : '';
-                return rDate === clickedDate;
-            });
+           // const matchedRecord = (window.allUserRecords || []).find(r => {
+           //     const rDate = r.created_at ? new Date(r.created_at).toLocaleDateString('sv-SE') : '';
+           //     return rDate === clickedDate;
+           // });
+    const dayRecords = (window.allUserRecords || []).filter(r =>
+    r.created_at && new Date(r.created_at).toLocaleDateString('sv-SE') === clickedDate);
 
-            if (matchedRecord) {
-                // 📅 狀況 A：這天有紀錄，彈出視窗顯示詳細內容
-                const hData = matchedRecord.headache_data || {};
-                const wData = matchedRecord.weather_data || {};
-        alert(`📅 ${clickedDate}\n` +
-    `🔥 ${tr('cal_score','疼痛指數')}：${hData.pain_score} / 10\n` +
-    `📍 ${tr('cal_loc','痛點部位')}：${(hData.locations || []).join(', ') || '-'}\n` +
-    `💊 ${tr('cal_med','服藥狀況')}：${hData.medication_used ? (hData.medication_name || tr('yes','是')) : tr('no','否')}\n` +
-    `🌡️ ${tr('cal_pressure','當時氣壓')}：${wData.pressure || '-'} hPa` +
-     (quizText ? `\n\n${quizText}` : ''));
+    if (dayRecords.length) {
+    const lines = dayRecords.map(r => {
+        const h = r.headache_data || {};
+        const t = new Date(r.created_at).toTimeString().slice(0, 5);
+        const med = h.medication_used ? (h.medication_name || tr('yes','是')) : tr('no','否');
+        return `⏰ ${t}　${tr('cal_score','疼痛指數')} ${h.pain_score ?? '-'}/10　💊 ${med}`;
+    });
+    alert(`📅 ${clickedDate}\n${lines.join('\n')}` + (quizText ? `\n\n${quizText}` : ''));
+
                     } else if (quizText) {
                         alert(`📅 ${clickedDate}\n${quizText}\n\n${tr('cal_norecord','這天尚無頭痛紀錄。')}`);
                     } else {
@@ -882,8 +887,7 @@ function nudge(msg, buttons) {
 window.nudge = nudge;
 
 async function checkWeatherRisk(lat, lon) {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=pressure_msl,temperature_2m`;
-    
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=pressure_msl&forecast_hours=7&timezone=auto`;
     try {
         const response = await fetch(url);
         const data = await response.json();
