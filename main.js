@@ -628,12 +628,10 @@ async function applyTaiwanManualLocation() {
 
 
 // ==================== 表單互動與檢查 ====================
-function updateVal(slider) { 
-    if (slider && slider.nextElementSibling) {
-        slider.nextElementSibling.innerText = slider.value; 
-    }
+function updateVal(slider) {
+  if (slider?.nextElementSibling) slider.nextElementSibling.innerText = slider.value;
+  window.symTouched = true;
 }
-
 
 function saveFullRecord() {
     saveAllResearchData();
@@ -940,7 +938,9 @@ function selectPainPart(partName) {
     }
     console.log("目前選中的部位：", selectedParts);
 }
-function selectPain(score, label) {
+// 改後（只有使用者點臉譜才算「碰過」）
+function selectPain(score, label, silent = false) {
+  if (!silent) window.painTouched = true;
   const KEY = {0:'pain_0',2:'pain_2',4:'pain_4',6:'pain_6',8:'pain_8',10:'pain_10'};
   document.getElementById('input-pain').value = score;
   document.getElementById('pain-val-display').innerText =
@@ -1086,7 +1086,9 @@ function setLang(code) {
   const p = document.getElementById('input-pain')?.value;
   if (p !== undefined) {
     const lbl = {0:'不痛',2:'輕微疼痛',4:'稍微疼痛',6:'中度疼痛',8:'嚴重疼痛',10:'劇烈疼痛'}[p];
-    if (lbl) selectPain(Number(p), lbl);
+    if (p === '') document.getElementById('pain-val-display').innerText = tr('pain_unset','尚未選擇');
+    else if (lbl) selectPain(Number(p), lbl, true);   // true = 不算使用者操作
+
   }
       if (typeof initSymptomOptions === 'function') {
     initSymptomOptions(document.getElementById('categorySelect')?.value || 'all');
