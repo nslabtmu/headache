@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 });
-
+setLang(localStorage.getItem('lang') || (navigator.language.startsWith('zh') ? 'zh' : 'en'));
 document.addEventListener('DOMContentLoaded', () => {
   resetRecordDateTime();   // 定義在 save.js
   ['record-date','record-time'].forEach(id =>
@@ -977,6 +977,7 @@ function askPainAfter() {
 
 function tr(key, zh) { return currentLang === 'en' ? (langDict.en[key] ?? zh) : zh; }
 window.tr = tr;
+            
 function setLang(code) {
   const en = (code === 'en');
   currentLang = en ? 'en' : 'zh-TW';
@@ -1013,5 +1014,6 @@ function setLang(code) {
   }
   if (typeof updateSaveButtonLabel === 'function') updateSaveButtonLabel();
   if (typeof updateStepBadges === 'function') updateStepBadges();
+  try { localStorage.setItem('lang', code); } catch (e) {}
 }
 window.setLang = setLang;
