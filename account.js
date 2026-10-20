@@ -103,7 +103,7 @@ async function handleEditUser(event) {
   }
 }
 
-async function deleteUser(userId, name) {
+async function deleteUser1020(userId, name) {
   if (!confirm(`確定要刪除 "${name}" 的帳號嗎？此操作無法復原！`)) return;
   try {
     await callAdmin({ action: 'delete', id: userId });
@@ -254,7 +254,7 @@ function showAlternativeLogin() {
         }
 
 
-async function handleAddUser(event) {
+async function handleAddUser1020(event) {
     event.preventDefault();
 
     const name = document.getElementById('add-name').value.trim();
@@ -391,7 +391,7 @@ function updateMusicOptionsVisibility() {
 }
 
 // ============ 保存編輯 ============
-async function handleEditUser(event) {
+async function handleEditUser1020(event) {
     event.preventDefault();
 
     const name = document.getElementById('edit-name').value.trim();
