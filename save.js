@@ -299,3 +299,10 @@ async function updateMusicPainAfter(n) {
 }
 window.saveMusicSession = saveMusicSession;
 window.updateMusicPainAfter = updateMusicPainAfter;
+document.addEventListener('change', e => {
+  if (e.target?.name !== 'aura' || !e.target.checked) return;
+  document.querySelectorAll('input[name="aura"]').forEach(b => {
+    if (b === e.target) return;
+    if (e.target.value === 'none' || b.value === 'none') b.checked = false;
+  });
+});
