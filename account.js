@@ -7,6 +7,20 @@ let currentEditingUserId = null;
 window.addEventListener('load', async () => {
     if (document.getElementById('total-users')) await updateStats();
 });
+
+// 必須與建立帳號時用的網域一致
+const ACCOUNT_DOMAIN = 'phone.local';   // 已建立的帳號先沿用；新專案建議換成自己的網域
+
+async function handleAccountLogin() {
+  const acc = document.getElementById('login-account').value.trim().toLowerCase();
+  const pw  = document.getElementById('login-account-pw').value;
+  if (!acc || !pw) return alert(tr('need_acc_pw', '請輸入帳號與密碼'));
+  const { error } = await supabase.auth.signInWithPassword({
+    email: `${acc}@${ACCOUNT_DOMAIN}`, password: pw
+  });
+  if (error) alert(tr('login_fail', '登入失敗：') + error.message);
+}
+window.handleAccountLogin = handleAccountLogin;
 // 修改 2：當管理者點擊打開帳號管理 Modal 時，才去載入資料
 // 初始化 Supabase 客戶端（如果還沒有的話）
 // import { createClient } from '@supabase/supabase-js'
