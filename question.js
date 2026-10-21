@@ -581,10 +581,16 @@ function renderQuestion(root) {
                 style="${STYLE.opt}${on ? ' background:#3f51b5; color:#fff; border-color:#3f51b5;' : ''}">${esc(tx(o.label))}</button>`;
                 }).join('') + `</div>`;
     } else {
+       // body = `
+       // <input id="quiz-input" type="text" inputmode="${type === 'number' ? 'decimal' : 'text'}" placeholder="${esc(tx(q.placeholder || ''))}"
+       //     value="${esc(cur ?? '')}" onkeydown="if(event.key==='Enter'){event.preventDefault();Quiz.submit();}"
+       //     style="width:100%; padding:10px; font-size:16px; box-sizing:border-box;">
+       // 1. 非選擇題的 body：拿掉裡面的按鈕區，只留輸入框
         body = `
-        <input id="quiz-input" type="text" inputmode="${type === 'number' ? 'decimal' : 'text'}" placeholder="${esc(tx(q.placeholder || ''))}"
-            value="${esc(cur ?? '')}" onkeydown="if(event.key==='Enter'){event.preventDefault();Quiz.submit();}"
-            style="width:100%; padding:10px; font-size:16px; box-sizing:border-box;">
+        <input id="quiz-input" type="${type === 'time' ? 'time' : 'text'}" inputmode="${type === 'number' ? 'decimal' : 'text'}"
+            placeholder="${esc(tx(q.placeholder || ''))}" value="${esc(cur ?? '')}"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();Quiz.submit();}"
+            style="width:100%; padding:10px; font-size:16px; box-sizing:border-box;">`;
         <div style="margin-top:12px; text-align:right;">
             ${q.required === false ? `<button type="button" onclick="Quiz.skip()" style="${STYLE.plain} margin-right:8px;">${tx(UI.skip)}</button>` : ''}
             <button type="button" onclick="Quiz.submit()" style="${STYLE.primary}">${tx(isLast ? UI.finish : UI.next)}</button>
@@ -605,12 +611,25 @@ function renderQuestion(root) {
         ${q.desc ? `<p style="font-size:13px; color:#666; margin-bottom:16px;">${esc(tx(q.desc))}</p>` : ''}
         ${body}
         <div id="quiz-msg" style="color:#c62828; font-size:13px; margin-top:10px; white-space:pre-wrap;"></div>
-        <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
-        <span>${Q.idx > 0 ? `<button type="button" onclick="Quiz.prev()" style="${STYLE.plain}">${tx(UI.prev)}</button>` : ''}</span>
-        <span>${(type === 'choice' && cur !== undefined)
-        ? `<button type="button" onclick="Quiz.next()" style="${STYLE.primary}">${tx(isLast ? UI.finish : UI.next)}</button>`
-        : ''}</span>
-        </div>
+        
+        //<div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
+      //  <span>${Q.idx > 0 ? `<button type="button" onclick="Quiz.prev()" style="${STYLE.plain}">${tx(UI.prev)}</button>` : ''}</span>
+       // <span>${(type === 'choice' && cur !== undefined)
+      //  ? `<button type="button" onclick="Quiz.next()" style="${STYLE.primary}">${tx(isLast ? UI.finish : UI.next)}</button>`
+      //  : ''}</span>
+      //  </div>
+        // 2. 底部那一列（取代你現在的 margin-top:16px 那個 div）
+        const nextLabel = tx(isLast ? UI.finish : UI.next);
+        const rightBtns = type === 'choice'
+            ? (cur !== undefined
+            ? `<button type="button" onclick="Quiz.next()" style="${STYLE.primary}">${nextLabel}</button>`
+            : `<button type="button" disabled style="${STYLE.primary} opacity:.35; cursor:default;">${nextLabel}</button>`)
+            : `${q.required === false ? `<button type="button" onclick="Quiz.skip()" style="${STYLE.plain} margin-right:8px;">${tx(UI.skip)}</button>` : ''}
+           <button type="button" onclick="Quiz.submit()" style="${STYLE.primary}">${nextLabel}</button>`;
+            <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
+          <span>${Q.idx > 0 ? `<button type="button" onclick="Quiz.prev()" style="${STYLE.plain}">${tx(UI.prev)}</button>` : ''}</span>
+          <span>${rightBtns}</span>
+            </div>
     </div>`;
     const inp = el('quiz-input');
     if (inp) inp.focus();
