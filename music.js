@@ -1,6 +1,8 @@
 // ==========================================
 // 🎵 彈性 YouTube 音樂治療管理模組 (music.js) - 方案 C 升級版
 // ==========================================
+let sessionKey = null, pausedAt = null, sessionPainBefore = null, sessionIdForMusic = null;
+const PAUSE_LIMIT_MS = 10 * 60 * 1000;
 const mIsEn = () => document.documentElement.lang === 'en';
 const mName = c => mIsEn() ? (c.nameEn || c.name) : c.name;
 const mDesc = c => mIsEn() ? (c.descEn || c.description) : c.description;
@@ -78,7 +80,7 @@ function renderMusicCards() {
         let config = musicConfigs[key];
 
         let cardHTML = `
-            <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;" onmouseenter="prefetchPlayer('${key}')">
+            <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;" onmouseenter="prefetchPlayer('${key}')" ontouchstart="prefetchPlayer('${key}')">
                 <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;">${mName(config)}</h3>
                 <p style="font-size: 12px; color: #6c757d; margin-bottom: 10px;">${mDesc(config)}</p>
 
