@@ -21,7 +21,23 @@ async function hasConsented(userId) {
         .select('user_id').eq('user_id', userId).eq('consent_version', CONSENT_VERSION).limit(1);
     return !error && data.length > 0;
 }
-
+async function submitClaim() {
+    const code = document.getElementById('claim-code').value;
+    const pin  = document.getElementById('claim-pin').value;
+    const { data, error } = await supabase.rpc('claim_code', { p_code: code, p_pin: pin });
+    if (error) return alert(error.message);
+    if (data === 'invalid') return alert(tr('claim_invalid', '編號或啟用碼不正確，或此編號已被使用。'));
+    const { data: { user } } = await supabase.auth.getUser();
+    document.getElementById('claim-card').classList.add('hidden');
+    appStarted = false; startApp(user);
+}
+async function skipClaim() {
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from('profiles').update({ code_prompted: true }).eq('id', user.id);
+    document.getElementById('claim-card').classList.add('hidden');
+    appStarted = false; startApp(user);
+}
+window.submitClaim = submitClaim; window.skipClaim = skipClaim;
 async function startApp(user) {
     if (appStarted) return;
     if (localStorage.getItem('has_agreed') === 'true') await handleLoginSuccess(user);
@@ -32,6 +48,13 @@ async function startApp(user) {
         return;
     }
     if (appStarted) return;
+    const { data: pf } = await supabase.from('profiles')
+    .select('subject_code, code_prompted').eq('id', user.id).maybeSingle();
+   if (pf && !pf.subject_code && !pf.code_prompted) {
+    document.getElementById('claim-card')?.classList.remove('hidden');
+    document.getElementById('main-card')?.classList.add('hidden');
+    return;
+    }
     appStarted = true;
     showMainApp(user);
 }
