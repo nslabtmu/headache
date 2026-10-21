@@ -605,7 +605,12 @@ function renderQuestion(root) {
         ${q.desc ? `<p style="font-size:13px; color:#666; margin-bottom:16px;">${esc(tx(q.desc))}</p>` : ''}
         ${body}
         <div id="quiz-msg" style="color:#c62828; font-size:13px; margin-top:10px; white-space:pre-wrap;"></div>
-        <div style="margin-top:16px;">${Q.idx > 0 ? `<button type="button" onclick="Quiz.prev()" style="${STYLE.plain}">${tx(UI.prev)}</button>` : ''}</div>
+        <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
+        <span>${Q.idx > 0 ? `<button type="button" onclick="Quiz.prev()" style="${STYLE.plain}">${tx(UI.prev)}</button>` : ''}</span>
+        <span>${(type === 'choice' && cur !== undefined)
+        ? `<button type="button" onclick="Quiz.next()" style="${STYLE.primary}">${tx(isLast ? UI.finish : UI.next)}</button>`
+        : ''}</span>
+        </div>
     </div>`;
     const inp = el('quiz-input');
     if (inp) inp.focus();
@@ -637,6 +642,7 @@ function pick(score) {
     }, 250);
 }
 function prev() { if (!locked && Q.idx > 0) { Q.idx--; render(); } }
+function next() { if (!locked && Q) advance(); } 
 function skip() { delete Q.answers[visible()[Q.idx].key]; advance(); }
 
 function submit() {
@@ -865,3 +871,5 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else buildPicker();
 
 })();
+window.Quiz = { open, close, start, pick, submit, skip, prev, next, retake, retry: () => save(), showResult, refreshLang,
+                refreshPicker: buildPicker, remindIfDue };
