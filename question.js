@@ -716,6 +716,9 @@ function renderResult(root) {
 }
 
 async function save() {
+    const sid = window.currentSessionId?.() ?? null;
+    const diaryId = (window.currentDiaryId && window.currentDiarySession === sid) ? window.currentDiaryId : null;
+
     const q = Q;
     if (!q || q.saveState === 'saving' || q.saveState === 'saved') return;
     q.saveState = 'saving'; updateStatus();
@@ -727,6 +730,7 @@ async function save() {
         if (!session) throw new Error(lang() === 'en' ? 'Please sign in first.' : '請先登入後再儲存。');
 
         const r = q.result;
+     
         const { data: row, error } = await db.from('quiz_results').insert([{
             user_id: session.user.id,
             quiz: q.cfg.id,
@@ -734,10 +738,11 @@ async function save() {
             level: r.level.zh,
             details: { ...(r.extra || {}), level_en: r.level.en, lang: lang(), max: r.max },
             answers: q.answers,
-            diary_id: window.currentDiaryId ?? null      // 已有日記就直接關聯
+            session_id: sid,
+            diary_id: diaryId
             }]).select('id').single();                       // 拿回 id，不再送 user_email
         if (error) throw error;
-        (window.sessionQuizLogs ||= []).push({ id: row.id, quiz: q.cfg.id, total: r.total, linked: !!window.currentDiaryId });
+        (window.sessionQuizLogs ||= []).push({ id: row.id, quiz: q.cfg.id, session_id: sid, linked: !!diaryId });
         q.saveState = 'saved';
             window.QuizTrend?.load();
         } catch (err) {
