@@ -39,7 +39,7 @@ const musicConfigs = {
     blue: {
         name: '1950 Blue', nameEn: '1950 Blue',
         description: '持續性柔和頻率，幫助深度安眠。', descEn: 'Continuous soft tones to aid deep sleep.',
-        videoId: 'dQw4w9WgXcQ'
+        url:'https://www.youtube.com/watch?v=MyGmHkwCJfk'
     }
 };
 
@@ -164,7 +164,7 @@ function prefetchPlayer(key) {
 }
 
 // 5️⃣ 點擊播放 / 暫停控制邏輯 (方案 C：累計計時 + 自動結算)
-async function toggleYouTubeMusic(key) {
+async function toggleYouTubeMusic1020(key) {
     let config = musicConfigs[key];
     let btn = document.getElementById(`btn-${key}`);
     let statusEl = document.getElementById(`status-${key}`);
@@ -279,7 +279,7 @@ async function toggleYouTubeMusic(key) {
 }
 
 // 6️⃣ 結算並打包寫入 sessionMusicLogs 陣列
-function finalizeAndPushLog(key, endType = 'completed') {
+function finalizeAndPushLog1020(key, endType = 'completed') {
     let config = musicConfigs[key];
     let player = playersMap[key];
 
@@ -331,7 +331,109 @@ function finalizeAndPushLog(key, endType = 'completed') {
         btn.style.background = '#A5D6A7';
     }
 }
+async function toggleYouTubeMusic(key) {
+    const config = musicConfigs[key];
+    const btn = document.getElementById(`btn-${key}`);
+    const statusEl = document.getElementById(`status-${key}`);
 
+    // A：暫停
+    if (activeKey === key) {
+        const p = playersMap[key];
+        if (p?.pauseVideo) p.pauseVideo();
+        if (lastPlayStartTime) { sessionAccumulatedSeconds += Math.floor((Date.now() - lastPlayStartTime) / 1000); lastPlayStartTime = null; }
+        sessionPauseCount++; pausedAt = Date.now();
+        clearInterval(activeTimer); activeKey = null;
+        if (btn) { btn.innerText = `▶️ ${tr('m_resume','繼續播放')} ${mName(config)}`; btn.style.background = '#A5D6A7'; }
+        if (statusEl) statusEl.innerText = tr('m_paused','狀態：已暫停') + ` (${sessionAccumulatedSeconds}s, ${sessionPauseCount}×)`;
+        clearTimeout(pauseTimeoutTimer);
+        pauseTimeoutTimer = setTimeout(() => finalizeAndPushLog(key, 'user_paused_timeout'), PAUSE_LIMIT_MS);
+        return;
+    }
+
+    // B：播放 / 繼續
+    clearTimeout(pauseTimeoutTimer);
+    // 有未結算的療程，且是別首歌，或暫停太久（手機計時器可能被凍結）→ 先結算
+    if (sessionKey && (sessionKey !== key || (pausedAt && Date.now() - pausedAt > PAUSE_LIMIT_MS))) {
+        stopSession(sessionKey, sessionKey !== key ? 'switch_music' : 'user_paused_timeout');
+    }
+
+    let player = playersMap[key];
+    if (!player) {
+        if (btn) { btn.disabled = true; btn.innerText = `⏳ ${tr('m_loadingbtn','載入中...')}`; btn.style.background = '#ccc'; }
+        if (statusEl) statusEl.innerText = tr('m_loading','狀態：載入播放器中...');
+        try { player = await ensurePlayer(key); }
+        catch (err) {
+            console.error(err);
+            if (statusEl) statusEl.innerText = tr('m_loadfail','狀態：載入失敗，請稍後重試');
+            if (btn) { btn.disabled = false; btn.innerText = `▶️ ${tr('m_play','播放')} ${mName(config)}`; btn.style.background = '#A5D6A7'; }
+            return;
+        }
+        if (btn) btn.disabled = false;
+    }
+
+    if (!sessionKey) {                                   // 新療程：在「開始播放」那一刻記錄
+        sessionKey = key;
+        currentSessionStartTime = new Date().toISOString();
+        sessionAccumulatedSeconds = 0; sessionPauseCount = 0;
+        sessionIdForMusic = window.currentSessionId?.() ?? null;
+        sessionPainBefore = window.painTouched ? Number(document.getElementById('input-pain')?.value) : null;
+    }
+    pausedAt = null;
+
+    player.playVideo();
+    activeKey = key; lastPlayStartTime = Date.now();
+    if (btn) { btn.innerText = `⏸️ ${tr('m_pause','暫停')} ${mName(config)}`; btn.style.background = '#A9C0D6'; }
+
+    clearInterval(activeTimer);
+    activeTimer = setInterval(() => {
+        const live = sessionAccumulatedSeconds + (lastPlayStartTime ? Math.floor((Date.now() - lastPlayStartTime) / 1000) : 0);
+        if (!statusEl) return;
+        const phase = live < 300 ? tr('m_ph1','狀態：【進入期】') : live < 900 ? tr('m_ph2','狀態：【核心放鬆期】') : tr('m_ph3','狀態：【回歸期】');
+        statusEl.innerText = `${phase} ${live}s`;
+    }, 1000);
+}
+
+function finalizeAndPushLog(key, endType = 'completed') {
+    const config = musicConfigs[key];
+    const player = playersMap[key];
+    if (lastPlayStartTime) { sessionAccumulatedSeconds += Math.floor((Date.now() - lastPlayStartTime) / 1000); lastPlayStartTime = null; }
+
+    const reset = () => { sessionAccumulatedSeconds = 0; sessionPauseCount = 0; currentSessionStartTime = null;
+                          sessionKey = null; pausedAt = null; sessionPainBefore = null; sessionIdForMusic = null; };
+    if (sessionAccumulatedSeconds <= 0) { reset(); return; }
+
+    const dur = player?.getDuration ? player.getDuration() : 0;
+    const pct = dur > 0 ? Math.min(100, parseFloat(((sessionAccumulatedSeconds / dur) * 100).toFixed(2))) : 0;
+
+    // 只有「同一個 session 內已儲存的日記」才帶 diary_id
+    const diaryId = (window.currentDiaryId && window.currentDiarySession === sessionIdForMusic) ? window.currentDiaryId : null;
+
+    const logItem = {
+        protocol: `U-Sequence: ${mName(config)}`,
+        start_time: currentSessionStartTime || new Date().toISOString(),
+        end_time: new Date().toISOString(),
+        duration_seconds: sessionAccumulatedSeconds,
+        progress_percentage: pct,
+        pause_count: sessionPauseCount,
+        end_type: endType,
+        completed: endType === 'completed' || pct >= 80,
+        pain_before: sessionPainBefore,
+        session_id: sessionIdForMusic,
+        diary_id: diaryId,
+        linked: !!diaryId
+    };
+    const askAfter = endType !== 'page_closed' && (sessionAccumulatedSeconds >= 300 || endType === 'completed');
+    window.sessionMusicLogs.push(logItem);
+    window.lastMusicLog = logItem;
+    window.lastMusicSave = window.saveMusicSession?.(logItem);
+    if (askAfter) askPainAfter();
+    reset();
+
+    const statusEl = document.getElementById(`status-${key}`);
+    const btn = document.getElementById(`btn-${key}`);
+    if (statusEl) statusEl.innerText = `${tr('m_saved','狀態：已結算存檔')} (${endType})`;
+    if (btn) { btn.innerText = `▶️ ${tr('m_play','播放')} ${mName(config)}`; btn.style.background = '#A5D6A7'; }
+}
 // 7️⃣ 手動或切換歌曲時停止療程
 function stopSession(key, endType = 'user_paused') {
     if (activeKey === key) {
@@ -357,11 +459,7 @@ async function handlePlayerStateChange(key, event) {
 }
 
 // 🌐 防關閉頁面遺失：關閉分頁或視窗時自動將正在播放的音樂結算
-window.addEventListener('pagehide', () => {
-    if (activeKey) {
-        finalizeAndPushLog(activeKey, 'page_closed');
-    }
-});
+window.addEventListener('pagehide', () => { if (sessionKey) finalizeAndPushLog(sessionKey, 'page_closed'); });
 
 // 9️⃣ 頁面載入時自動執行卡片生成
 window.addEventListener('DOMContentLoaded', () => {
