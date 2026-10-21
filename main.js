@@ -16,7 +16,21 @@ const CONSENT_PDF_URL = `./consent_v${CONSENT_VERSION}.pdf`;
 // ✅ pageOrder 中 pane-symptoms 已確認改為 pane-symptom
 const pageOrder = ['pane-profile', 'pane-headache', 'pane-symptom','pane-mood', 'pane-band', 'pane-chart'];
 
-function startApp(user) {
+async function hasConsented(userId) {
+    const { data, error } = await supabase.from('consent_records')
+        .select('user_id').eq('user_id', userId).eq('consent_version', CONSENT_VERSION).limit(1);
+    return !error && data.length > 0;
+}
+
+async function startApp(user) {
+    if (appStarted) return;
+    if (localStorage.getItem('has_agreed') === 'true') await handleLoginSuccess(user);
+    if (!(await hasConsented(user.id))) {          // 沒簽過這個版本 → 回到同意書
+        document.getElementById('consent-card')?.classList.remove('hidden');
+        document.getElementById('auth-card')?.classList.add('hidden');
+        document.getElementById('main-card')?.classList.add('hidden');
+        return;
+    }
     if (appStarted) return;
     appStarted = true;
     showMainApp(user);
@@ -51,16 +65,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error("檢查登入狀態失敗：", err);
     }
 
-    window.supabase.auth.onAuthStateChange((event, session) => {
-        console.log("Auth 狀態改變：", event);
-        if (event === 'SIGNED_IN' && session) {
-            handleLoginSuccess(session.user);
-            startApp(session.user);
-        } else if (event === 'SIGNED_OUT') {
-            appStarted = false;
-            showAuthFlow();
-        }
-    });
+window.supabase.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+        setTimeout(() => startApp(session.user), 0);   // 跳出回呼，避免死結
+    } else if (event === 'SIGNED_OUT') {
+        appStarted = false;
+        showAuthFlow();
+    }
+});
 });
 setLang(localStorage.getItem('lang') || (navigator.language.startsWith('zh') ? 'zh' : 'en'));
 document.addEventListener('DOMContentLoaded', () => {
@@ -108,10 +120,11 @@ function setTaiwanLocationMode(isTaiwan) {
 
 
 // ==================== 身份驗證與頁面跳轉 ====================
-function agreeConsent() {
+async function agreeConsent() {
     localStorage.setItem('has_agreed', 'true');
     localStorage.setItem('agreed_version', CONSENT_VERSION);
-
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) { appStarted = false; startApp(session.user); return; }   // 已登入（含重填同意書）
     document.getElementById('consent-card')?.classList.add('hidden');
     document.getElementById('auth-card')?.classList.remove('hidden');
 }
@@ -169,13 +182,13 @@ function showMainApp(user) {
     switchMainTab('symptoms');
     // ✅ 再顯示次頁籤（頭痛）
     switchLevel2Tab('diary');
-
-    const userEmailText = document.getElementById('user-email-text');
-    const userEmail = document.getElementById('user-email');
-    const userInfoBar = document.getElementById('user-info-bar');
-    if (userEmailText) userEmailText.innerText = user.email;
-    if (userEmail) userEmail.innerText = user.email;
-    if (userInfoBar) userInfoBar.classList.remove('hidden');
+const userEmailText = document.getElementById('user-email-text');
+if (userEmailText) {
+    const shown = user.email?.endsWith('@phone.local')
+        ? user.email.replace('@phone.local', '')
+        : (user.email?.split('@')[0] ?? '');
+    userEmailText.innerText = shown;
+}
 
     getLocationAndWeather();
     loadUserProfile(user.id);
