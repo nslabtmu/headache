@@ -77,6 +77,7 @@ window.resetRecordDateTime = resetRecordDateTime;
 
 // ---------- 開新紀錄（若你別的檔案已有 startNewDiary，請合併，避免重複定義）----------
 function startNewDiary() {
+  window.currentDiarySession = null;
   window.currentDiaryId = null;
   window.painTouched = false; window.symTouched = false; window.dtTouched = false;
   window.sessionMusicLogs = []; window.sessionQuizLogs = [];
@@ -229,19 +230,20 @@ async function saveAllResearchData() {
     const headache = collectHeadache();
 
     const payload = {
-      user_id: user.id,
-      schema_version: 2,
-      app_lang: currentLang,
-      is_backfilled: isBackfilled,
-      headache_data: headache,
-      symptoms_data: collectSymptoms(),
-      health_data: collectHealth(),
-      lifestyle_data: collectLifestyle(),
-      weather_data: buildWeather(isBackfilled),
-      music_therapy_data: buildMusic()
+    user_id: user.id,
+    schema_version: 2,
+    app_lang: currentLang,
+    is_backfilled: isBackfilled,
+    headache_data: headache,
+    symptoms_data: collectSymptoms(),
+    health_data: collectHealth(),
+    lifestyle_data: collectLifestyle(),
+    weather_data: buildWeather(isBackfilled),
+    music_therapy_data: buildMusic()
     };
-    if (!isUpdate || window.dtTouched) payload.created_at = when.toISOString();
-
+    if (!isUpdate) payload.session_id = currentSessionId();
+    if (!isUpdate || window.dtTouched) payload.event_time = when.toISOString();   // created_at 交給資料庫
+    
     let res;
     if (isUpdate) {
       const { user_id, weather_data, ...updatable } = payload;   // 更新時不改 user_id、不覆蓋氣象
@@ -252,9 +254,14 @@ async function saveAllResearchData() {
     }
     if (res.error) throw res.error;
 
+    // 儲存成功後
     window.currentDiaryId = res.data.id;
+    if (!isUpdate) window.currentDiarySession = payload.session_id;
     window.dtTouched = false;
-    await linkQuizzesToDiary(res.data.id);
+    if (!isBackfilled) {                         // 補填的紀錄不跟音樂、量表關聯
+      await linkQuizzesToDiary(res.data.id);
+      await linkMusicToDiary(res.data.id);
+    }
 
     updateSaveButtonLabel();
     window.updateStepBadges?.();
@@ -292,9 +299,77 @@ document.addEventListener('change', e => {
   if (e.target?.name === 'red-flag' && e.target.checked)
     window.nudge?.(RED_TXT(), [[tr('ok', '我知道了')]]);
 });
+//1021 存檔取代savemusicSession1020
+// ---------- 量表、音樂關聯：只綁同一個 session ----------
+async function linkQuizzesToDiary(diaryId) {
+  const pending = (window.sessionQuizLogs || []).filter(x =>
+    x.id && !x.linked && x.session_id === window.currentDiarySession);
+  if (!pending.length) return;
+  const { error } = await supabase.from('quiz_results')
+    .update({ diary_id: diaryId }).in('id', pending.map(x => x.id));
+  if (!error) pending.forEach(x => { x.linked = true; });
+}   // ← 同時刪掉前面舊的 linkQuizzesToDiary
+
+async function linkMusicToDiary(diaryId) {
+  const pending = (window.sessionMusicLogs || []).filter(l =>
+    l.db_id && !l.linked && l.session_id === window.currentDiarySession);
+  if (!pending.length) return;
+  const { error } = await supabase.from('music_sessions')
+    .update({ diary_id: diaryId }).in('id', pending.map(l => l.db_id));
+  if (!error) pending.forEach(l => { l.linked = true; });
+}
+
+// ---------- 音樂：聽完就寫入，失敗進本機佇列 ----------
+const MUSIC_QUEUE_KEY = 'pending_music_sessions';
+function queueMusic(log) {
+  try {
+    const q = JSON.parse(localStorage.getItem(MUSIC_QUEUE_KEY) || '[]');
+    q.push(log); localStorage.setItem(MUSIC_QUEUE_KEY, JSON.stringify(q));
+  } catch (e) {}
+}
+async function insertMusicRow(log) {
+  const { data, error } = await supabase.from('music_sessions').insert([{
+    diary_id: log.diary_id ?? null,
+    session_id: log.session_id ?? null,
+    protocol: log.protocol ?? null,
+    started_at: log.start_time,
+    ended_at: log.end_time,
+    duration_seconds: log.duration_seconds,
+    progress_pct: log.progress_percentage,
+    pause_count: log.pause_count,
+    end_type: log.end_type,
+    completed: !!log.completed,
+    pain_before: log.pain_before ?? null,
+    pain_after: log.pain_after ?? null
+  }]).select('id').single();
+  if (error) throw error;
+  return data.id;
+}
+async function saveMusicSession(log) {
+  if (log.end_type === 'page_closed') { queueMusic(log); return null; }   // 關頁時送不出去
+  try { log.db_id = await insertMusicRow(log); return log.db_id; }
+  catch (e) { console.warn('music save failed, queued', e); queueMusic(log); return null; }
+}
+async function flushPendingMusic() {
+  let q = [];
+  try { q = JSON.parse(localStorage.getItem(MUSIC_QUEUE_KEY) || '[]'); } catch (e) {}
+  if (!q.length) return;
+  localStorage.removeItem(MUSIC_QUEUE_KEY);
+  for (const log of q) { try { await insertMusicRow(log); } catch (e) { queueMusic(log); } }
+}
+async function updateMusicPainAfter(n) {
+  const log = window.lastMusicLog;
+  if (!log) return;
+  log.pain_after = n;
+  const id = log.db_id ?? await window.lastMusicSave;      // 等寫入完成再更新
+  if (id) await supabase.from('music_sessions').update({ pain_after: n }).eq('id', id);
+}
+window.saveMusicSession = saveMusicSession;
+window.updateMusicPainAfter = updateMusicPainAfter;
+window.flushPendingMusic = flushPendingMusic;
 
 // ---------- 音樂：每次聽完就寫入（接口，請在 music.js 結束時呼叫）----------
-async function saveMusicSession(log) {
+async function saveMusicSession1020(log) {
   try {
     const { data, error } = await supabase.from('music_sessions').insert([{
       diary_id: window.currentDiaryId ?? null,
@@ -308,7 +383,7 @@ async function saveMusicSession(log) {
     window.lastMusicSessionId = data.id;
   } catch (e) { console.warn('music session save failed', e); }
 }
-async function updateMusicPainAfter(n) {
+async function updateMusicPainAfter1020(n) {
   if (!window.lastMusicSessionId) return;
   await supabase.from('music_sessions').update({ pain_after: n }).eq('id', window.lastMusicSessionId);
 }
