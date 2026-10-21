@@ -59,6 +59,8 @@ let sessionAccumulatedSeconds = 0; // 當前 session 累積播放總秒數
 let sessionPauseCount = 0;         // 當前 session 暫停次數
 let lastPlayStartTime = null;      // 該次按下播放/繼續的時間點
 let currentSessionStartTime = null; // 該次聆聽最早啟動的時間
+let sessionKey = null, pausedAt = null, sessionPainBefore = null, sessionIdForMusic = null;
+const PAUSE_LIMIT_MS = 10 * 60 * 1000;
 
 function extractYouTubeId(url) {
     if (!url) return '';
@@ -121,7 +123,7 @@ function ensurePlayer(key) {
     }
 
     const promise = new Promise((resolve, reject) => {
-        if (!apiReady || typeof YT === 'undefined' || !YT.Player) {
+        if (typeof YT !== 'undefined' && YT.Player) {
             reject(new Error('YouTube API 尚未就緒'));
             return;
         }
