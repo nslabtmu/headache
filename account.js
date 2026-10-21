@@ -123,7 +123,7 @@ async function handleEditUser(event) {
 }
 
 
-async function deleteUser1020(userId, name) {
+async function deleteUser(userId, name) {
   if (!confirm(`確定要刪除 "${name}" 的帳號嗎？此操作無法復原！`)) return;
   try {
     await callAdmin({ action: 'delete', id: userId });
@@ -147,7 +147,7 @@ async function openAccountManagement() {
     
     if (!isAdmin) {
         // 🔴 不是管理者：導向 pane-profile 頁面（或對應的分頁）
-        switchTab('profile'); // 根據你的實際路由調整
+        switchMainTab('profile'); // 根據你的實際路由調整
         return;
     }
     
@@ -337,7 +337,7 @@ async function linkGoogle() {
   if (error) alert(error.message);
 }
 // ============ 刪除帳號 ============
-async function deleteUser(userId, name) {
+/*async function deleteUser(userId, name) {
     if (!confirm(`確定要刪除 "${name}" 的帳號嗎？此操作無法復原！`)) {
         return;
     }
@@ -364,7 +364,7 @@ async function deleteUser(userId, name) {
         console.error('❌ 刪除失敗：', error);
         alert('❌ 刪除失敗：' + error.message);
     }
-}
+}*/
 
 // ============ 更新統計 ============
 async function updateStats() {
