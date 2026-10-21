@@ -328,8 +328,14 @@ function updateMusicOptionsVisibility() {
     }
 }
 
-// ============ 保存編輯 ============
-
+// ============ 連結帳號 ============
+async function linkGoogle() {
+  const { error } = await supabase.auth.linkIdentity({
+    provider: 'google',
+    options: { redirectTo: location.origin + location.pathname }
+  });
+  if (error) alert(error.message);
+}
 // ============ 刪除帳號 ============
 async function deleteUser(userId, name) {
     if (!confirm(`確定要刪除 "${name}" 的帳號嗎？此操作無法復原！`)) {
