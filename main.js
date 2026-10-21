@@ -171,6 +171,7 @@ async function handleLogout() {
 }
 
 function showMainApp(user) {
+    flushPendingMusic();
     const consentCard = document.getElementById('consent-card');
     const authCard = document.getElementById('auth-card');
     if (consentCard) consentCard.classList.add('hidden');
@@ -1003,6 +1004,7 @@ function askPainAfter() {
   document.body.appendChild(box);
   box.querySelectorAll('[data-n]').forEach(b => b.onclick = () => {
     window.painAfter = Number(b.dataset.n);
+    window.updateMusicPainAfter?.(window.painAfter);
     box.remove();
     window.syncDiaryExtras?.();
   });
