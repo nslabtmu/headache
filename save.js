@@ -1,3 +1,18 @@
+// activity.js - save.js 最上方
+const SESSION_GAP_MIN = 30;
+const SS_KEY = 'act_session';
+function touchSession() {
+  const now = Date.now();
+  let s = null;
+  try { s = JSON.parse(sessionStorage.getItem(SS_KEY)); } catch {}
+  if (!s || now - s.last > SESSION_GAP_MIN * 60000) s = { id: crypto.randomUUID(), last: now };
+  s.last = now;
+  try { sessionStorage.setItem(SS_KEY, JSON.stringify(s)); } catch {}
+  return s.id;
+}
+window.currentSessionId = touchSession;
+['click', 'input', 'change'].forEach(ev =>
+  document.addEventListener(ev, touchSession, { passive: true }));
 // ==================== save.js ====================
 let saving = false;
 const byId = id => document.getElementById(id);
