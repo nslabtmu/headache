@@ -19,16 +19,11 @@ function normalizeTbi(v) {
 }
 
 // ============ 頁面載入 ============
-window.addEventListener('load', async () => {
-    if (!document.getElementById('users-table')) return;   // 只在 account.html 執行
-    if (!(await checkIfUserIsAdmin())) {
-        alert('需要管理者權限');
-        location.href = 'index.html';
-        return;
-    }
-    await loadUsers();
-    await updateStats();
-});
+   window.addEventListener('load', async () => {
+     if (!document.getElementById('users-table')) return;     // 只在 account.html 執行
+     if (!(await checkIfUserIsAdmin())) { alert('需要管理者權限'); location.href = 'index.html'; return; }
+     await loadUsers(); await updateStats();
+   });
 
 // 必須與建立帳號時用的網域一致
 const ACCOUNT_DOMAIN = 'phone.local';   // 已建立的帳號先沿用；新專案建議換成自己的網域
