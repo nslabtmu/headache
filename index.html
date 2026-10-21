@@ -92,6 +92,13 @@
         </div>
     </div>
 
+<div class="card hidden" id="claim-card">
+  <h2 data-i18n="claim_title">🏷️ 您有研究人員提供的受試者編號嗎？</h2>
+  <input type="text" id="claim-code" placeholder="編號 (例: S001)" class="form-control" style="margin-bottom:8px;width:100%;padding:8px;">
+  <input type="text" id="claim-pin" placeholder="啟用碼" inputmode="numeric" class="form-control" style="margin-bottom:8px;width:100%;padding:8px;">
+  <button type="button" class="btn" style="width:100%;background:#27ae60;color:#fff;" onclick="submitClaim()" data-i18n="claim_btn">確認</button>
+  <button type="button" class="btn" style="width:100%;margin-top:8px;" onclick="skipClaim()" data-i18n="claim_skip">我沒有編號，直接開始</button>
+</div>
     
 <!-- 3. 主系統卡片 -->
     <div class="card card-left hidden" id="main-card">
@@ -103,6 +110,7 @@
     <nav class="top-navbar">
       <button type="button" class="top-tab active" data-main="symptoms" onclick="switchMainTab('symptoms')" data-i18n="nav_symptoms">🩺 症狀</button>
       <button type="button" class="top-tab" data-main="music" onclick="switchMainTab('music')" data-i18n="nav_music">🎵 音樂</button>
+      <button type="button" class="btn" onclick="linkGoogle()" data-i18n="link_google">🔗 綁定 Google 帳號</button>
     </nav>
   </div>
   <div class="header-actions">
