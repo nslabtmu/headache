@@ -578,12 +578,6 @@
     <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: relative;">
         <canvas id="painChart" style="max-height: 400px;"></canvas>
     </div>
-        <div class="card mb-4 shadow-sm"><div class="card-body">
-          <h3 class="card-title" data-i18n="quiz_trend_title">🧠 量表趨勢</h3>
-          <select id="quizTrendSelect" onchange="QuizTrend.render()"></select>
-          <div style="position:relative; margin-top:12px;"><canvas id="quizChart" style="max-height:320px;"></canvas></div>
-    </div></div>
-       
 <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
   <!-- 第一層：症狀類別選單 -->
   <label for="categorySelect" data-i18n="cat_label">類別：</label>
@@ -600,7 +594,13 @@
     <!-- 由 JS 動態繪製 -->
   </select>
 </div>  
+    <div class="card mb-4 shadow-sm"><div class="card-body">
+          <h3 class="card-title" data-i18n="quiz_trend_title">🧠 量表趨勢</h3>
+          <select id="quizTrendSelect" onchange="QuizTrend.render()"></select>
+          <div style="position:relative; margin-top:12px;"><canvas id="quizChart" style="max-height:320px;"></canvas></div>
+    </div></div>
 </div>
+
 </section>
 
 <!-- ==================== 主頁籤 music ==================== -->
