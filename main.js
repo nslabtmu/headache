@@ -103,21 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
   ['record-date','record-time'].forEach(id =>
     document.getElementById(id)?.addEventListener('change', () => { window.dtTouched = true; }));
 });
-/*document.addEventListener('DOMContentLoaded', function() {
-    const dateInput = document.getElementById('record-date');
-    const timeInput = document.getElementById('record-time');
-    
-    const now = new Date();
-    // 格式化成 YYYY-MM-DD
-    const todayStr = now.toLocaleDateString('sv-SE');
-    // 格式化成 HH:MM
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const timeStr = `${hours}:${minutes}`;
 
-    if (dateInput && !dateInput.value) dateInput.value = todayStr;
-    if (timeInput && !timeInput.value) timeInput.value = timeStr;
-});*/
 
 function trf(key, zh, vars = {}) {
   return tr(key, zh).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '');
@@ -617,7 +603,7 @@ function updateVal(slider) {
 }
 
 function saveFullRecord(opts) {
-    saveAllResearchData(opts);
+    return saveAllResearchData(opts);
 }
 
 
@@ -786,6 +772,10 @@ async function checkMigraineWeatherRisk(lat, lon) {
     }
  }
 
+const recDate = r => {
+  const t = r.event_time || r.created_at;
+  return t ? new Date(t).toLocaleDateString('sv-SE') : '';
+};
 document.addEventListener('DOMContentLoaded', function() {
     var calendarEl = document.getElementById('headacheCalendar');
     if (!calendarEl) return;
@@ -807,9 +797,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (score >= 7) color = '#ff6b6b';       // 紅色（重度）
                 else if (score >= 4) color = '#ffd43b';  // 黃色（中度）
 
-                const dateStr = record.created_at
-                    ? new Date(record.created_at).toLocaleDateString('sv-SE')
-                    : '';
+                const dateStr = recDate(record);
 
                 return {
                     title: `${tr('cal_pain','痛')}: ${score}`,
@@ -839,14 +827,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 `🧠 ${r.name}：${r.total}/${r.max}（${window.QuizTrend.labelOf(r)}）`).join('\n');
 
             // 3. 當天的頭痛紀錄（可能有多筆）
-            const dayRecords = (window.allUserRecords || []).filter(r =>
-                r.created_at &&
-                new Date(r.created_at).toLocaleDateString('sv-SE') === clickedDate);
+                const dayRecords = (window.allUserRecords || []).filter(r =>
+                recDate(r) === clickedDate);
 
             if (dayRecords.length) {
                 const lines = dayRecords.map(r => {
                     const h = r.headache_data || {};
-                    const t = new Date(r.created_at).toTimeString().slice(0, 5);
+                    const t = new Date(r.event_time || r.created_at).toTimeString().slice(0, 5);
                     const med = h.medication_used
                         ? (h.medication_name || tr('yes', '是'))
                         : tr('no', '否');
