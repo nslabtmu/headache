@@ -873,7 +873,7 @@ document.addEventListener('click', e => {
     if (e.target.closest && e.target.closest('.lang-btn[data-lang]')) setTimeout(refreshLang, 80);
 });
 
-window.Quiz = { open, close, start, pick, submit, skip, prev, retake, retry: () => save(), showResult, refreshLang,
+window.Quiz = { open, close, start, pick, next, submit, skip, prev, retake, retry: () => save(), showResult, refreshLang,
                 refreshPicker: buildPicker, remindIfDue };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', buildPicker);
 else buildPicker();
