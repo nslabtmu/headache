@@ -234,8 +234,12 @@ async function saveAllResearchData(opts = {}) {
     music_therapy_data: buildMusic()
     };
     if (!isUpdate) payload.session_id = currentSessionId();
-    if (!isUpdate || window.dtTouched) payload.event_time = when.toISOString();   // created_at 交給資料庫
-    
+   // if (!isUpdate || window.dtTouched) payload.event_time = when.toISOString();   // created_at 交給資料庫
+    if (!isUpdate || window.dtTouched) {
+      payload.event_time = when.toISOString();
+      payload.event_date = inputDate;                                    // 使用者填的本地日期
+      payload.event_tz = Intl.DateTimeFormat().resolvedOptions().timeZone; // 例如 Asia/Taipei
+      }
     let res;
     if (isUpdate) {
       const { user_id, weather_data, ...updatable } = payload;   // 更新時不改 user_id、不覆蓋氣象
