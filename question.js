@@ -738,8 +738,8 @@ async function save() {
             user_id: session.user.id,
             quiz: q.cfg.id,
             total_score: r.total,
-            level: r.level.zh,
-            details: { ...(r.extra || {}), level_en: r.level.en, lang: lang(), max: r.max },
+            level: r.level.zh,            
+            details: { ...(r.extra || {}), level_en: r.level.en, lang: lang(), max: r.max, scoring_version: 'v1' },
             answers: q.answers,
             session_id: sid,
             diary_id: diaryId
