@@ -397,7 +397,8 @@ const CONFIGS = [
             ['突然覺得或表現得好像創傷事件又再次發生（如閃回、彷彿身歷其境）。', 'Suddenly acting or feeling as if the event were happening again (flashbacks, reliving it).', 'B'],
             ['接觸到會讓您聯想到創傷事件的人、事、物時，會感到強烈的心理痛苦。', 'Feeling emotionally upset when you are reminded of the event.', 'B'],
             ['接觸到會讓您聯想到創傷事件的人、事、物時，會出現身體反應（如心跳加快、冒汗、發抖）。', 'Having physical reactions (e.g. racing heart, sweating, trembling) when reminded of the event.', 'B'],
-            ['試圖避免去想、感受或談論與創傷事件有關的事情，或避免接觸會引起回憶的活動、地點或人。', 'Trying to avoid thinking, feeling, or talking about the event, or avoiding activities, places, or people that remind you of it.', 'C'],
+            ['試圖避免去想、感受或談論與創傷事件有關的事情。', 'Trying to avoid thinking, feeling, or talking about the event.', 'C'],
+            ['試圖避免會引起創傷回憶的活動、地點或人。', 'Trying to avoid activities, places, or people that remind you of the event.', 'C'],
             ['無法想起創傷事件的重要部分（創傷性失憶）。', 'Inability to remember an important part of the event.', 'C'],
             ['對重要活動的興趣或參與度大幅降低。', 'Marked loss of interest or participation in significant activities.', 'C'],
             ['覺得與其他人疏離、產生隔閡。', 'Feeling detached or estranged from others.', 'C'],
@@ -410,29 +411,23 @@ const CONFIGS = [
             ['受到驚嚇時反應過度（易受驚）。', 'Exaggerated startle response.', 'D']
         ])
     ],
-    score: (a, { total }) => ({
-        total, max: 51,
-        level: total <= 10 ? Lv('輕微或無創傷後壓力症狀 (Mild/None)', 'Mild or no PTSD symptoms') : total <= 20 ? Lv('中度創傷後壓力症狀 (Moderate)', 'Moderate PTSD symptoms') : Lv('重度創傷後壓力症狀 (Severe)', 'Severe PTSD symptoms'),
-        lines: [T(`總分：${total} / 51`, `Total score: ${total} / 51`)]
-    })
-}
-
-]; // CONFIGS 陣列結束
-    score: (a, { total, byCat }) => {
+       score: (a, { total, byCat }) => {
         const B = byCat.B || 0, C = byCat.C || 0, D = byCat.D || 0, cutoff = 15;
         return {
             total, max: 51,
-            level: total >= cutoff ? Lv(`達篩檢切點 (≥ ${cutoff})，建議尋求專業評估`, `At or above screening cutoff (≥ ${cutoff}); professional assessment recommended`)
-                                   : Lv(`未達篩檢切點 (< ${cutoff})`, `Below screening cutoff (< ${cutoff})`),
-            lines: [T('分項分數：', 'Subscores:'), T(`・重新經驗 (B)：${B} / 15`, `• Re-experiencing (B): ${B} / 15`),
-                    T(`・逃避與麻木 (C)：${C} / 21`, `• Avoidance & numbing (C): ${C} / 21`), T(`・過度警覺 (D)：${D} / 15`, `• Hyperarousal (D): ${D} / 15`)],
-            extra: { reexperiencing_score: B, avoidance_score: C, arousal_score: D, trauma_note: a.note || null } // 敏感資料，請確認 RLS
+            level: total >= cutoff
+                ? Lv(`達篩檢切點 (≥ ${cutoff})，建議尋求專業評估`, `At or above screening cutoff (≥ ${cutoff}); professional assessment recommended`)
+                : Lv(`未達篩檢切點 (< ${cutoff})`, `Below screening cutoff (< ${cutoff})`),
+            lines: [T('分項分數：', 'Subscores:'),
+                    T(`・重新經驗 (B)：${B} / 15`, `• Re-experiencing (B): ${B} / 15`),
+                    T(`・逃避與麻木 (C)：${C} / 21`, `• Avoidance & numbing (C): ${C} / 21`),
+                    T(`・過度警覺 (D)：${D} / 15`, `• Hyperarousal (D): ${D} / 15`)],
+            extra: { reexperiencing_score: B, avoidance_score: C, arousal_score: D, trauma_note: a.note || null }
         };
     }
-}
+}   // ← PSS-I 物件結束
 
-];
-
+]; // CONFIGS 陣列結束
 // ==========================================
 // 引擎
 // ==========================================
@@ -578,30 +573,27 @@ function renderQuestion(root) {
     const title = (cfg.autoNumber && isCount ? `${k}. ` : '') + tx(q.text);
     const isLast = Q.idx === qs.length - 1;
     const type = q.type || 'choice';
+    const nextLabel = tx(isLast ? UI.finish : UI.next);
 
-    let body;
+    let body, rightBtns;
     if (type === 'choice') {
         const opts = q.options || cfg.options;
-            body = `<div style="display:flex; flex-direction:column; gap:10px;">` + opts.map(o => {
+        body = `<div style="display:flex; flex-direction:column; gap:10px;">` + opts.map(o => {
             const on = cur === o.score;
             return `<button type="button" data-score="${o.score}" onclick="Quiz.pick(${o.score})"
                 style="${STYLE.opt}${on ? ' background:#3f51b5; color:#fff; border-color:#3f51b5;' : ''}">${esc(tx(o.label))}</button>`;
-                }).join('') + `</div>`;
+        }).join('') + `</div>`;
+        rightBtns = cur !== undefined
+            ? `<button type="button" onclick="Quiz.next()" style="${STYLE.primary}">${nextLabel}</button>`
+            : `<button type="button" disabled style="${STYLE.primary} opacity:.35; cursor:default;">${nextLabel}</button>`;
     } else {
-       // body = `
-       // <input id="quiz-input" type="text" inputmode="${type === 'number' ? 'decimal' : 'text'}" placeholder="${esc(tx(q.placeholder || ''))}"
-       //     value="${esc(cur ?? '')}" onkeydown="if(event.key==='Enter'){event.preventDefault();Quiz.submit();}"
-       //     style="width:100%; padding:10px; font-size:16px; box-sizing:border-box;">
-       // 1. 非選擇題的 body：拿掉裡面的按鈕區，只留輸入框
-        body = `
-        <input id="quiz-input" type="${type === 'time' ? 'time' : 'text'}" inputmode="${type === 'number' ? 'decimal' : 'text'}"
+        body = `<input id="quiz-input" type="${type === 'time' ? 'time' : 'text'}" inputmode="${type === 'number' ? 'decimal' : 'text'}"
             placeholder="${esc(tx(q.placeholder || ''))}" value="${esc(cur ?? '')}"
             onkeydown="if(event.key==='Enter'){event.preventDefault();Quiz.submit();}"
             style="width:100%; padding:10px; font-size:16px; box-sizing:border-box;">`;
-        <div style="margin-top:12px; text-align:right;">
-            ${q.required === false ? `<button type="button" onclick="Quiz.skip()" style="${STYLE.plain} margin-right:8px;">${tx(UI.skip)}</button>` : ''}
-            <button type="button" onclick="Quiz.submit()" style="${STYLE.primary}">${tx(isLast ? UI.finish : UI.next)}</button>
-        </div>`;
+        rightBtns = (q.required === false
+            ? `<button type="button" onclick="Quiz.skip()" style="${STYLE.plain} margin-right:8px;">${tx(UI.skip)}</button>` : '')
+            + `<button type="button" onclick="Quiz.submit()" style="${STYLE.primary}">${nextLabel}</button>`;
     }
 
     root.innerHTML = `
@@ -618,25 +610,10 @@ function renderQuestion(root) {
         ${q.desc ? `<p style="font-size:13px; color:#666; margin-bottom:16px;">${esc(tx(q.desc))}</p>` : ''}
         ${body}
         <div id="quiz-msg" style="color:#c62828; font-size:13px; margin-top:10px; white-space:pre-wrap;"></div>
-        
-        //<div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
-      //  <span>${Q.idx > 0 ? `<button type="button" onclick="Quiz.prev()" style="${STYLE.plain}">${tx(UI.prev)}</button>` : ''}</span>
-       // <span>${(type === 'choice' && cur !== undefined)
-      //  ? `<button type="button" onclick="Quiz.next()" style="${STYLE.primary}">${tx(isLast ? UI.finish : UI.next)}</button>`
-      //  : ''}</span>
-      //  </div>
-        // 2. 底部那一列（取代你現在的 margin-top:16px 那個 div）
-        const nextLabel = tx(isLast ? UI.finish : UI.next);
-        const rightBtns = type === 'choice'
-            ? (cur !== undefined
-            ? `<button type="button" onclick="Quiz.next()" style="${STYLE.primary}">${nextLabel}</button>`
-            : `<button type="button" disabled style="${STYLE.primary} opacity:.35; cursor:default;">${nextLabel}</button>`)
-            : `${q.required === false ? `<button type="button" onclick="Quiz.skip()" style="${STYLE.plain} margin-right:8px;">${tx(UI.skip)}</button>` : ''}
-           <button type="button" onclick="Quiz.submit()" style="${STYLE.primary}">${nextLabel}</button>`;
-            <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
-          <span>${Q.idx > 0 ? `<button type="button" onclick="Quiz.prev()" style="${STYLE.plain}">${tx(UI.prev)}</button>` : ''}</span>
-          <span>${rightBtns}</span>
-            </div>
+        <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
+            <span>${Q.idx > 0 ? `<button type="button" onclick="Quiz.prev()" style="${STYLE.plain}">${tx(UI.prev)}</button>` : ''}</span>
+            <span>${rightBtns}</span>
+        </div>
     </div>`;
     const inp = el('quiz-input');
     if (inp) inp.focus();
