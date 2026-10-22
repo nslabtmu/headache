@@ -879,5 +879,4 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 else buildPicker();
 
 })();
-window.Quiz = { open, close, start, pick, submit, skip, prev, next, retake, retry: () => save(), showResult, refreshLang,
-                refreshPicker: buildPicker, remindIfDue };
+
