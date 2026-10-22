@@ -164,7 +164,8 @@ function buildWeather(isBackfilled) {
     fetched_at: currentWeather.fetched_at,
     is_backfilled: isBackfilled
   };
-  if (isBackfilled) return { ...base, available: false, reason: 'backfilled_date' };
+  if (isBackfilled || wd.temperature_2m == null)
+  return { ...base, available: false, reason: isBackfilled ? 'backfilled_date' : 'fetch_failed' };
   return {
     ...base, available: true,
     temperature: wd.temperature_2m ?? null,
