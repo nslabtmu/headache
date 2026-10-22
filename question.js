@@ -397,20 +397,27 @@ const CONFIGS = [
             ['突然覺得或表現得好像創傷事件又再次發生（如閃回、彷彿身歷其境）。', 'Suddenly acting or feeling as if the event were happening again (flashbacks, reliving it).', 'B'],
             ['接觸到會讓您聯想到創傷事件的人、事、物時，會感到強烈的心理痛苦。', 'Feeling emotionally upset when you are reminded of the event.', 'B'],
             ['接觸到會讓您聯想到創傷事件的人、事、物時，會出現身體反應（如心跳加快、冒汗、發抖）。', 'Having physical reactions (e.g. racing heart, sweating, trembling) when reminded of the event.', 'B'],
-            ['刻意避免去想、去談或去感受與創傷事件有關的事。', 'Trying not to think about, talk about, or have feelings about the event.', 'C'],
-            ['刻意避開會讓您想起創傷事件的活動、地點或人。', 'Trying to avoid activities, places, or people that remind you of the event.', 'C'],
-            ['無法回想起創傷事件中的某些重要部分。', 'Not being able to remember an important part of the event.', 'C'],
-            ['對以前重視或喜歡的活動，明顯失去興趣或較少參與。', 'Having much less interest or participating much less in important activities.', 'C'],
-            ['覺得與他人疏離、有距離感，或像是被隔離在外。', 'Feeling distant or cut off from people around you.', 'C'],
-            ['情感變得麻木，難以感受愛、喜悅等情緒。', 'Feeling emotionally numb (e.g. unable to feel love or happiness).', 'C'],
-            ['覺得未來一片黯淡（如不覺得會有事業、婚姻、子女或正常的壽命）。', 'Feeling as if your future plans or hopes will not come true (career, marriage, children, normal life span).', 'C'],
-            ['難以入睡或難以維持睡眠。', 'Having trouble falling or staying asleep.', 'D'],
-            ['容易煩躁，或有突如其來的怒氣。', 'Feeling irritable or having fits of anger.', 'D'],
-            ['難以集中注意力。', 'Having trouble concentrating.', 'D'],
-            ['對周遭環境過度警戒、緊繃，總覺得要提防什麼。', 'Being overly alert (e.g. checking who is around you, being uncomfortable with your back to a door).', 'D'],
-            ['容易被嚇到，或對突然的聲響、動靜反應過度。', 'Being jumpy or easily startled.', 'D']
+            ['試圖避免去想、感受或談論與創傷事件有關的事情，或避免接觸會引起回憶的活動、地點或人。', 'Trying to avoid thinking, feeling, or talking about the event, or avoiding activities, places, or people that remind you of it.', 'C'],
+            ['無法想起創傷事件的重要部分（創傷性失憶）。', 'Inability to remember an important part of the event.', 'C'],
+            ['對重要活動的興趣或參與度大幅降低。', 'Marked loss of interest or participation in significant activities.', 'C'],
+            ['覺得與其他人疏離、產生隔閡。', 'Feeling detached or estranged from others.', 'C'],
+            ['情緒有障礙，無法感受到愛、快樂或悲傷等正常情感。', 'Restricted range of feeling (e.g. unable to have loving or happy feelings).', 'C'],
+            ['覺得未來黯淡、生命短暫、無法結婚生子或活到老。', 'Sense of foreshortened future (e.g. not expecting to have a career, marriage, children, or a long life).', 'C'],
+            ['入睡困難或夜間易醒。', 'Difficulty falling or staying asleep.', 'D'],
+            ['容易發脾氣或暴躁。', 'Irritability or outbursts of anger.', 'D'],
+            ['專注力困難。', 'Difficulty concentrating.', 'D'],
+            ['過度警覺（隨時防備、保持警戒）。', 'Hypervigilance (being constantly on guard).', 'D'],
+            ['受到驚嚇時反應過度（易受驚）。', 'Exaggerated startle response.', 'D']
         ])
     ],
+    score: (a, { total }) => ({
+        total, max: 51,
+        level: total <= 10 ? Lv('輕微或無創傷後壓力症狀 (Mild/None)', 'Mild or no PTSD symptoms') : total <= 20 ? Lv('中度創傷後壓力症狀 (Moderate)', 'Moderate PTSD symptoms') : Lv('重度創傷後壓力症狀 (Severe)', 'Severe PTSD symptoms'),
+        lines: [T(`總分：${total} / 51`, `Total score: ${total} / 51`)]
+    })
+}
+
+]; // CONFIGS 陣列結束
     score: (a, { total, byCat }) => {
         const B = byCat.B || 0, C = byCat.C || 0, D = byCat.D || 0, cutoff = 15;
         return {
