@@ -342,7 +342,8 @@ async function insertMusicRow(log) {
     end_type: log.end_type,
     completed: !!log.completed,
     pain_before: log.pain_before ?? null,
-    pain_after: log.pain_after ?? null
+    pain_after: log.pain_after ?? null,
+    pain_after_status: log.pain_after_status ?? 'not_asked'
   }]).select('id').single();
   if (error) throw error;
   return data.id;
@@ -357,15 +358,28 @@ async function flushPendingMusic() {
   try { q = JSON.parse(localStorage.getItem(MUSIC_QUEUE_KEY) || '[]'); } catch (e) {}
   if (!q.length) return;
   localStorage.removeItem(MUSIC_QUEUE_KEY);
-  for (const log of q) { try { await insertMusicRow(log); } catch (e) { queueMusic(log); } }
+    for (const log of q) {
+    try { await insertMusicRow(log); }
+    catch (e) { if (e.code !== '23505') queueMusic(log); }
+  }
 }
 async function updateMusicPainAfter(n) {
   const log = window.lastMusicLog;
   if (!log) return;
-  log.pain_after = n;
-  const id = log.db_id ?? await window.lastMusicSave;      // 等寫入完成再更新
-  if (id) await supabase.from('music_sessions').update({ pain_after: n }).eq('id', id);
+  log.pain_after = n; log.pain_after_status = 'answered';
+  const id = log.db_id ?? await window.lastMusicSave;
+  if (id) await supabase.from('music_sessions')
+    .update({ pain_after: n, pain_after_status: 'answered' }).eq('id', id);
 }
+async function markPainAfterSkipped() {
+  const log = window.lastMusicLog;
+  if (!log) return;
+  log.pain_after_status = 'skipped';
+  const id = log.db_id ?? await window.lastMusicSave;
+  if (id) await supabase.from('music_sessions')
+    .update({ pain_after_status: 'skipped' }).eq('id', id);
+}
+window.markPainAfterSkipped = markPainAfterSkipped;
 window.saveMusicSession = saveMusicSession;
 window.updateMusicPainAfter = updateMusicPainAfter;
 window.flushPendingMusic = flushPendingMusic;
