@@ -613,8 +613,8 @@ function updateVal(slider) {
   window.symTouched = true;
 }
 
-function saveFullRecord() {
-    saveAllResearchData();
+function saveFullRecord(opts) {
+    saveAllResearchData(opts);
 }
 
 
@@ -695,14 +695,21 @@ function toggleMedicationSection() {
   
   console.log('✅ [switchTab] 完成！');
 }*/
-function switchMainTab(name) {
+function switchMainTab(name, force) {
+  const symptomsShown = getComputedStyle(document.getElementById('main-symptoms')).display !== 'none';
+  if (!force && symptomsShown && name !== 'symptoms') {
+    return guardLeave(() => switchMainTab(name, true));
+  }
   document.querySelectorAll('.main-pane').forEach(p => p.style.display = 'none');
   document.getElementById('main-' + name).style.display = 'block';
   document.querySelectorAll('.top-tab').forEach(b =>
     b.classList.toggle('active', b.dataset.main === name));
 }
 
-function switchLevel2Tab(name) {
+function switchLevel2Tab(name, force) {
+  if (!force && name !== 'diary') {
+    return guardLeave(() => switchLevel2Tab(name, true));
+  }
   document.querySelectorAll('.l2-pane').forEach(p => p.style.display = 'none');
   document.getElementById('l2-' + name).style.display = 'block';
   document.querySelectorAll('.level2-tab').forEach(b =>
@@ -1076,3 +1083,27 @@ function setLang(code) {
   try { localStorage.setItem('lang', code); } catch (e) {}
 }
 window.setLang = setLang;
+
+
+window.diaryDirty = false;
+
+// 使用者真的有動表單才算（isTrusted 排除程式自動觸發；量表區自己會存檔，所以排除）
+['input', 'change'].forEach(ev => document.addEventListener(ev, e => {
+  if (e.isTrusted && e.target.closest('#attack-form') && !e.target.closest('#quiz-root')) window.diaryDirty = true;
+}));
+// 臉譜、頭部圖形、部位按鈕是 click，不會觸發 input/change
+document.addEventListener('click', e => {
+  if (e.isTrusted && e.target.closest('.face-btn, .head-chip-btn, .svg-pain-zone')) window.diaryDirty = true;
+}, true);
+
+function guardLeave(go) {
+  if (!window.diaryDirty) { go(); return; }
+  window.nudge(tr('leave_msg', '⚠️ 日記有尚未儲存的內容，要先儲存嗎？'), [
+    [tr('leave_save', '💾 儲存並離開'), async () => {
+      const ok = await saveFullRecord({ skipNudge: true });
+      if (ok) go();                       // 儲存失敗就留在原頁
+    }],
+    [tr('leave_discard', '🗑️ 不儲存並清空'), () => { startNewDiary(); go(); }],
+    [tr('leave_cancel', '取消')]
+  ]);
+}
