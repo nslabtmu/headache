@@ -121,6 +121,7 @@
     <div class="account-dropdown">
       <button type="button" id="user-email-btn" class="lang-btn" onclick="toggleAccountMenu()">👤 <span id="user-email-text"></span> ▾</button>
       <div id="account-menu" class="dropdown-menu">
+        <a href="javascript:void(0)" class="dropdown-item" onclick="linkGoogle(); toggleAccountMenu();" data-i18n="link_google">🔗 綁定 Google 帳號</a>
         <a href="javascript:void(0)" class="dropdown-item" onclick="openDisclaimerModal(); toggleAccountMenu();" data-i18n="menu_disclaimer">⚠️ 免責聲明</a>
         <a href="javascript:void(0)" class="dropdown-item" onclick="resetConsent(); toggleAccountMenu();" data-i18n="menu_consent">📄 重填同意書</a>
         <a href="javascript:void(0)" class="dropdown-item" onclick="exportMedicalReport(); toggleAccountMenu();" data-i18n="menu_export">📥 匯出記錄 (PDF)</a>
