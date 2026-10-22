@@ -357,6 +357,9 @@ async function fetchWeather(lat, lon, statusMessage) {
     const pm25StatusEl = document.getElementById('wx-pm25-status');
 
     try {
+        currentWeather = { lat, lon, fetched_at: new Date().toISOString(),
+        location: document.getElementById('ip-location-name')?.innerText || null, data: {} };
+        
         if (statusEl) statusEl.innerText = tr('wx_loading2','⏳ 正在載入氣象與空污資料...');
 
         // 1. 定義氣象與空污的參數
