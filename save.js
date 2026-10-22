@@ -82,7 +82,7 @@ function startNewDiary() {
   window.painTouched = false; window.symTouched = false; window.dtTouched = false;
   window.sessionMusicLogs = []; window.sessionQuizLogs = [];
   window.painAfter = null; window.lastMusicSessionId = null;
-
+  window.diaryDirty = false;
   if (typeof selectedParts !== 'undefined') selectedParts.length = 0;
   document.querySelectorAll('.svg-pain-zone.active-part').forEach(e => e.classList.remove('active-part'));
   document.querySelectorAll('.head-chip-btn.active-btn').forEach(e => e.classList.remove('active-btn'));
@@ -207,7 +207,7 @@ async function countMedDays(userId) {
 }
 
 // ---------- 主儲存 ----------
-async function saveAllResearchData() {
+async function saveAllResearchData(opts = {}) {
   if (saving) return;                                   // 防連點
 
   if (REQUIRE_LOCATION_FOR_SUBMIT && !locationReady) { alert(tr('need_loc', '⚠️ 尚未取得定位資訊，無法送出！')); return; }
@@ -258,6 +258,7 @@ async function saveAllResearchData() {
     window.currentDiaryId = res.data.id;
     if (!isUpdate) window.currentDiarySession = payload.session_id;
     window.dtTouched = false;
+    window.diaryDirty = false;
     if (!isBackfilled) {                         // 補填的紀錄不跟音樂、量表關聯
       await linkQuizzesToDiary(res.data.id);
       await linkMusicToDiary(res.data.id);
@@ -274,7 +275,7 @@ async function saveAllResearchData() {
     if (redFlag) msg += RED_TXT() + '<br>';
     if (medDays >= 10) msg += trf('nudge_overuse',
       '最近 30 天已有 {n} 天記錄使用止痛藥。頻繁用藥本身可能讓頭痛更常發生，建議和醫師討論。', { n: medDays }) + '<br>';
-
+if (!opts.skipNudge) {
     if (!isUpdate) {
       window.nudge(msg + tr('nudge_saved2', '已儲存。接下來想做什麼？'), [
         [tr('nudge_music', '🎵 聽音樂放鬆'), () => switchMainTab('music')],
@@ -286,6 +287,7 @@ async function saveAllResearchData() {
     } else {
       alert(tr('save_updated', '✅ 已更新'));
     }
+  return true;
   } catch (e) {
     console.error('save failed', e);
     alert(tr('save_fail', '❌ 儲存失敗：') + (e.message || e));
