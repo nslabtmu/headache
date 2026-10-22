@@ -64,6 +64,9 @@ const rptAvg = arr => {
 const rptFmt = (n, d = 1) => (n === null || n === undefined) ? '-' : Number(n).toFixed(d);
 const rptDay = iso => new Date(iso).toLocaleDateString('sv-SE');
 
+// ★ 紀錄發生時間：優先用使用者填的 event_time，舊資料退回 created_at
+const rptTime = r => r.event_time || r.created_at;
+
 function rptParseLocations(h) {
   let loc = h?.locations ?? [];
   if (typeof loc === 'string') { try { loc = JSON.parse(loc); } catch { loc = [loc]; } }
@@ -75,7 +78,7 @@ function buildReportHtml(records, chartImg, userEmail) {
   const scores = records.map(r => r.headache_data?.pain_score ?? 0);
   const attackDays = new Set(records
     .filter(r => (r.headache_data?.pain_score ?? 0) > 0)
-    .map(r => rptDay(r.created_at))).size;
+    .map(r => rptDay(rptTime(r)))).size;
   const medCount = records.filter(r => r.headache_data?.medication_used).length;
 
   const locCount = {};
@@ -108,7 +111,7 @@ function buildReportHtml(records, chartImg, userEmail) {
     const med = h.medication_used ? rptEsc(h.medication_name || t.yes) : t.no;
     const note = rptEsc(h.notes || h.content || '');
     return `<tr>
-      <td>${rptDay(r.created_at)}</td><td>${h.pain_score ?? '-'}</td><td>${rptEsc(locs)}</td>
+      <td>${rptDay(rptTime(r))}</td><td>${h.pain_score ?? '-'}</td><td>${rptEsc(locs)}</td>
       <td>${med}</td><td>${w.temperature ?? '-'}</td><td>${w.humidity ?? '-'}</td>
       <td>${w.pressure ?? '-'}</td><td>${note}</td></tr>`;
   }).join('');
@@ -173,10 +176,16 @@ async function exportMedicalReport() {
 
   await window.QuizTrend?.load();
 
+  // ★ 重新讀取最新資料，SQL 補回的氣象才會出現在報告裡
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) await loadCalendarRecords(user.id);
+  } catch (e) { console.warn('reload records failed', e); }
+
   const since = Date.now() - REPORT_DAYS * 86400000;
   const records = (window.allUserRecords || [])
-    .filter(r => r.created_at && new Date(r.created_at).getTime() >= since)
-    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    .filter(r => rptTime(r) && new Date(rptTime(r)).getTime() >= since)
+    .sort((a, b) => new Date(rptTime(a)) - new Date(rptTime(b)));
 
   const hasQuiz = Object.keys(window.QuizTrend?.latest() || {}).length > 0;
   if (records.length === 0 && !hasQuiz) { alert(t.noRecords(REPORT_DAYS)); return; }
