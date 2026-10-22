@@ -187,14 +187,6 @@ function buildMusic() {
 }
 
 // ---------- 輔助：關聯量表、計算用藥天數 ----------
-async function linkQuizzesToDiary(diaryId) {
-  const pending = (window.sessionQuizLogs || []).filter(x => x.id && !x.linked);
-  if (!pending.length) return;
-  const { error } = await supabase.from('quiz_results')
-    .update({ diary_id: diaryId }).in('id', pending.map(x => x.id));
-  if (!error) pending.forEach(x => { x.linked = true; });
-}
-
 async function countMedDays(userId) {
   try {
     const since = new Date(Date.now() - 30 * 86400000).toISOString();
@@ -286,7 +278,7 @@ if (!opts.skipNudge) {
       window.nudge(msg + tr('save_updated', '✅ 已更新'), [[tr('ok', '我知道了')]]);
     } else {
       alert(tr('save_updated', '✅ 已更新'));
-    }
+    }}
   return true;
   } catch (e) {
     console.error('save failed', e);
@@ -310,7 +302,7 @@ async function linkQuizzesToDiary(diaryId) {
   const { error } = await supabase.from('quiz_results')
     .update({ diary_id: diaryId }).in('id', pending.map(x => x.id));
   if (!error) pending.forEach(x => { x.linked = true; });
-}   // ← 同時刪掉前面舊的 linkQuizzesToDiary
+}   
 
 async function linkMusicToDiary(diaryId) {
   const pending = (window.sessionMusicLogs || []).filter(l =>
@@ -370,26 +362,6 @@ window.saveMusicSession = saveMusicSession;
 window.updateMusicPainAfter = updateMusicPainAfter;
 window.flushPendingMusic = flushPendingMusic;
 
-// ---------- 音樂：每次聽完就寫入（接口，請在 music.js 結束時呼叫）----------
-async function saveMusicSession1020(log) {
-  try {
-    const { data, error } = await supabase.from('music_sessions').insert([{
-      diary_id: window.currentDiaryId ?? null,
-      track: log.track ?? log.type ?? null,
-      started_at: log.started_at ?? new Date(Date.now() - (log.duration_seconds || 0) * 1000).toISOString(),
-      duration_seconds: log.duration_seconds ?? null,
-      completed: !!log.completed,
-      pain_before: window.painTouched ? Number(val('input-pain')) : null
-    }]).select('id').single();
-    if (error) throw error;
-    window.lastMusicSessionId = data.id;
-  } catch (e) { console.warn('music session save failed', e); }
-}
-async function updateMusicPainAfter1020(n) {
-  if (!window.lastMusicSessionId) return;
-  await supabase.from('music_sessions').update({ pain_after: n }).eq('id', window.lastMusicSessionId);
-}
-window.saveMusicSession = saveMusicSession;
 window.updateMusicPainAfter = updateMusicPainAfter;
 document.addEventListener('change', e => {
   if (e.target?.name !== 'aura' || !e.target.checked) return;
