@@ -156,7 +156,7 @@ function collectLifestyle() {
 }
 
 function buildWeather(isBackfilled) {
-  if (!currentWeather) return { available: false, is_backfilled: isBackfilled };
+  if (!currentWeather) return { available: false, is_backfilled: isBackfilled, reason: 'no_location' };
   const wd = currentWeather.data || {};
   const base = {
     location: currentWeather.location ?? null,
