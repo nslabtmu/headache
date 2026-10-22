@@ -121,7 +121,7 @@ function ensurePlayer(key) {
     }
 
     const promise = new Promise((resolve, reject) => {
-        if (typeof YT !== 'undefined' && YT.Player) {
+        if (typeof YT === 'undefined' || !YT.Player){
             reject(new Error('YouTube API 尚未就緒'));
             return;
         }
