@@ -4,7 +4,7 @@ name: Daily Headache Reminder
 on:
   schedule:
     # 採用 UTC 時間，設定為每天下午 12:00 (即台灣時間晚上 20:00) 執行
-    - cron: '0 12 * * *'
+    - cron: '0 13 * * *'
   workflow_dispatch: # 允許你在 GitHub 介面隨時手動點擊按鈕測試
 
 jobs:
