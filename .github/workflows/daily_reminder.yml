@@ -1,0 +1,31 @@
+#line...
+name: Daily Headache Reminder
+
+on:
+  schedule:
+    # 採用 UTC 時間，設定為每天下午 12:00 (即台灣時間晚上 20:00) 執行
+    - cron: '0 12 * * *'
+  workflow_dispatch: # 允許你在 GitHub 介面隨時手動點擊按鈕測試
+
+jobs:
+  run-reminder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 檢出程式碼
+        uses: actions/checkout@v4
+
+      - name: 設定 Python 環境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 安裝所需套件
+        run: |
+          pip install requests supabase
+
+      - name: 執行提醒檢查腳本
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          python check_reminder.py
