@@ -679,6 +679,22 @@
                             <option value="heavy" data-i18n="sport_heavy">規律高強度（每周 5 次以上 超過30分鐘）</option>
                         </select>
                     </div>
+
+        <!-- 🔽 LINE 每日提醒綁定專區 🔽 -->
+        <div class="form-group" style="background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px dashed #cbd5e1; margin-bottom: 20px;">
+        <label style="color: #0d9488; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;">
+            🔔 6. 設定 LINE 每日未填寫提醒
+        </label>
+        <p style="font-size: 11px; color: #64748b; line-height: 1.5; margin-bottom: 8px;">
+            當天若未完成記錄，系統將於晚上 9 點發送提醒。請先至 
+            <a href="https://notify-bot.line.me/" target="_blank" style="color: #06c755; font-weight: bold; text-decoration: underline;">LINE Notify 官網</a> 
+            取得權杖 (Token) 後貼於下方。
+        </p>
+        <input type="text" id="prof_line_token" placeholder="請在此貼上您的 LINE Notify Token..." style="width: 100%; padding: 8px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 4px;">
+        </div>
+        <!-- 🔼 line 綁定結束 🔼 -->
+
+          
                     <button type="button" class="btn" id="saveProfileBtn" onclick="saveUserProfile()" data-i18n="save_profile_btn">儲存</button>
                     <button type="button" class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
                 </section>
