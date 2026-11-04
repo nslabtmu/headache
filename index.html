@@ -680,27 +680,38 @@
                     </div>
 
 <!-- 📱 受試者自行設定：LINE 提醒與音樂通知 -->
-<div class="form-card" style="margin-top: 20px; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 8px;">
-    <h3 style="color: #166534; font-size: 16px; margin-top: 0;">📱 LINE 提醒與音樂通知設定</h3>
-    <p style="font-size: 13px; color: #4b5563; margin-bottom: 12px;">
+<div class="form-card" style="margin-top: 25px; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 16px; border-radius: 8px;">
+    <h3 style="color: #166534; font-size: 15px; margin-top: 0; margin-bottom: 8px;">📱 LINE 提醒與音樂通知設定</h3>
+    <p style="font-size: 13px; color: #4b5563; margin-bottom: 12px; line-height: 1.5;">
         您可以綁定您的 LINE 帳號，並開啟每日提醒，系統將會在每天晚上定時發送提醒與專屬音樂給您。
     </p>
+
+    <!-- 🟢 LINE 加好友與 QR Code 引導區塊 -->
+    <div style="background: #ffffff; padding: 14px; border-radius: 6px; border: 1px solid #d1fae5; margin-bottom: 14px; text-align: center;">
+        <p style="font-size: 13px; font-weight: bold; color: #065f46; margin-bottom: 8px;">
+            步驟 1：請先加入我們的 LINE 官方帳號好友
+        </p>
+
+        <div style="font-size: 12px; color: #6b7280; margin-bottom: 8px;">請使用手機掃描下方 QR Code：</div>
+        
+        <!-- ✅ 你的 LINE 官方帳號真實 QR Code -->
+        <img src="https://qr-official.line.me/gs/M_333mfgmc_GW.png?oat_content=qr" alt="LINE Official Account QR Code" style="width: 120px; height: 120px; border-radius: 4px; border: 1px solid #e5e7eb; background: #fff; padding: 4px;">
+    </div>
     
-    <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: pointer; font-weight: bold; color: #15803d;">
+    <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; cursor: pointer; font-weight: bold; color: #15803d; font-size: 13px;">
         <input type="checkbox" id="user-opt-reminder" style="width: 18px; height: 18px;" checked>
         <span>我希望每天收到 LINE 提醒聽音樂與填寫症狀日記</span>
     </label>
 
     <label for="user-line-userid" style="font-weight: bold; font-size: 13px; color: #374151; display: block; margin-bottom: 5px;">
-        您的 LINE User ID：
+        步驟 2：請在此填入您的 LINE User ID：
     </label>
-    <div style="display: flex; gap: 8px;">
-        <input type="text" id="user-line-userid" class="form-control" placeholder="例如：U123456789abcdef..." style="flex: 1; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
-    </div>
+    <input type="text" id="user-line-userid" class="form-control" placeholder="例如：U123456789abcdef..." style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;">
+    
     <small style="color: #64748b; font-size: 12px; display: block; margin-top: 6px;">
-        💡 提示：加入官方帳號好友後，向機器人發送任意訊息即可取得您的 User ID。
+        💡 提示：加入好友後向機器人發送任意訊息（例如「你好」），即可取得您的 User ID 並貼在上方。
     </small>
-</div>
+</div> <!-- 📱 受試者自行設定：LINE 提醒與音樂通知 -->
           
                     <button type="button" class="btn" id="saveProfileBtn" onclick="saveUserProfile()" data-i18n="save_profile_btn">儲存</button>
                     <button type="button" class="btn hidden" id="editProfileBtn" onclick="enableProfileEdit()" data-i18n="edit_profile_btn">✏️ 修改</button>
