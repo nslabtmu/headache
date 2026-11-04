@@ -406,6 +406,30 @@ function normalizeTbi(v) {
     if (/^[mc][0-9]+$/i.test(s)) return s.toLowerCase();
     return null;   // 格式錯誤
 }
+async function saveUserSettings() {
+    const lineUserId = document.getElementById('user-line-userid').value.trim();
+    const sendReminder = document.getElementById('user-opt-reminder').checked;
+    const userId = window.currentUser?.id;
+
+    if (!userId) {
+        alert("❌ 請先登入系統！");
+        return;
+    }
+
+    const { error } = await window.supabase
+        .from('profiles')
+        .update({ 
+            line_user_id: lineUserId || null,
+            send_reminder: sendReminder
+        })
+        .eq('id', userId);
+
+    if (error) {
+        alert("❌ 儲存失敗：" + error.message);
+    } else {
+        alert("✅ 設定已成功更新！");
+    }
+}
 // ============ Modal 外部點擊關閉 ============
 document.addEventListener('click', function(event) {
     const editModal = document.getElementById('edit-modal');
