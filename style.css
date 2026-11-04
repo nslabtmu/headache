@@ -1329,3 +1329,109 @@ input[type="range"] {
 }
 .tab-btn .badge { margin-left:4px; font-size:12px; color:#bbb; }
 .tab-btn .badge.done { color:#27ae60; }
+/* =====================================================
+   手機版修正 (貼在 style.css 最底部)
+   ===================================================== */
+
+/* ---- 通用:防止被撐寬 ---- */
+html { overflow-x: hidden; }   /* 只加在 html,不要加在 body,否則 sticky 的儲存列會失效 */
+
+img, svg, canvas, iframe, video { max-width: 100%; }
+
+input, select, textarea { min-width: 0; }   /* 讓 flex 並排的欄位可以縮小 */
+
+.card { min-width: 0; }
+
+/* 巢狀卡片:縮小內距、去掉重複陰影 */
+.card .card {
+  padding: 12px;
+  box-shadow: none;
+  max-width: 100%;
+}
+
+/* Email 太長時截斷 */
+#user-email-text {
+  display: inline-block;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+/* 圖表/月曆外層允許縮小 (Chart.js 在 flex 裡常因此不縮) */
+#headacheCalendar,
+#l2-trend > div { min-width: 0; max-width: 100%; }
+
+/* ---- 手機 (≤ 640px) ---- */
+@media (max-width: 640px) {
+
+  /* 1. 標題列改成直式堆疊 */
+  .header-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .header-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+  }
+  .top-navbar { width: 100%; flex-wrap: wrap; }
+  .top-tab { flex: 1; text-align: center; }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  /* 帳號下拉選單不要超出畫面 */
+  .dropdown-menu {
+    max-width: calc(100vw - 32px);
+    min-width: 200px;
+  }
+
+  /* 2. 輸入框 16px,避免 iOS 自動放大 */
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  input[type="date"],
+  input[type="time"],
+  select,
+  textarea,
+  .form-control {
+    font-size: 16px;
+  }
+
+  /* 3. 臉譜改 3 欄 x 2 列 */
+  .faces-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    overflow-x: visible;
+  }
+  .face-btn { min-width: 0; }
+
+  /* 4. FullCalendar 手機版 */
+  .fc .fc-toolbar.fc-header-toolbar {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .fc .fc-toolbar-title { font-size: 1.1rem; }
+  .fc .fc-button { padding: 0.3em 0.55em; font-size: 0.85rem; }
+  .fc { font-size: 0.85rem; }
+  #headacheCalendar { min-height: 320px !important; }
+
+  /* 5. 音樂卡片一列一張 */
+  #music-cards-container > * {
+    flex: 1 1 100% !important;
+    max-width: 100%;
+  }
+
+  /* 6. 彈窗 */
+  .modal-card { width: 92vw; padding: 18px; }
+}
