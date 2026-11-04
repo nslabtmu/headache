@@ -231,11 +231,10 @@
                 <button type="button" class="tab-btn" id="btn-tab-band" data-tab="pane-band" onclick="switchTab('pane-band')"><span data-i18n="tab_band">⌚ 健康資料</span> <span class="badge" data-badge="pane-band">○</span></button>
             </div>
 
-            <!-- 手機版專用切換選單 -->
+            <!-- 手機版專用切換選單 <option value="pane-symptom" style="display:none" data-i18n="tab_symptom">📝 相關症狀</option>-->
             <select class="tabs-select-mobile" id="mobile-tab-select" onchange="switchTab(this.value)">
                 <option value="pane-headache" data-i18n="tab_headache">🤕 頭痛</option>
                 <option value="pane-mood" data-i18n="tab_mood">💙 心情</option>
-                <option value="pane-symptom" style="display:none" data-i18n="tab_symptom">📝 相關症狀</option>
                 <option value="pane-band" data-i18n="tab_band">⌚ 健康資料</option>
             </select>
 
@@ -476,7 +475,7 @@
           <!-- 上一步 / 下一頁 -->
           <div class="button-group">
             <button type="button" class="btn" onclick="switchTab('pane-headache')" data-i18n="btn_prev_step">⬅️ 上一步</button>
-            <button type="button" class="btn" onclick="switchTab('pane-symptom')" data-i18n="next_btn">下一頁</button>
+            <button type="button" class="btn" onclick="switchTab('pane-band')" data-i18n="next_btn">下一頁</button>
           </div>
         </div><!-- pane-mood 結束 -->
    
