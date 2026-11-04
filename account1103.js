@@ -1,4 +1,5 @@
 // ============ Supabase 初始化 ============
+//account.js
 //const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentEditingUserId = null;
 let currentAdminId = null;
