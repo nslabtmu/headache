@@ -392,3 +392,28 @@ document.addEventListener('change', e => {
     if (e.target.value === 'none' || b.value === 'none') b.checked = false;
   });
 });
+// ==================== 防漏存機制  ====================
+let isFormDirty = false;
+
+document.addEventListener('input', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+        isFormDirty = true;
+    }
+});
+
+document.addEventListener('change', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+        isFormDirty = true;
+    }
+});
+
+window.addEventListener('beforeunload', (e) => {
+    if (isFormDirty) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+
+// 當表單成功呼叫 saveAllResearchData 儲存完畢後，解除警告
+// 只要在 saveAllResearchData 成功的那段裡面加上下面這行即可：
+// isFormDirty = false;
