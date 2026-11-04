@@ -3,20 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>帳號管理面板 - HeadacheV12</title>
+    <title>帳號與研究管理面板 - HeadacheV12</title>
+    <!-- 1. 外部與共用套件 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./config.js"></script>   <!-- 加這行，順序要在下面你的自訂 script 之前 -->
-   
+    <script src="./config.js"></script>   <!-- 載入 Supabase 設定 -->
+    <!-- 2. 載入獨立的 account.css 樣式表 -->
+    <link rel="stylesheet" href="account.css">
 </head>
 <body>
     <div class="container">
-        <h1>🔐 帳號管理面板</h1>
+        <h1>🔐 帳號與研究管理面板</h1>
 
-<a href="index.html" class="btn btn-primary" style="display:inline-block; text-decoration:none; margin-bottom:20px;">
-    ← 回到記錄頁面
-</a>
+        <a href="index.html" class="btn btn-primary" style="display:inline-block; text-decoration:none; margin-bottom:20px;">
+            ← 回到記錄頁面
+        </a>
+        
         <div class="info-box">
-            💡 <strong>說明：</strong> 此面板用於管理帳號密碼登入的用戶（老人家等）。Google 登入的用戶自動管理。
+            💡 <strong>說明：</strong> 此面板用於管理帳號密碼登入的用戶（如老人家等），並可針對受試者設定音樂治療研究方案（3個月期程與 LINE 每日自動提醒）。
         </div>
 
         <!-- 統計卡片 -->
@@ -34,7 +37,6 @@
         <!-- 新增帳號 -->
         <div class="section">
             <h2>➕ 新增帳號（一鍵建立）</h2>
-
             <div id="add-message" class="message"></div>
 
             <form onsubmit="handleAddUser(event)">
@@ -68,8 +70,7 @@
 
         <!-- 帳號列表 -->
         <div class="section">
-            <h2>👥 帳號列表</h2>
-
+            <h2>👥 帳號與研究清單</h2>
             <div class="table-wrapper">
                 <table>
                     <thead>
@@ -78,14 +79,14 @@
                             <th>帳號</th>
                             <th>TBI 帳號</th>
                             <th>狀態</th>
-                            <th>音樂模式</th>  <!-- ⬅️ 補上這行，對應 JS 的產出 -->
+                            <th>音樂分組 / 狀態</th>
                             <th>建立時間</th>
                             <th>操作</th>
                         </tr>
                     </thead>
                     <tbody id="users-table">
                         <tr>
-                            <td colspan="6" style="text-align: center; color: #95a5a6;">載入中...</td>
+                            <td colspan="7" style="text-align: center; color: #95a5a6;">載入中...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -124,76 +125,99 @@
         </div>
     </div>
 
-<!-- 編輯用戶 Modal -->
-<div id="edit-modal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">編輯用戶</div>
-        
-        <form onsubmit="handleEditUser(event)">
-            <div class="modal-body">
-                <!-- 原有的欄位 -->
-                <div class="form-group">
-                  <label for="edit-tbi">TBI 帳號</label>
-                  <input type="text" id="edit-tbi" placeholder="m1111 / c1111 / NA">
-                </div>
-                <div class="form-group">
-                    <label for="edit-name">姓名</label>
-                    <input type="text" id="edit-name">
-                </div>
+    <!-- 編輯用戶與研究設定 Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">編輯用戶與音樂研究設定</div>
+            
+            <form onsubmit="handleEditUser(event)">
+                <div class="modal-body">
+                    <div class="form-group" style="margin-bottom: 10px;">
+                      <label for="edit-tbi">TBI 帳號</label>
+                      <input type="text" id="edit-tbi" placeholder="m1111 / c1111 / NA">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label for="edit-name">姓名</label>
+                        <input type="text" id="edit-name">
+                    </div>
  
-                <div class="form-group">
-                    <label for="edit-password">新密碼（留空不變更）</label>
-                    <input type="password" id="edit-password">
-                </div>
- 
-                <!-- 新增：音樂療法設定 -->
-                <div style="border-top: 1px solid #ecf0f1; margin: 16px 0; padding: 16px 0;">
-                    <h4 style="font-size: 14px; color: #2c3e50; margin-bottom: 12px;">
-                        🎵 音樂療法設定
-                    </h4>
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label for="edit-password">新密碼（留空不變更）</label>
+                        <input type="password" id="edit-password">
+                    </div>
+
+                    <!-- 🎵 音樂治療研究方案設定 -->
+                    <div style="border-top: 1px solid #ecf0f1; margin: 16px 0; padding: 16px 0;">
+                        <h4 style="font-size: 14px; color: #2c3e50; margin-bottom: 12px;">🧪 音樂治療研究方案設定</h4>
+
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: bold; color: #27ae60;">
+                                <input type="checkbox" id="edit-is-study" style="width: 18px; height: 18px;" onchange="toggleStudyFields()">
+                                <span>啟動音樂治療研究 (為期 3 個月)</span>
+                            </label>
+                        </div>
+
+                        <!-- 研究細項設定 (勾選啟動後展開) -->
+                        <div id="study-fields-group" style="display: none; background: #f8f9fa; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 10px;">
+                            <div class="form-group" style="margin-bottom: 8px;">
+                                <label for="edit-study-start">研究開始日期</label>
+                                <input type="date" id="edit-study-start">
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 8px;">
+                                <label for="edit-study-duration">研究期程 (月)</label>
+                                <input type="number" id="edit-study-duration" value="3" min="1" max="12">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit-music-group">音樂分組</label>
+                                <select id="edit-music-group">
+                                    <option value="free">自由選擇組（受試者可自由切換音樂）</option>
+                                    <option value="piano">🎹 鋼琴組（鎖定播放純鋼琴）</option>
+                                    <option value="forest">🌲 森林組（鎖定播放森林環境音）</option>
+                                    <option value="ocean">🌊 海洋組（鎖定播放海洋環境音）</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- LINE 綁定與提醒開關 -->
+                        <div class="form-group" style="margin-bottom: 10px;">
+                            <label for="edit-line-userid">LINE User ID</label>
+                            <input type="text" id="edit-line-userid" placeholder="例如：U123456789abcdef...">
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="edit-send-reminder" checked style="width: 18px; height: 18px;">
+                                <span>開啟每日 LINE 音樂與填寫提醒</span>
+                            </label>
+                        </div>
+                    </div>
  
                     <div class="form-group">
-                        <label for="edit-music-mode">模式</label>
-                        <select 
-                            id="edit-music-mode" 
-                            onchange="updateMusicOptionsVisibility()"
-                            style="width: 100%; padding: 8px; border: 1px solid #bdc3c7;"
-                        >
-                            <option value="free">自由選擇（用戶可自由選擇音樂）</option>
-                            <option value="locked">鎖定指定（用戶只能聽指定音樂）</option>
-                        </select>
-                    </div>
- 
-                    <!-- 只在 locked 模式時顯示 -->
-                    <div id="music-options-group" style="display: none;">
-                        <label>鎖定的音樂</label>
-                        <select 
-                            id="edit-preferred-music"
-                            style="width: 100%; padding: 8px; border: 1px solid #bdc3c7;">
-                           <option value="piano">🎹 純鋼琴</option>
-                           <option value="forest">🌲 森林</option>
-                           <option value="ocean">🌊 海洋</option>
-                        </select>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="edit-status" style="width: 18px; height: 18px;">
+                            <span>停用此帳號</span>
+                        </label>
                     </div>
                 </div>
  
-                <!-- 原有的欄位 -->
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="edit-status">
-                        停用此帳號
-                    </label>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" onclick="closeEditModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">儲存設定</button>
                 </div>
-            </div>
- 
-            <div class="modal-footer">
-                <button type="button" class="btn-cancel" onclick="closeEditModal()">取消</button>
-                <button type="submit" class="btn btn-primary">儲存</button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
-</div>
- 
+
+    <!-- 輔助切換研究詳細欄位顯示的 JavaScript 邏輯 -->
+    <script>
+        function toggleStudyFields() {
+            const isChecked = document.getElementById('edit-is-study').checked;
+            const group = document.getElementById('study-fields-group');
+            group.style.display = isChecked ? 'block' : 'none';
+        }
+    </script>
     <script src="./account.js"></script>
 </body>
 </html>
