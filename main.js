@@ -279,7 +279,7 @@ function enterProfileEditMode() {
 function enableProfileEdit() {
     enterProfileEditMode();
 }
-async function loadUserProfile(userId) {
+/* 1104 async function loadUserProfile(userId) {
     const { data, error } = await supabase
         .from('profiles')
         .select('nickname, birth_year, gender, tbi_study, sport_freq')
@@ -304,9 +304,9 @@ async function loadUserProfile(userId) {
     // 已填過資料 → 唯讀模式；還沒填 → 編輯模式
     if (data?.nickname || data?.birth_year) enterProfileViewMode();
     else enterProfileEditMode();
-}
-window.loadUserProfile = loadUserProfile;
-async function saveUserProfile() {
+} 1104*/
+// 1104 window.loadUserProfile = loadUserProfile;
+/*1104 async function saveUserProfile() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return alert(tr('need_login','請先登入！'));
 
@@ -330,7 +330,85 @@ async function saveUserProfile() {
         alert(tr('profile_ok','個人資料已更新！'));
         enterProfileViewMode();
     }
+} 1104 saveUserProfile */
+// ==================== 個人資料載入與儲存 ====================
+
+// 1. 載入個人資料（包含基本資料與 LINE 提醒設定）
+async function loadUserProfile(userId) {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('nickname, birth_year, gender, tbi_study, sport_freq, line_user_id, send_reminder')
+        .eq('id', userId)
+        .maybeSingle();
+
+    if (error) {
+        console.error('載入個人資料失敗', error);
+        return;
+    }
+
+    const set = (id, v) => {
+        const el = document.getElementById(id);
+        if (el) el.value = v ?? '';
+    };
+    
+    // 帶入原有基本資料
+    set('prof_nickname',  data?.nickname);
+    set('prof_birthyear', data?.birth_year);
+    set('prof_gender',    data?.gender);
+    set('prof_tbi',       data?.tbi_study);
+    set('prof_sport',     data?.sport_freq);
+
+    // ✅ 帶入 LINE 提醒設定與 User ID
+    set('user-line-userid', data?.line_user_id);
+    const reminderCheckbox = document.getElementById('user-opt-reminder');
+    if (reminderCheckbox) {
+        reminderCheckbox.checked = data?.send_reminder !== false; // 預設為 true
+    }
+
+    // 已填過資料 → 唯讀模式；還沒填 → 編輯模式
+    if (data?.nickname || data?.birth_year) enterProfileViewMode();
+    else enterProfileEditMode();
 }
+window.loadUserProfile = loadUserProfile;
+
+// 2. 儲存個人資料（包含 LINE 欄位與防漏存重設）
+async function saveUserProfile() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return alert(tr('need_login','請先登入！'));
+
+    // 收集表單資料（包含基本資料 + LINE 設定）
+    const profileData = {
+        nickname:     document.getElementById('prof_nickname')?.value.trim() || '',
+        birth_year:   Number(document.getElementById('prof_birthyear')?.value) || null,
+        gender:       document.getElementById('prof_gender')?.value || '',
+        tbi_study:    document.getElementById('prof_tbi')?.value || '',
+        sport_freq:   document.getElementById('prof_sport')?.value || '',
+        
+        // ✅ 收集 LINE 相關欄位
+        line_user_id: document.getElementById('user-line-userid')?.value.trim() || null,
+        send_reminder: document.getElementById('user-opt-reminder')?.checked ?? true,
+        
+        updated_at:   new Date().toISOString()
+    };
+
+    const { error } = await supabase
+        .from('profiles')
+        .update(profileData)
+        .eq('id', user.id);
+
+    if (error) {
+        alert(tr('profile_fail','儲存個人資料失敗：') + error.message);
+    } else {
+        // ✅ 儲存成功後，解除未存檔的關閉網頁警告
+        if (typeof markFormAsSaved === 'function') {
+            markFormAsSaved();
+        }
+
+        alert(tr('profile_ok','個人資料與 LINE 提醒設定已更新！'));
+        enterProfileViewMode();
+    }
+}
+window.saveUserProfile = saveUserProfile;
 // ==================== 定位與氣象資訊 API ====================
 async function fetchWeather(lat, lon, statusMessage) {
     const statusEl = document.getElementById('weather-status');
