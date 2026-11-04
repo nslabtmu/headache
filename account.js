@@ -365,7 +365,7 @@ async function saveUserSettings() {
 // 初始化 LIFF 並自動取得 User ID 填入輸入框
 async function initLineLiff() {
     try {
-        await liff.init({ liffId: "YOUR_LIFF_ID" });
+        await liff.init({ liffId: "2012383136-mtyd3jYu" });
         
         if (liff.isLoggedIn()) {
             // 已登入，直接取得使用者 Profile
