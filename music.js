@@ -541,7 +541,18 @@ async function handlePlayerStateChange(key, event) {
         finalizeAndPushLog(key, 'completed');
     }
 }
+function refreshMusic() {
+    if (sessionKey || activeKey) return;      // 正在聽或暫停中的療程，不重繪，避免中斷計時
+    musicLoadedFor = null;                    // 讓清單與個人設定重新讀取
+    musicSettings = null;
+    renderMusicCards();
+}
+window.refreshMusic = refreshMusic;
 
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' &&
+        document.getElementById('main-music')?.style.display === 'block') refreshMusic();
+});
 // 🌐 防關閉頁面遺失：關閉分頁或視窗時自動將正在播放的音樂結算
 window.addEventListener('pagehide', () => { if (sessionKey) finalizeAndPushLog(sessionKey, 'page_closed'); });
 
