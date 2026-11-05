@@ -33,8 +33,16 @@
                 <div class="stat-label">活躍帳號</div>
             </div>
         </div>
-
+<!-- 🌟 分頁導覽列按鈕 -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('tab-users', this)">👥 帳號與研究清單</button>
+            <button class="tab-btn" onclick="switchTab('tab-add', this)">➕ 新增帳號</button>
+            <button class="tab-btn" onclick="switchTab('tab-music', this)">🎵 音樂清單管理</button>
+            <button class="tab-btn" onclick="switchTab('tab-audit', this)">🧾 異動紀錄</button>
+        </div>
+        
         <!-- 新增帳號 -->
+        <div id="tab-add" class="tab-content">
         <div class="section">
             <h2>➕ 新增帳號（一鍵建立）</h2>
             <div id="add-message" class="message"></div>
@@ -67,6 +75,9 @@
                 </div>
             </form>
         </div>
+    </div>
+ <!-- 🌟 分頁 3：音樂清單管理 -->
+        <div id="tab-music" class="tab-content">       
 <div class="section">
     <h2>🎵 音樂清單管理</h2>
     <div id="music-message" class="message"></div>
@@ -95,8 +106,9 @@
         </table>
     </div>
 </div>
-        
-        <!-- 帳號列表 -->
+ </div>   
+<!-- 🌟 分頁 1：帳號與研究清單 (預設顯示) -->
+        <div id="tab-users" class="tab-content active">
         <div class="section">
             <h2>👥 帳號與研究清單</h2>
             <div class="table-wrapper">
@@ -120,6 +132,9 @@
                 </table>
             </div>
         </div>
+         </div>
+<!-- 🌟 分頁 4：異動紀錄 -->
+        <div id="tab-audit" class="tab-content">
         <div class="section">
     <h2>🧾 異動紀錄（最近 50 筆）</h2>
     <div class="table-wrapper">
@@ -128,6 +143,7 @@
             <tbody id="audit-table"></tbody>
         </table>
     </div>
+</div>
 </div>
     </div>
 
