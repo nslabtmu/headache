@@ -97,6 +97,47 @@ async function handleAddUser(event) {
 
 async function handleEditUser(event) {
     event.preventDefault();
+    
+    // 安全地取得所有欄位元素
+    const nameInput = document.getElementById('edit-name');
+    const passwordInput = document.getElementById('edit-password');
+    const modeSelect = document.getElementById('edit-music-mode');
+    const musicSelect = document.getElementById('edit-preferred-music');
+    const tbiInput = document.getElementById('edit-tbi');
+
+    const name = nameInput ? nameInput.value.trim() : '';
+    const password = passwordInput ? passwordInput.value : '';
+    const music_mode = modeSelect ? modeSelect.value : 'free';
+    const preferred_music = musicSelect ? musicSelect.value : '純鋼琴';
+    const tbiRaw = tbiInput ? tbiInput.value.trim() : '';
+    const tbi_account = tbiRaw === '' ? null : normalizeTbi(tbiRaw);
+
+    if (!name) return alert('❌ 姓名不能為空');
+    if (password && password.length < 8) return alert('❌ 新密碼至少 8 碼');
+    if (tbiRaw !== '' && !tbi_account)
+        return alert('❌ TBI 帳號格式不正確（m1111、c1111 或 NA）');
+
+    try {
+        await callAdmin({
+            action: 'update', 
+            id: currentEditingUserId,
+            name, 
+            music_mode, 
+            preferred_music, 
+            tbi_account,
+            // 如果密碼欄位是空的，就傳 undefined（代表不修改密碼）
+            password: password || undefined
+        });
+        alert('✅ 用戶資訊已更新！');
+        closeEditModal();
+        await loadUsers();
+    } catch (error) {
+        console.error('❌ 更新失敗：', error);
+        alert('❌ 更新失敗：' + error.message);
+    }
+}
+/*1105 async function handleEditUser(event) {
+    event.preventDefault();
     const name = document.getElementById('edit-name').value.trim();
     const password = document.getElementById('edit-password').value;
     const music_mode = document.getElementById('edit-music-mode').value;
@@ -122,7 +163,7 @@ async function handleEditUser(event) {
         console.error('❌ 更新失敗：', error);
         alert('❌ 更新失敗：' + error.message);
     }
-}
+} handleEditUser*/
 
 async function deleteUser(userId, name) {
   if (!confirm(`確定要刪除 "${name}" 的帳號嗎？此操作無法復原！`)) return;
@@ -231,7 +272,7 @@ async function loadUsers() {
     }
 }
 
-document.addEventListener('click', e => {
+/* document.addEventListener('click', e => {
     const btn = e.target.closest('#users-table button[data-action]');
     if (!btn) return;
     const p = usersCache[btn.dataset.id];
@@ -243,8 +284,20 @@ document.addEventListener('click', e => {
     } else if (btn.dataset.action === 'delete') {
         deleteUser(p.id, p.display_name || '');
     }
-});
+});*/
+document.addEventListener('click', e => {
+    const btn = e.target.closest('#users-table button[data-action]');
+    if (!btn) return;
+    const userId = btn.dataset.id;
+    const p = usersCache[userId];
+    if (!p) return;
 
+    if (btn.dataset.action === 'edit') {
+        openEditModal(userId); // 直接傳入 ID 即可自動帶入
+    } else if (btn.dataset.action === 'delete') {
+        deleteUser(p.id, p.display_name || '');
+    }
+});
 function showAlternativeLogin() {
   const box = document.getElementById('alternative-login');
   const opening = box.style.display === 'none' || box.style.display === '';
@@ -256,8 +309,36 @@ function switchLoginTab(tabType) {
     document.getElementById('email-tab').style.display = tabType === 'email' ? 'block' : 'none';
     document.getElementById('account-tab').style.display = tabType === 'account' ? 'block' : 'none';
 }
+function openEditModal(userId) {
+    currentEditingUserId = userId;
+    const p = usersCache[userId]; // 從快取直接取得該用戶完整資料
+    if (!p) return;
 
-function openEditModal(userId, name, email, music_mode, preferred_music) {
+    // 1. 自動帶入現有資料，呈現修改狀態
+    const nameInput = document.getElementById('edit-name');
+    if (nameInput) nameInput.value = p.display_name || '';
+
+    const tbiInput = document.getElementById('edit-tbi');
+    if (tbiInput) tbiInput.value = p.tbi_account || '';
+
+    const modeSelect = document.getElementById('edit-music-mode');
+    if (modeSelect) modeSelect.value = p.music_mode || 'free';
+
+    const musicSelect = document.getElementById('edit-preferred-music');
+    if (musicSelect) musicSelect.value = p.preferred_music || '純鋼琴';
+
+    // 2. 密碼欄位保持空白（符合「除了密碼外保留原樣」的需求）
+    const passwordInput = document.getElementById('edit-password');
+    if (passwordInput) passwordInput.value = '';
+
+    // 3. 更新音樂選單的顯示狀態
+    updateMusicOptionsVisibility();
+
+    // 4. 顯示彈跳視窗
+    const modal = document.getElementById('edit-modal');
+    if (modal) modal.classList.add('show');
+}
+/*1105 function openEditModal(userId, name, email, music_mode, preferred_music) {
     currentEditingUserId = userId;
     const nameInput = document.getElementById('edit-name');
     if (nameInput) nameInput.value = name;
@@ -278,7 +359,7 @@ function openEditModal(userId, name, email, music_mode, preferred_music) {
 
     const modal = document.getElementById('edit-modal');
     if (modal) modal.classList.add('show');
-}
+} 1105 openeditmode*/
 
 function closeEditModal() {
     const modal = document.getElementById('edit-modal');
