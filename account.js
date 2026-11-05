@@ -22,6 +22,8 @@ function normalizeTbi(v) {
 window.addEventListener('load', async () => {
     if (!document.getElementById('users-table')) return;     // 只在 account.html 執行
     if (!(await checkIfUserIsAdmin())) { alert('需要管理者權限'); location.href = 'index.html'; return; }
+    await loadMusicTracks();     // 必須先於 loadUsers，因為使用者列表要用音樂名稱
+    await renderMusicTable();
     await loadUsers(); await updateStats();
 });
 
