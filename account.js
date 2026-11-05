@@ -392,7 +392,7 @@ window.initLineLiff = initLineLiff;
 window.saveUserSettings = saveUserSettings;
 
 // ============ 防漏存機制 (BeforeUnload) ====================
-let isFormDirty = false;
+/*let isFormDirty = false;
 
 document.addEventListener('input', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
@@ -417,7 +417,7 @@ function markFormAsSaved() {
     isFormDirty = false;
 }
 window.markFormAsSaved = markFormAsSaved;
-
+*/
 // ============ Modal 外部點擊關閉 ============
 document.addEventListener('click', function(event) {
     const editModal = document.getElementById('edit-modal');
