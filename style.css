@@ -1436,3 +1436,44 @@ input, select, textarea { min-width: 0; }   /* 讓 flex 並排的欄位可以縮
   .modal-card { width: 92vw; padding: 18px; }
 }
 @media (max-width: 480px) { .footer-qr { display: none; } }
+/* ===== Header：兩層 ===== */
+.header-container {
+  display: block;               /* 不再是左右並排 */
+  margin-bottom: 12px;
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+.system-title {
+  margin: 0;
+  font-size: 18px;
+  white-space: nowrap;
+  min-width: 0;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* 第二層分頁 */
+.top-navbar {
+  display: flex;
+  gap: 6px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 8px;
+}
+.top-tab { flex: 0 0 auto; }
+
+@media (max-width: 480px) {
+  .system-title { font-size: 16px; }
+  .top-navbar .top-tab { flex: 1; text-align: center; }   /* 手機版分頁平分寬度 */
+  #user-email-text { max-width: 60px; }
+}
+.account-dropdown { position: relative; }
+.dropdown-menu { right: 0; }   /* 靠右對齊，避免超出螢幕 */
