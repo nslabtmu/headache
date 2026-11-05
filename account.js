@@ -4,6 +4,12 @@ let currentEditingUserId = null;
 let currentAdminId = null;
 let usersCache = {};
 
+function toggleStudyFields() {
+            const isChecked = document.getElementById('edit-is-study').checked;
+            const group = document.getElementById('study-fields-group');
+            group.style.display = isChecked ? 'block' : 'none';
+        }
+
 function escapeHtml(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
