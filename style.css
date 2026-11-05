@@ -737,12 +737,6 @@ input[type="range"] {
   margin: 0;
 }
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
 /* 主頁籤樣式 */
 .main-tab-bar {
   display: flex;
@@ -1129,15 +1123,6 @@ input[type="range"] {
   margin-top: 2px;
 }
 /* --- 頂部 Header & 第一層頁籤 --- */
-.header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 2px solid #e2e8f0;
-  padding-bottom: 12px;
-  margin-bottom: 16px;
-}
-
 .header-left {
   display: flex;
   align-items: center;
@@ -1367,25 +1352,10 @@ input, select, textarea { min-width: 0; }   /* 讓 flex 並排的欄位可以縮
 @media (max-width: 640px) {
 
   /* 1. 標題列改成直式堆疊 */
-  .header-container {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-  .header-left {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    width: 100%;
-  }
   .top-navbar { width: 100%; flex-wrap: wrap; }
   .top-tab { flex: 1; text-align: center; }
 
-  .header-actions {
-    width: 100%;
-    justify-content: space-between;
-    gap: 8px;
-  }
+
 
   /* 帳號下拉選單不要超出畫面 */
   .dropdown-menu {
