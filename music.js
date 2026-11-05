@@ -68,7 +68,89 @@ function extractYouTubeId(url) {
 }
 
 // 3️⃣ 自動在網頁上生成音樂卡片
-function renderMusicCards() {
+// 3️⃣ 自動在網頁上生成音樂卡片（支援後台 locked / free 權限控制）
+async function renderMusicCards() {
+    const container = document.getElementById('music-cards-container');
+    if (!container) return;
+
+    playersMap = {};
+    pendingPlayers = {};
+    container.innerHTML = ''; // 清空重新渲染
+
+    // 🌟 1. 預設值：若未登入或查詢失敗，視為自由模式 (free)
+    let userMusicMode = 'free';
+    let userPreferredMusic = null;
+
+    try {
+        // 嘗試從 Supabase 取得當前登入個案的音樂設定
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('music_mode, preferred_music')
+                .eq('id', user.id)
+                .single();
+            
+            if (profile) {
+                userMusicMode = profile.music_mode || 'free';
+                userPreferredMusic = profile.preferred_music;
+            }
+        }
+    } catch (err) {
+        console.warn("⚠️ 無法取得個案音樂權限設定，預設為自由模式：", err);
+    }
+
+    // 🌟 2. 根據模式過濾要顯示的音樂清單
+    let targetConfigs = musicConfigs;
+    if (userMusicMode === 'locked' && userPreferredMusic) {
+        // 如果是鎖定模式，且有指定偏好音樂，尋找對應的 key
+        // 假設 preferred_music 存的是代碼（如 'piano'）或是名稱（如 '🎹 鋼琴'）
+        let matchedKey = null;
+        for (let k in musicConfigs) {
+            if (k === userPreferredMusic || musicConfigs[k].name === userPreferredMusic || musicConfigs[k].nameEn === userPreferredMusic) {
+                matchedKey = k;
+                break;
+            }
+        }
+
+        // 如果找到對應音樂，就只保留該首歌；否則預設保留第一首或全部
+        if (matchedKey) {
+            targetConfigs = { [matchedKey]: musicConfigs[matchedKey] };
+        }
+    }
+
+    // 🌟 3. 渲染音樂卡片
+    for (let key in targetConfigs) {
+        let config = targetConfigs[key];
+
+        // 若為鎖定模式，加上提示標籤
+        let lockNoticeHTML = (userMusicMode === 'locked') 
+            ? `<div style="font-size: 11px; color: #d97706; background: #fef3c7; padding: 4px 8px; border-radius: 4px; margin-bottom: 8px;">🔒 研究團隊已為您鎖定專屬音樂</div>` 
+            : '';
+
+        let cardHTML = `
+            <div class="form-card" style="flex: 1; min-width: 250px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #e9ecef; margin-bottom: 15px;" onmouseenter="prefetchPlayer('${key}')" ontouchstart="prefetchPlayer('${key}')">
+                <h3 style="font-size: 15px; color: #2c3e50; margin-bottom: 5px;">${mName(config)}</h3>
+                <p style="font-size: 12px; color: #6c757d; margin-bottom: 8px;">${mDesc(config)}</p>
+                ${lockNoticeHTML}
+
+                <!-- YouTube 播放器隱藏容器 -->
+                <div id="yt-player-${key}" style="display: none;"></div>
+
+                <!-- 播放控制按鈕 -->
+                <button id="btn-${key}" onclick="toggleYouTubeMusic('${key}')"
+                    style="width: 100%; padding: 8px; background: #A5D6A7; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    ▶️ ${tr('m_play','播放')} ${mName(config)}
+                </button>
+
+                <!-- 狀態顯示 -->
+                <div id="status-${key}" style="margin-top: 8px; font-size: 12px; font-weight: bold; color: #007bff;">${tr('m_idle','狀態：尚未開始')}</div>
+            </div>
+        `;
+        container.innerHTML += cardHTML;
+    }
+}
+/* 1105 function renderMusicCards() {
     const container = document.getElementById('music-cards-container');
     if (!container) return;
 
@@ -99,7 +181,7 @@ function renderMusicCards() {
         `;
         container.innerHTML += cardHTML;
     }
-}
+} renderMusicCards*/
 
 // 4️⃣ 初始化 YouTube IFrame API (懶載入機制)
 let apiReady = false;
