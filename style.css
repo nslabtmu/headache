@@ -1435,3 +1435,4 @@ input, select, textarea { min-width: 0; }   /* 讓 flex 並排的欄位可以縮
   /* 6. 彈窗 */
   .modal-card { width: 92vw; padding: 18px; }
 }
+@media (max-width: 480px) { .footer-qr { display: none; } }
