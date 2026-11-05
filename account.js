@@ -4,6 +4,20 @@ let currentEditingUserId = null;
 let currentAdminId = null;
 let usersCache = {};
 
+function switchTab(id, btnElement) {
+        document.querySelectorAll('.tab-content, .tab-pane').forEach(p => {
+            p.classList.toggle('active', p.id === id);
+        });
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            if (btnElement) {
+                b.classList.toggle('active', b === btnElement || b.dataset.tab === id);
+            } else {
+                b.classList.toggle('active', b.dataset.tab === id);
+            }
+        });
+    }
+    window.switchTab = switchTab;
+
 function toggleStudyFields() {
             const isChecked = document.getElementById('edit-is-study').checked;
             const group = document.getElementById('study-fields-group');
