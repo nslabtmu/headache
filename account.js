@@ -285,14 +285,22 @@ function closeEditModal() {
     if (modal) modal.classList.remove('show');
 }
 
-function updateMusicOptionsVisibility() {
+/* 1105 function updateMusicOptionsVisibility() {
     const mode = document.getElementById('edit-music-mode').value;
     const musicOptions = document.getElementById('music-options-group');
     if (musicOptions) {
         musicOptions.style.display = mode === 'locked' ? 'block' : 'none';
     }
+}*/
+function updateMusicOptionsVisibility() {
+    const modeSelect = document.getElementById('edit-music-mode');
+    const musicOptions = document.getElementById('music-options-group');
+    
+    // 確保兩個元素都存在才進行操作，避免抓到 null 導致程式崩潰
+    if (modeSelect && musicOptions) {
+        musicOptions.style.display = modeSelect.value === 'locked' ? 'block' : 'none';
+    }
 }
-
 async function linkGoogle() {
   const { error } = await supabase.auth.linkIdentity({
     provider: 'google',
