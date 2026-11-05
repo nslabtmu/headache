@@ -200,7 +200,7 @@ if (userEmailText) {
         : (user.email?.split('@')[0] ?? '');
     userEmailText.innerText = shown;
 }
-
+    renderMusicCards();
     getLocationAndWeather();
     loadUserProfile(user.id);
     loadUserHistory(user.id);
@@ -764,6 +764,7 @@ function toggleMedicationSection() {
   console.log('✅ [switchTab] 完成！');
 }*/
 function switchMainTab(name, force) {
+    if (name === 'music' && window.musicDisabled) return;
   const symptomsShown = getComputedStyle(document.getElementById('main-symptoms')).display !== 'none';
   if (!force && symptomsShown && name !== 'symptoms') {
     return guardLeave(() => switchMainTab(name, true));
