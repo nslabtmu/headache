@@ -3,26 +3,26 @@
 let currentEditingUserId = null;
 let currentAdminId = null;
 let usersCache = {};
-
+// 1. 🌐 分頁切換函式
 function switchTab(id, btnElement) {
-        document.querySelectorAll('.tab-content, .tab-pane').forEach(p => {
-            p.classList.toggle('active', p.id === id);
-        });
-        document.querySelectorAll('.tab-btn').forEach(b => {
-            if (btnElement) {
-                b.classList.toggle('active', b === btnElement || b.dataset.tab === id);
-            } else {
-                b.classList.toggle('active', b.dataset.tab === id);
-            }
-        });
-    }
-    window.switchTab = switchTab;
+    document.querySelectorAll('.tab-content').forEach(p => {
+        p.classList.toggle('active', p.id === id);
+    });
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.toggle('active', b === btnElement);
+    });
+}
+window.switchTab = switchTab;
 
+// 2. 🧪 切換研究詳細欄位顯示
 function toggleStudyFields() {
-            const isChecked = document.getElementById('edit-is-study').checked;
-            const group = document.getElementById('study-fields-group');
-            group.style.display = isChecked ? 'block' : 'none';
-        }
+    const isChecked = document.getElementById('edit-is-study').checked;
+    const group = document.getElementById('study-fields-group');
+    if (group) {
+        group.style.display = isChecked ? 'block' : 'none';
+    }
+}
+window.toggleStudyFields = toggleStudyFields;
 
 function escapeHtml(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({
