@@ -507,6 +507,29 @@ function markFormAsSaved() {
 }
 window.markFormAsSaved = markFormAsSaved;
 */
+async function ensureUserProfileExists() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // 檢查 profiles 是否已存在
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .single();
+
+    // 如果不存在，自動幫他建立一筆預設 profile
+    if (!profile) {
+        await supabase.from('profiles').insert({
+            id: user.id,
+            display_name: user.email ? user.email.split('@')[0] : '受試者',
+            role: 'user',
+            music_mode: 'free',
+            created_at: new Date().toISOString()
+        });
+        console.log("✅ 已自動為新用戶補建立 profile 紀錄");
+    }
+}
 // ============ Modal 外部點擊關閉 ============
 document.addEventListener('click', function(event) {
     const editModal = document.getElementById('edit-modal');
