@@ -770,6 +770,7 @@ function switchMainTab(name, force) {
   }
   document.querySelectorAll('.main-pane').forEach(p => p.style.display = 'none');
   document.getElementById('main-' + name).style.display = 'block';
+  if (name === 'music') window.refreshMusic?.();      // 每次進入音樂分頁都讀最新設定
   document.querySelectorAll('.top-tab').forEach(b =>
     b.classList.toggle('active', b.dataset.main === name));
 }
