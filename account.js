@@ -99,37 +99,52 @@ async function handleAddUser(event) {
 
 async function handleEditUser(event) {
     event.preventDefault();
-    
-    // 安全地取得所有欄位元素
-    const nameInput = document.getElementById('edit-name');
-    const passwordInput = document.getElementById('edit-password');
-    const modeSelect = document.getElementById('edit-music-mode');
-    const musicSelect = document.getElementById('edit-preferred-music');
-    const tbiInput = document.getElementById('edit-tbi');
+    const val = id => document.getElementById(id)?.value ?? '';
+    const has = id => !!document.getElementById(id);
+    const chk = id => !!document.getElementById(id)?.checked;
 
-    const name = nameInput ? nameInput.value.trim() : '';
-    const password = passwordInput ? passwordInput.value : '';
-    const music_mode = modeSelect ? modeSelect.value : 'free';
-    const preferred_music = musicSelect ? musicSelect.value : '純鋼琴';
-    const tbiRaw = tbiInput ? tbiInput.value.trim() : '';
+    const name = val('edit-name').trim();
+    const password = val('edit-password');
+    const tbiRaw = val('edit-tbi').trim();
     const tbi_account = tbiRaw === '' ? null : normalizeTbi(tbiRaw);
 
     if (!name) return alert('❌ 姓名不能為空');
     if (password && password.length < 8) return alert('❌ 新密碼至少 8 碼');
-    if (tbiRaw !== '' && !tbi_account)
-        return alert('❌ TBI 帳號格式不正確（m1111、c1111 或 NA）');
+    if (tbiRaw !== '' && !tbi_account) return alert('❌ TBI 帳號格式不正確（m1111、c1111 或 NA）');
+
+    const body = { action: 'update', id: currentEditingUserId, name, tbi_account,
+                   password: password || undefined };
+
+    // 音樂：畫面上真的有這些欄位才送，避免把既有設定洗掉
+    if (has('edit-music-mode') && document.querySelector('input[name="edit-music"]')) {
+        const locked = val('edit-music-mode') === 'locked';
+        const allowed = locked
+            ? [...document.querySelectorAll('input[name="edit-music"]:checked')].map(c => c.value)
+            : null;
+        if (locked && allowed.length === 0 &&
+            !confirm('未勾選任何音樂，此受試者將看不到音樂區，確定嗎？')) return;
+        Object.assign(body, {
+            music_mode: locked ? 'locked' : 'free',
+            allowed_music: allowed,
+            preferred_music: allowed?.[0] ?? null
+        });
+    }
+
+    if (has('edit-is-study')) {
+        const isStudy = chk('edit-is-study');
+        if (isStudy && !val('edit-study-start')) return alert('❌ 請選擇研究開始日期');
+        Object.assign(body, {
+            is_study: isStudy,
+            study_start: isStudy ? val('edit-study-start') : null,
+            study_months: isStudy ? (Number(val('edit-study-duration')) || 3) : null
+        });
+    }
+    if (has('edit-line-userid'))    body.line_user_id = val('edit-line-userid').trim() || null;
+    if (has('edit-send-reminder'))  body.send_reminder = chk('edit-send-reminder');
+    if (has('edit-status'))         body.disabled = chk('edit-status');
 
     try {
-        await callAdmin({
-            action: 'update', 
-            id: currentEditingUserId,
-            name, 
-            music_mode, 
-            preferred_music, 
-            tbi_account,
-            // 如果密碼欄位是空的，就傳 undefined（代表不修改密碼）
-            password: password || undefined
-        });
+        await callAdmin(body);
         alert('✅ 用戶資訊已更新！');
         closeEditModal();
         await loadUsers();
@@ -138,34 +153,6 @@ async function handleEditUser(event) {
         alert('❌ 更新失敗：' + error.message);
     }
 }
-/*1105 async function handleEditUser(event) {
-    event.preventDefault();
-    const name = document.getElementById('edit-name').value.trim();
-    const password = document.getElementById('edit-password').value;
-    const music_mode = document.getElementById('edit-music-mode').value;
-    const preferred_music = document.getElementById('edit-preferred-music').value;
-    const tbiRaw = document.getElementById('edit-tbi').value.trim();
-    const tbi_account = tbiRaw === '' ? null : normalizeTbi(tbiRaw);
-
-    if (!name) return alert('❌ 姓名不能為空');
-    if (password && password.length < 8) return alert('❌ 新密碼至少 8 碼');
-    if (tbiRaw !== '' && !tbi_account)
-        return alert('❌ TBI 帳號格式不正確（m1111、c1111 或 NA）');
-
-    try {
-        await callAdmin({
-            action: 'update', id: currentEditingUserId,
-            name, music_mode, preferred_music, tbi_account,
-            password: password || undefined
-        });
-        alert('✅ 用戶資訊已更新！');
-        closeEditModal();
-        await loadUsers();
-    } catch (error) {
-        console.error('❌ 更新失敗：', error);
-        alert('❌ 更新失敗：' + error.message);
-    }
-} handleEditUser*/
 
 async function deleteUser(userId, name) {
   if (!confirm(`確定要刪除 "${name}" 的帳號嗎？此操作無法復原！`)) return;
@@ -313,55 +300,34 @@ function switchLoginTab(tabType) {
 }
 function openEditModal(userId) {
     currentEditingUserId = userId;
-    const p = usersCache[userId]; // 從快取直接取得該用戶完整資料
+    const p = usersCache[userId];
     if (!p) return;
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v ?? ''; };
+    const check = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
 
-    // 1. 自動帶入現有資料，呈現修改狀態
-    const nameInput = document.getElementById('edit-name');
-    if (nameInput) nameInput.value = p.display_name || '';
+    set('edit-name', p.display_name);
+    set('edit-tbi', p.tbi_account);
+    set('edit-password', '');
 
-    const tbiInput = document.getElementById('edit-tbi');
-    if (tbiInput) tbiInput.value = p.tbi_account || '';
-
-    const modeSelect = document.getElementById('edit-music-mode');
-    if (modeSelect) modeSelect.value = p.music_mode || 'free';
-
-    const musicSelect = document.getElementById('edit-preferred-music');
-    if (musicSelect) musicSelect.value = p.preferred_music || '純鋼琴';
-
-    // 2. 密碼欄位保持空白（符合「除了密碼外保留原樣」的需求）
-    const passwordInput = document.getElementById('edit-password');
-    if (passwordInput) passwordInput.value = '';
-
-    // 3. 更新音樂選單的顯示狀態
+    const allowed = getAllowedMusic(p);
+    const musicMode = allowed === null ? '🎵 全部'
+    : allowed.length === 0 ? '🚫 不顯示'
+    : '🔒 ' + allowed.map(musicName).join('、');
+    document.querySelectorAll('input[name="edit-music"]').forEach(c => {
+        c.checked = Array.isArray(allowed) && allowed.includes(c.value);
+    });
     updateMusicOptionsVisibility();
 
-    // 4. 顯示彈跳視窗
-    const modal = document.getElementById('edit-modal');
-    if (modal) modal.classList.add('show');
+    check('edit-is-study', p.is_study);
+    set('edit-study-start', p.study_start);
+    set('edit-study-duration', p.study_months || 3);
+    if (typeof toggleStudyFields === 'function') toggleStudyFields();
+    set('edit-line-userid', p.line_user_id);
+    check('edit-send-reminder', p.send_reminder !== false);
+    check('edit-status', p.disabled);
+
+    document.getElementById('edit-modal')?.classList.add('show');
 }
-/*1105 function openEditModal(userId, name, email, music_mode, preferred_music) {
-    currentEditingUserId = userId;
-    const nameInput = document.getElementById('edit-name');
-    if (nameInput) nameInput.value = name;
-
-    const tbiInput = document.getElementById('edit-tbi');
-    if (tbiInput) tbiInput.value = usersCache[userId]?.tbi_account || '';
-
-    const passwordInput = document.getElementById('edit-password');
-    if (passwordInput) passwordInput.value = '';
-
-    const modeSelect = document.getElementById('edit-music-mode');
-    if (modeSelect) modeSelect.value = music_mode || 'free';
-
-    const musicSelect = document.getElementById('edit-preferred-music');
-    if (musicSelect) musicSelect.value = preferred_music || '純鋼琴';
-
-    updateMusicOptionsVisibility();
-
-    const modal = document.getElementById('edit-modal');
-    if (modal) modal.classList.add('show');
-} 1105 openeditmode*/
 
 function closeEditModal() {
     const modal = document.getElementById('edit-modal');
@@ -509,6 +475,35 @@ function markFormAsSaved() {
 }
 window.markFormAsSaved = markFormAsSaved;
 */
+// ===== 音樂清單（動態）=====
+let musicTracks = [];
+const musicName = k => musicTracks.find(t => t.key === k)?.name || k;
+
+async function loadMusicTracks() {
+    const { data, error } = await supabase.from('music_tracks')
+        .select('key, name, enabled').order('sort_order');
+    if (error) throw error;
+    musicTracks = (data || []).filter(t => t.enabled);
+    renderMusicCheckboxes();
+}
+
+function renderMusicCheckboxes() {
+    const box = document.getElementById('music-options-list');
+    if (!box) return;
+    box.innerHTML = musicTracks.map(t => `
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;">
+            <input type="checkbox" name="edit-music" value="${escapeHtml(t.key)}" style="width:18px;height:18px;">
+            ${escapeHtml(t.name)}
+        </label>`).join('');
+}
+
+// 回傳 null = 不限制；陣列 = 只顯示這些
+function getAllowedMusic(p) {
+    if (p.music_mode !== 'locked') return null;
+    if (!musicTracks.length) return p.allowed_music || [];     // 清單沒載入時不要過濾
+    const valid = new Set(musicTracks.map(t => t.key));
+    return (p.allowed_music || []).filter(k => valid.has(k));
+}
 async function ensureUserProfileExists() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
