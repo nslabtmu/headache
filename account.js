@@ -251,9 +251,10 @@ async function loadUsers() {
 
             const createdAt = new Date(p.created_at).toLocaleDateString('zh-TW');
             const status = isAdmin ? '👑 管理者' : '✅ 活躍';
-            const musicMode = p.music_mode === 'locked'
-                ? `🔒 ${p.preferred_music || ''}`
-                : '🎵 自由選擇';
+        const allowed = getAllowedMusic(p);
+        const musicMode = allowed === null ? '🎵 全部'
+            : allowed.length === 0 ? '🚫 不顯示'
+            : '🔒 ' + allowed.map(musicName).join('、');
             const account = p.account_type === 'google'
                 ? '🔵 Google'
                 : escapeHtml(p.phone_account || '-');
@@ -329,10 +330,8 @@ function openEditModal(userId) {
     set('edit-tbi', p.tbi_account);
     set('edit-password', '');
 
-    const allowed = getAllowedMusic(p);
-    const musicMode = allowed === null ? '🎵 全部'
-    : allowed.length === 0 ? '🚫 不顯示'
-    : '🔒 ' + allowed.map(musicName).join('、');
+const allowed = getAllowedMusic(p);
+set('edit-music-mode', allowed === null ? 'free' : 'locked');
     document.querySelectorAll('input[name="edit-music"]').forEach(c => {
         c.checked = Array.isArray(allowed) && allowed.includes(c.value);
     });
