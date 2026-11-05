@@ -798,15 +798,15 @@ function switchTab(id) { // 只管第三層
   document.getElementById('mobile-tab-select').value = id;
 }*/
 // 🌐 通用分頁切換函式
+// 🌐 全站通用的分頁切換函式
 function switchTab(id, btnElement) {
-    // 1. 找到所有分頁內容面板並切換 active 狀態
+    // 1. 切換所有分頁內容面板（同時支援 .tab-content 與 .tab-pane）
     document.querySelectorAll('.tab-content, .tab-pane').forEach(p => {
         p.classList.toggle('active', p.id === id);
     });
 
-    // 2. 找到所有分頁按鈕並切換 active 狀態
+    // 2. 切換所有分頁按鈕的 active 狀態
     document.querySelectorAll('.tab-btn').forEach(b => {
-        // 優先支援 dataset.tab，其次支援 onclick 傳入的按鈕本身
         if (btnElement) {
             b.classList.toggle('active', b === btnElement || b.dataset.tab === id);
         } else {
@@ -814,12 +814,13 @@ function switchTab(id, btnElement) {
         }
     });
 
-    // 3. 若有手機版下拉選單，同步更新其選中值
+    // 3. 同步更新手機版下拉選單的值（若頁面上有此元件）
     const mobileSelect = document.getElementById('mobile-tab-select');
     if (mobileSelect) {
         mobileSelect.value = id;
     }
 }
+window.switchTab = switchTab;
 
 // 3. 切換帳戶選單開關
 function toggleAccountMenu() {
