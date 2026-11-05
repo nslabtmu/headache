@@ -414,6 +414,10 @@ window.addEventListener('beforeunload', (e) => {
     }
 });
 
+function markFormAsSaved() {
+    isFormDirty = false;
+}
+window.markFormAsSaved = markFormAsSaved;
 // 當表單成功呼叫 saveAllResearchData 儲存完畢後，解除警告
 // 只要在 saveAllResearchData 成功的那段裡面加上下面這行即可：
 // isFormDirty = false;
