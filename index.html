@@ -738,49 +738,39 @@
     </div>
   </div>
 </div>
-<footer class="app-footer" style="padding: 24px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; margin-top: 40px; font-size: 12px; color: #64748b;">
-  
-  <div style="max-width: 600px; margin: 0 auto;">
 
-    <!-- 1. 第一層：免責聲明 (柔和文字) -->
-    <p class="disclaimer-text" data-i18n="footer_disclaimer" style="line-height: 1.5; margin-bottom: 16px; text-align: center;">
-      ⚠️ <strong>免責聲明：</strong> 本系統僅供健康紀錄與研究，非醫療診斷。若有急性身體不適請立即就醫。
-    </p>
-
-    <!-- 2. 第二層：LINE 互動置中卡片 (高轉換率設計) -->
-<!-- 🟢 極簡 LINE 區塊 (無多餘文字) -->
-<div style="background: #ffffff; border: 1px solid #bbf7d0; padding: 10px 16px; border-radius: 8px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <!-- 🌟 精緻極簡版 Footer 區塊 -->
+<footer style="max-width: 800px; margin: 40px auto 20px auto; padding: 0 16px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
     
-    <!-- 左側：僅保留綠色按鈕 -->
-    <a href="https://lin.ee/TYJ3uAN" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #06c755; color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; font-size: 13px; font-weight: bold;">
-        💚 點我加 LINE 好友
-    </a>
-
-    <!-- 右側：單純放 QR Code -->
-    <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="font-size: 11px; color: #94a3b8;">掃描 QR Code：</span>
-        <img src="https://qr-official.line.me/gs/M_333mfgmc_GW.png?oat_content=qr" alt="LINE QR Code" style="width: 55px; height: 55px; border: 1px solid #e2e8f0; background: #fff; padding: 2px; border-radius: 4px; display: block;">
+    <!-- 1. 精緻免責聲明 (柔和黃色小標籤) -->
+    <div style="background: #fffbeb; border: 1px solid #fef3c7; color: #92400e; padding: 8px 12px; border-radius: 6px; font-size: 12px; line-height: 1.5; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 6px;">
+        <span style="flex-shrink: 0;">⚠️</span>
+        <span><strong>免責聲明：</strong>本系統僅供健康紀錄與研究，非醫療診斷。若有急性身體不適請立即就醫。</span>
     </div>
 
-</div>
+    <!-- 2. 極簡 LINE 互動列 (按鈕 + QR Code 左右並排) -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+        
+        <!-- 左側：綠色好友按鈕 -->
+        <a href="https://lin.ee/您的加好友代碼" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #06c755; color: white; padding: 8px 14px; border-radius: 20px; text-decoration: none; font-size: 13px; font-weight: 600; transition: background 0.2s;">
+            💚 點我加 LINE 好友
+        </a>
 
-    <!-- 3. 第三層：左右平行 (帳號管理與版權宣告) -->
-    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 12px; flex-wrap: wrap; gap: 8px;">
-        <div>
-            <button data-i18n="account_mgmt"
-                type="button"
-                onclick="openAccountManagement()" 
-                style="background: none; border: none; color: #3498db; cursor: pointer; font-size: 12px; text-decoration: underline; padding: 0; font-weight: bold;"
-            >
-                🔐 帳號管理
-            </button>
-        </div>
-        <div style="color: #94a3b8; font-size: 11px;">
-            © 2026 TMU-nslab-TBI by Lucy
+        <!-- 右側：QR Code 區塊 -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 11px; color: #64748b;">或掃描 QR Code：</span>
+            <img src="https://qr-official.line.me/gs/M_333mfgmc_GW.png?oat_content=qr" alt="LINE QR Code" style="width: 48px; height: 48px; border: 1px solid #cbd5e1; background: #fff; padding: 2px; border-radius: 4px; display: block;">
         </div>
     </div>
 
-  </div>
+    <!-- 3. 底部選單與版權宣告 (左右平行對齊) -->
+    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #64748b; border-top: 1px solid #f1f5f9; padding-top: 12px;">
+        <a href="#account-management" style="color: #475569; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+            🔒 帳號管理
+        </a>
+        <span>© 2026 TMU-nslab-TBI by Lucy</span>
+    </div>
+
 </footer>
 </div> <!-- main-card 結束 -->
     <script src="./main.js"></script>
