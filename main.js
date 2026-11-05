@@ -1,3 +1,4 @@
+//main.js
 const REQUIRE_LOCATION_FOR_SUBMIT = false;
 
 // var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
