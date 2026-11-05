@@ -575,7 +575,25 @@ async function renderMusicTable() {
             <td><button type="button" class="btn btn-edit btn-small" onclick="saveMusic('${t.key}')">儲存</button></td>
         </tr>`).join('');
 }
-
+async function renderAuditLog() {
+    const { data, error } = await supabase.from('audit_log')
+        .select('*').order('at', { ascending: false }).limit(50);
+    if (error) { console.error('❌ 讀取紀錄失敗：', error); return; }
+    document.getElementById('audit-table').innerHTML = (data || []).map(r => {
+        const detail = r.note
+            || (r.action === 'insert' ? `新增 ${r.new_data?.name ?? ''}`
+            :  r.action === 'delete' ? `刪除 ${r.old_data?.name ?? ''}`
+            :  r.target_table === 'profiles'
+                ? `音樂 ${JSON.stringify(r.old_data?.allowed_music)} → ${JSON.stringify(r.new_data?.allowed_music)}`
+                : '修改設定');
+        return `<tr>
+            <td>${new Date(r.at).toLocaleString('zh-TW')}</td>
+            <td>${escapeHtml(r.actor_email || '（後台）')}</td>
+            <td>${escapeHtml(r.action)}</td>
+            <td>${escapeHtml(r.target_table)} / ${escapeHtml(r.target_key || '')}</td>
+            <td>${escapeHtml(detail)}</td></tr>`;
+    }).join('');
+}
 async function saveMusic(key) {
     const name = document.getElementById('mn-' + key).value.trim();
     const url = document.getElementById('mu-' + key).value.trim();
