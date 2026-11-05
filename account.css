@@ -1,333 +1,355 @@
+/* ==========================================
+   🔐 帳號與研究管理面板樣式表 (account.css)
+   ========================================== */
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        body {
-            font-family: "Microsoft YaHei", "微軟正黑體", Arial, sans-serif;
-            background: #f5f6f7;
-            padding: 20px;
-        }
+body {
+    font-family: "Microsoft YaHei", "微軟正黑體", Arial, sans-serif;
+    background: #f5f6f7;
+    padding: 20px;
+    overflow-y: auto; /* 確保整個頁面在內容過多時可以順暢上下移動 */
+}
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-            padding: 24px;
-        }
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    padding: 24px;
+}
 
-        h1 {
-            font-size: 24px;
-            color: #2c3e50;
-            margin-bottom: 24px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #ecf0f1;
-        }
+h1 {
+    font-size: 24px;
+    color: #2c3e50;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #ecf0f1;
+}
 
-        .info-box {
-            background: #e3f2fd;
-            border-left: 4px solid #1976d2;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            font-size: 13px;
-            color: #1565c0;
-            line-height: 1.6;
-        }
+.info-box {
+    background: #e3f2fd;
+    border-left: 4px solid #1976d2;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #1565c0;
+    line-height: 1.6;
+}
 
-        .section {
-            margin-bottom: 32px;
-        }
+/* ==========================================
+   📑 頂部分頁導覽列 (Tabs Navigation)
+   ========================================== */
+.tab-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 12px;
+    flex-wrap: wrap;
+}
 
-        .section h2 {
-            font-size: 16px;
-            color: #2c3e50;
-            margin-bottom: 16px;
-            font-weight: 600;
-        }
+.tab-btn {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    transition: all 0.2s;
+}
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr auto;
-            gap: 12px;
-            margin-bottom: 16px;
-            align-items: flex-end;
-        }
+.tab-btn:hover {
+    background: #e2e8f0;
+}
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
+.tab-btn.active {
+    background: #0284c7;
+    color: white;
+    border-color: #0284c7;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.2);
+}
 
-        label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 6px;
-        }
+.tab-content {
+    display: none; /* 預設隱藏所有分頁內容 */
+}
 
-        input {
-            padding: 10px;
-            border: 1px solid #bdc3c7;
-            border-radius: 6px;
-            font-size: 13px;
-            font-family: "Microsoft YaHei", Arial;
-        }
+.tab-content.active {
+    display: block; /* 顯示當前選中的分頁 */
+}
 
-        input:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-        }
+/* ==========================================
+   📦 區塊與表單樣式
+   ========================================== */
+.section {
+    margin-bottom: 32px;
+}
 
-        .btn {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
+.section h2 {
+    font-size: 16px;
+    color: #2c3e50;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
 
-        .btn-primary {
-            background: #3498db;
-            color: white;
-        }
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 12px;
+    margin-bottom: 16px;
+    align-items: flex-end;
+}
 
-        .btn-primary:hover {
-            background: #2980b9;
-            transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3);
-        }
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
 
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
+label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 6px;
+}
 
-        .btn-edit {
-            background: #3498db;
-            color: white;
-        }
+input, select {
+    padding: 10px;
+    border: 1px solid #bdc3c7;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: "Microsoft YaHei", Arial;
+    background: #fff;
+}
 
-        .btn-edit:hover {
-            background: #2980b9;
-        }
+input:focus, select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
 
-        .btn-delete {
-            background: #e74c3c;
-            color: white;
-        }
+/* ==========================================
+   🔘 按鈕樣式
+   ========================================== */
+.btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
 
-        .btn-delete:hover {
-            background: #c0392b;
-        }
+.btn-primary {
+    background: #3498db;
+    color: white;
+}
 
-        .btn-reset {
-            background: #f39c12;
-            color: white;
-        }
+.btn-primary:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3);
+}
 
-        .btn-reset:hover {
-            background: #d68910;
-        }
+.btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+}
 
-        .message {
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 16px;
-            font-size: 13px;
-            display: none;
-            border-left: 4px solid;
-        }
+.btn-edit {
+    background: #3498db;
+    color: white;
+}
 
-        .message.error {
-            background: #ffe5e5;
-            color: #c0392b;
-            border-color: #c0392b;
-            display: block;
-        }
+.btn-edit:hover {
+    background: #2980b9;
+}
 
-        .message.success {
-            background: #e8f8f5;
-            color: #27ae60;
-            border-color: #27ae60;
-            display: block;
-        }
+.btn-delete {
+    background: #e74c3c;
+    color: white;
+}
 
-        .table-wrapper {
-            overflow-x: auto;
-        }
+.btn-delete:hover {
+    background: #c0392b;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
+.btn-reset {
+    background: #f39c12;
+    color: white;
+}
 
-        thead {
-            background: #f8f9fa;
-            border-bottom: 2px solid #ecf0f1;
-        }
+.btn-reset:hover {
+    background: #d68910;
+}
 
-        th {
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            color: #2c3e50;
-        }
+.btn-cancel {
+    background: #95a5a6;
+    color: white;
+}
 
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #ecf0f1;
-            color: #34495e;
-        }
+.btn-cancel:hover {
+    background: #7f8c8d;
+}
 
-        tr:hover {
-            background: #f8f9fa;
-        }
+/* ==========================================
+   💬 提示訊息與表格
+   ========================================== */
+.message {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    display: none;
+    border-left: 4px solid;
+}
 
-        .status-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-        }
+.message.error {
+    background: #ffe5e5;
+    color: #c0392b;
+    border-color: #c0392b;
+    display: block;
+}
 
-        .status-active {
-            background: #d4edda;
-            color: #155724;
-        }
+.message.success {
+    background: #e8f8f5;
+    color: #27ae60;
+    border-color: #27ae60;
+    display: block;
+}
 
-        .status-disabled {
-            background: #f8d7da;
-            color: #721c24;
-        }
+.table-wrapper {
+    overflow-x: auto;
+}
 
-        .action-buttons {
-            display: flex;
-            gap: 6px;
-        }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
 
-        .code {
-            background: #f8f9fa;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: monospace;
-            font-size: 12px;
-        }
+thead {
+    background: #f8f9fa;
+    border-bottom: 2px solid #ecf0f1;
+}
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-        }
+th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #2c3e50;
+}
 
-        .modal.show {
-            display: flex;
-        }
+td {
+    padding: 12px;
+    border-bottom: 1px solid #ecf0f1;
+    color: #34495e;
+}
 
-        .modal-content {
-            background: white;
-            padding: 24px;
-            border-radius: 8px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
+tr:hover {
+    background: #f8f9fa;
+}
 
-        .modal-header {
-            font-size: 16px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 16px;
-        }
+/* ==========================================
+   🪟 彈跳視窗 (Modal) 與捲動軸優化
+   ========================================== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+}
 
-        .modal-body {
-            margin-bottom: 16px;
-        }
+.modal.show {
+    display: flex;
+}
 
-        .modal-footer {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
+.modal-content {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    max-width: 480px;
+    width: 90%;
+    max-height: 85vh;       /* 限制最大高度不超過畫面 85% */
+    overflow-y: auto;       /* 內容過長時可獨立上下捲動，解決卡住無法移動的問題 */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+}
 
-        .btn-cancel {
-            background: #95a5a6;
-            color: white;
-        }
+.modal-header {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 16px;
+}
 
-        .btn-cancel:hover {
-            background: #7f8c8d;
-        }
+.modal-body {
+    margin-bottom: 16px;
+}
 
-        .loading {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border: 2px solid #ecf0f1;
-            border-top-color: #3498db;
-            border-radius: 50%;
-            animation: spin 0.6s linear infinite;
-            margin-right: 6px;
-        }
+.modal-footer {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+/* ==========================================
+   📊 統計卡片
+   ========================================== */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+}
 
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
-        }
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+}
 
-        .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-        }
+.stat-number {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
 
-        .stat-number {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
+.stat-label {
+    font-size: 11px;
+    opacity: 0.9;
+}
 
-        .stat-label {
-            font-size: 11px;
-            opacity: 0.9;
-        }
+/* ==========================================
+   📱 響應式微調 (RWD)
+   ========================================== */
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
 
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+    .table-wrapper {
+        font-size: 12px;
+    }
 
-            .table-wrapper {
-                font-size: 12px;
-            }
-
-            th, td {
-                padding: 8px;
-            }
-        }
-
+    th, td {
+        padding: 8px;
+    }
+}
