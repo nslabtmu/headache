@@ -134,20 +134,24 @@ async function handleEditUser(event) {
 
     const body = { action: 'update', id: currentEditingUserId, name, tbi_account,
                    password: password || undefined };
+// 🎵 音樂設定處理：即使畫面沒有 edit-music-mode 欄位，也能透過勾選的音樂清單自動判斷
+    const checkedMusicElements = document.querySelectorAll('input[name="edit-music"]:checked');
+    const allowed = [...checkedMusicElements].map(c => c.value);
+    
+    // 如果有勾選音樂，視為 locked；如果沒勾選任何音樂，視為自由模式 (free) 或全不顯示
+    const isLocked = allowed.length > 0; 
+    
+    // 如果原本使用者是 locked，但現在沒勾選任何音樂，跳出提示
+    if (isLocked && allowed.length === 0 && !confirm('未勾選任何音樂，此受試者將看不到音樂區，確定嗎？')) {
+        return;
+    }
 
-    // 音樂：畫面上真的有這些欄位才送，避免把既有設定洗掉
-    if (has('edit-music-mode') && document.querySelector('input[name="edit-music"]')) {
-        const locked = val('edit-music-mode') === 'locked';
-        const allowed = locked
-            ? [...document.querySelectorAll('input[name="edit-music"]:checked')].map(c => c.value)
-            : null;
-        if (locked && allowed.length === 0 &&
-            !confirm('未勾選任何音樂，此受試者將看不到音樂區，確定嗎？')) return;
-        Object.assign(body, {
-            music_mode: locked ? 'locked' : 'free',
-            allowed_music: allowed,
-            preferred_music: allowed?.[0] ?? null
-        });
+    Object.assign(body, {
+        music_mode: isLocked ? 'locked' : 'free',
+        allowed_music: isLocked ? allowed : null,
+        preferred_music: isLocked ? allowed[0] : null
+    });
+
     }
 
     if (has('edit-is-study')) {
