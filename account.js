@@ -152,8 +152,6 @@ async function handleEditUser(event) {
         preferred_music: isLocked ? allowed[0] : null
     });
 
-    }
-
     if (has('edit-is-study')) {
         const isStudy = chk('edit-is-study');
         if (isStudy && !val('edit-study-start')) return alert('❌ 請選擇研究開始日期');
