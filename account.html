@@ -67,7 +67,34 @@
                 </div>
             </form>
         </div>
+<div class="section">
+    <h2>🎵 音樂清單管理</h2>
+    <div id="music-message" class="message"></div>
 
+    <form onsubmit="handleAddMusic(event)">
+        <div class="form-row">
+            <div class="form-group"><label>代碼 *（小寫英數底線，如 rain）</label><input id="mt-key" required pattern="[a-z0-9_]+"></div>
+            <div class="form-group"><label>名稱 *（如 🌧️ 雨聲）</label><input id="mt-name" required></div>
+            <div class="form-group"><label>英文名稱</label><input id="mt-name-en"></div>
+            <div class="form-group"><label>YouTube 網址 *</label><input id="mt-url" required></div>
+            <div class="form-group"><label>說明</label><input id="mt-desc"></div>
+            <div class="form-group">
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <input type="checkbox" id="mt-add-locked" style="width:18px;height:18px;">
+                    <span>同時加給所有「只顯示勾選」的受試者</span>
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">新增音樂</button>
+        </div>
+    </form>
+
+    <div class="table-wrapper">
+        <table>
+            <thead><tr><th>代碼</th><th>名稱</th><th>YouTube 網址</th><th>啟用</th><th>操作</th></tr></thead>
+            <tbody id="music-table"></tbody>
+        </table>
+    </div>
+</div>
         <!-- 帳號列表 -->
         <div class="section">
             <h2>👥 帳號與研究清單</h2>
