@@ -530,6 +530,63 @@ async function ensureUserProfileExists() {
         console.log("✅ 已自動為新用戶補建立 profile 紀錄");
     }
 }
+// 新增音樂
+function ytId(url) {
+    const m = String(url).match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|v\/))([A-Za-z0-9_-]{11})/);
+    return m ? m[1] : '';
+}
+
+async function handleAddMusic(e) {
+    e.preventDefault();
+    const v = id => document.getElementById(id).value.trim();
+    const key = v('mt-key');
+    if (!ytId(v('mt-url'))) return showMessage('music-message', '❌ 看不出是有效的 YouTube 網址', 'error');
+
+    const { error } = await supabase.from('music_tracks').insert({
+        key, name: v('mt-name'), name_en: v('mt-name-en') || null,
+        description: v('mt-desc') || null, url: v('mt-url'),
+        sort_order: musicTracks.length + 1
+    });
+    if (error) return showMessage('music-message',
+        '❌ ' + (error.code === '23505' ? '代碼已存在' : error.message), 'error');
+
+    let extra = '';
+    if (document.getElementById('mt-add-locked').checked) {
+        const { data: n, error: e2 } = await supabase.rpc('add_music_to_locked_users', { p_key: key });
+        extra = e2 ? `（但加給受試者失敗：${e2.message}）` : `，已加給 ${n} 位受試者`;
+    }
+    showMessage('music-message', '✅ 已新增' + extra, 'success');
+    e.target.reset();
+    await loadMusicTracks();
+    await renderMusicTable();
+    await loadUsers();
+}
+
+async function renderMusicTable() {
+    const { data } = await supabase.from('music_tracks').select('*').order('sort_order');
+    document.getElementById('music-table').innerHTML = (data || []).map(t => `
+        <tr>
+            <td>${escapeHtml(t.key)}</td>
+            <td><input id="mn-${t.key}" value="${escapeHtml(t.name)}"></td>
+            <td><input id="mu-${t.key}" value="${escapeHtml(t.url)}"></td>
+            <td><input type="checkbox" id="me-${t.key}" ${t.enabled ? 'checked' : ''}></td>
+            <td><button type="button" class="btn btn-edit btn-small" onclick="saveMusic('${t.key}')">儲存</button></td>
+        </tr>`).join('');
+}
+
+async function saveMusic(key) {
+    const name = document.getElementById('mn-' + key).value.trim();
+    const url = document.getElementById('mu-' + key).value.trim();
+    const enabled = document.getElementById('me-' + key).checked;
+    if (!name) return alert('❌ 名稱不能為空');
+    if (!ytId(url)) return alert('❌ 看不出是有效的 YouTube 網址');
+
+    const { error } = await supabase.from('music_tracks').update({ name, url, enabled }).eq('key', key);
+    if (error) return alert('❌ ' + error.message);
+    alert('✅ 已更新');
+    await loadMusicTracks();
+}
+
 // ============ Modal 外部點擊關閉 ============
 document.addEventListener('click', function(event) {
     const editModal = document.getElementById('edit-modal');
