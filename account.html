@@ -222,16 +222,19 @@
                                 <input type="number" id="edit-study-duration" value="3" min="1" max="12">
                             </div>
 
-                            <div class="form-group">
-                                <label for="edit-music-group">音樂分組</label>
-                                <select id="edit-music-group">
-                                    <option value="free">自由選擇組（受試者可自由切換音樂）</option>
-                                    <option value="piano">🎹 鋼琴組（鎖定播放純鋼琴）</option>
-                                    <option value="forest">🌲 森林組（鎖定播放森林環境音）</option>
-                                    <option value="ocean">🌊 海洋組（鎖定播放海洋環境音）</option>
+                            <div class="form-group" style="margin-bottom: 10px;">
+                                <label for="edit-music-mode">🎵 音樂顯示方式</label>
+                                <select id="edit-music-mode" onchange="updateMusicOptionsVisibility()">
+                                <option value="free">不限制（顯示全部音樂）</option>
+                                <option value="locked">只顯示勾選的音樂</option>
                                 </select>
                             </div>
+
+                        <div id="music-options-group" style="display:none; background:#f8f9fa; padding:12px; border-radius:6px; border:1px solid #e2e8f0; margin-bottom:10px;">
+                            <div id="music-options-list"></div>
+                            <small style="color:#64748b;">全部不勾 = 此受試者看不到音樂區</small>
                         </div>
+                    </div>
 
                         <!-- LINE 綁定與提醒開關 -->
                         <div class="form-group" style="margin-bottom: 10px;">
